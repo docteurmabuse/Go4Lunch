@@ -48,24 +48,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public ProgressBar mProgressBar;
 
     private void updateUI(FirebaseUser user) {
-        hideProgressBar();
     }
 
-    public void setProgressBar(ProgressBar progressBar) {
-        mProgressBar = progressBar;
-    }
-
-    public void showProgressBar() {
-        if (mProgressBar != null) {
-            mProgressBar.setVisibility(View.VISIBLE);
-        }
-    }
-
-    public void hideProgressBar() {
-        if (mProgressBar != null) {
-            mProgressBar.setVisibility(View.INVISIBLE);
-        }
-    }
 
 
     @Override
@@ -73,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
-        setContentView(mBinding.progressBar);
 
         //Button Listener
         mBinding.googleSignInButton.setOnClickListener(this);
