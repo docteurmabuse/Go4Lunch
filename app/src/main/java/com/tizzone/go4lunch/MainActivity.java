@@ -53,10 +53,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mBinding=ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
         setContentView(mBinding.progressBar);
+
+        //Button Listener
+        mBinding.googleSignInButton.setOnClickListener(this);
         // Set the dimensions of the sign-in button.
-        SignInButton signInButton = findViewById(R.id.google_sign_in_button);
-        signInButton.setSize(SignInButton.SIZE_STANDARD);
-        findViewById(R.id.google_sign_in_button).setOnClickListener(this);
+        mBinding.googleSignInButton.setSize(SignInButton.SIZE_STANDARD);
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
