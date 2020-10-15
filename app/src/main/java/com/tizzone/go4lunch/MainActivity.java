@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -42,15 +44,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         updateUI(currentUser);
     }
 
-    private void updateUI(FirebaseUser account) {
+    @VisibleForTesting
+    public ProgressBar mProgressBar;
 
+    private void updateUI(FirebaseUser user) {
+        hideProgressBar();
+    }
+
+    public void setProgressBar(ProgressBar progressBar) {
+        mProgressBar = progressBar;
+    }
+
+    public void showProgressBar() {
+        if (mProgressBar != null) {
+            mProgressBar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void hideProgressBar() {
+        if (mProgressBar != null) {
+            mProgressBar.setVisibility(View.INVISIBLE);
+        }
     }
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBinding=ActivityMainBinding.inflate(getLayoutInflater());
+        mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
         setContentView(mBinding.progressBar);
 
@@ -73,11 +94,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.google_sign_in_button:
-                signIn();
-                break;
-            // ...
+        int i = v.getId();
+        if (i == R.id.google_sign_in_button) {
+            signIn();
         }
     }
 
@@ -100,6 +119,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.w(TAG, "Google sign in failed", e);
+                // [START_EXCLUDE]
+                updateUI(null);
+                // [END_EXCLUDE]
                 // ...
             }
         }
