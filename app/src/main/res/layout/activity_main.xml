@@ -4,10 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_layout"
     >
-
-    <data>
-
-    </data>
     <ProgressBar
         android:id="@+id/progressBar"
         android:indeterminate="true"
@@ -29,7 +25,5 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

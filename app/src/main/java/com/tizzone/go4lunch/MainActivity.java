@@ -144,8 +144,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             //Snackbar.make(mBinding.mainLayout, "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
                             updateUI(null);
                         }
-
-                        // ...
                     }
                 });
     }
