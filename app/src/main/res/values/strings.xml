@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Go4Lunch</string>
+    <string name="facebook_app_id">367361037800074</string>
+    <string name="fb_login_protocol_scheme">fb367361037800074</string>
 </resources>

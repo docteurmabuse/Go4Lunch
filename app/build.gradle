@@ -58,5 +58,9 @@ dependencies {
 
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
+
+    //Declare the dependency for the Facebook Authentification Library
+    implementation 'com.facebook.android:facebook-android-sdk:4.42.0'
+
 }
 apply plugin: 'com.google.gms.google-services'
