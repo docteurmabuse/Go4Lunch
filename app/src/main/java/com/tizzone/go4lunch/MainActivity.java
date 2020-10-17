@@ -61,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) { // SUCCESS
                 showSnackBar(this.mBinding.mainLayout, getString(R.string.connection_succeed));
+                this.startBottomNavigationActivity();
+
             } else { // ERRORS
                 if (response == null) {
                     showSnackBar(this.mBinding.mainLayout, getString(R.string.error_authentication_canceled));
