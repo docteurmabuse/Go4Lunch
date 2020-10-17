@@ -2,4 +2,8 @@
     <string name="app_name">Go4Lunch</string>
     <string name="facebook_app_id">367361037800074</string>
     <string name="fb_login_protocol_scheme">fb367361037800074</string>
+    <string name="title_activity_bottom_navigation">MainActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
 </resources>
