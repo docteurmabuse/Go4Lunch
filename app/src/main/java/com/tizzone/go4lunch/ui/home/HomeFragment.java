@@ -22,9 +22,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Task;
-import com.google.android.libraries.places.compat.GeoDataClient;
-import com.google.android.libraries.places.compat.PlaceDetectionClient;
-import com.google.android.libraries.places.compat.Places;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.tizzone.go4lunch.R;
 
 import static android.content.ContentValues.TAG;
@@ -63,11 +62,11 @@ public class HomeFragment extends Fragment {
 
             // Get the current location of the device and set the position of the map.
             getDeviceLocation();
+
         }
 
     };
-    private PlaceDetectionClient mPlaceDetectionClient;
-    private GeoDataClient mGeoDataClient;
+    private PlacesClient mPlaceDetectionClient;
 
 
     @Nullable
@@ -86,11 +85,12 @@ public class HomeFragment extends Fragment {
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
         }
-        // Construct a GeoDataClient.
-        mGeoDataClient = Places.getGeoDataClient(requireActivity());
+        // Initialize Places.
+        String apiKey = "AIzaSyBK_IN5GbLg77wSfRKVx1qrJHOVc2Tdv5g";
+        Places.initialize(requireActivity().getApplicationContext(), apiKey);
 
-        // Construct a PlaceDetectionClient.
-        mPlaceDetectionClient = Places.getPlaceDetectionClient(requireActivity());
+        // Create a new Places client instance.
+        PlacesClient placesClient = Places.createClient(requireActivity());
 
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());

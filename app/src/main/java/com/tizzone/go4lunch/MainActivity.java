@@ -7,11 +7,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
-import com.facebook.CallbackManager;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -19,15 +17,11 @@ import com.tizzone.go4lunch.databinding.ActivityMainBinding;
 
 import java.util.Arrays;
 
-
 public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 9903;
     private static final String TAG = "SignInActivity";
-    private GoogleSignInClient mGoogleSignInClient;
     private ActivityMainBinding mBinding;
-    private FirebaseAuth mAuth;
-    private CallbackManager callbackManager;
 
     // --------------------
     // UTILS
@@ -62,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) { // SUCCESS
                 showSnackBar(this.mBinding.mainLayout, getString(R.string.connection_succeed));
                 this.startBottomNavigationActivity();
-
             } else { // ERRORS
                 if (response == null) {
                     showSnackBar(this.mBinding.mainLayout, getString(R.string.error_authentication_canceled));
@@ -78,25 +71,24 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
-        // Check for existing Google Sign In account, if the user is already signed in
-        // Check if user is signed in (non-null) and update UI accordingly.
-        // FirebaseUser currentUser = mAuth.getCurrentUser();
-        //updateUI(currentUser);
     }
-
-    private void updateUI(FirebaseUser user) {
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mBinding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(mBinding.getRoot());
         if (this.isCurrentUserLogged()) {
             this.startBottomNavigationActivity();
+        } else {
+            signIn();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (this.isCurrentUserLogged()) {
+            signIn();
+            //  this.startBottomNavigationActivity();
         } else {
             signIn();
         }

@@ -53,21 +53,15 @@ dependencies {
 
     // Declare the dependency for the Firebase Authentication library
     // When using the BoM, you don't specify versions in Firebase library dependencies
-    implementation 'com.google.firebase:firebase-auth'
     // FirebaseUI
     implementation 'com.firebaseui:firebase-ui-auth:6.3.0'
-
-
-    // Also declare the dependency for the Google Play services library and specify its version
-    implementation 'com.google.android.gms:play-services-auth:18.1.0'
 
     //Declare the dependency for Google Play service location
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.android.gms:play-services-location:17.1.0'
     // Utilities for Maps SDK for Android (requires Google Play Services)
     implementation 'com.google.maps.android:android-maps-utils:2.0.3'
-    implementation 'com.google.android.libraries.places:places-compat:2.4.0'
-
+    implementation 'com.google.android.libraries.places:places:2.4.0'
 
     // Add the dependency for the Firebase SDK for Google Analytics
     // When using the BoM, don't specify versions in Firebase dependencies
