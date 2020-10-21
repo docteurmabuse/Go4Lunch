@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                                         new AuthUI.IdpConfig.GoogleBuilder().build(), //GOOGLE
                                         new AuthUI.IdpConfig.FacebookBuilder().build())) // FACEBOOK
                         .setIsSmartLockEnabled(false, true)
-                        // .setLogo(R.drawable.ic_logo_auth)
+                        .setLogo(R.drawable.go4lunch_logo)
                         .build(),
                 RC_SIGN_IN);
     }
