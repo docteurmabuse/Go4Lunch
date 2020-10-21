@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
-                        .setTheme(R.style.Theme_Go4Lunch)
+                        .setTheme(R.style.LoginTheme)
                         .setAvailableProviders(
                                 Arrays.asList(new AuthUI.IdpConfig.EmailBuilder().build(), //EMAIL
                                         new AuthUI.IdpConfig.GoogleBuilder().build(), //GOOGLE
