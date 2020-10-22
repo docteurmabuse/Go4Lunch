@@ -2,11 +2,14 @@ package com.tizzone.go4lunch;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.navigation.ui.AppBarConfiguration;
 
+import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
@@ -76,6 +79,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mBinding = ActivityMainBinding.inflate(getLayoutInflater());
+        View view = mBinding.getRoot();
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications)
+                .build();
+        setContentView(view);
         if (this.isCurrentUserLogged()) {
             this.startBottomNavigationActivity();
         } else {
@@ -87,8 +96,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (this.isCurrentUserLogged()) {
-            signIn();
-            //  this.startBottomNavigationActivity();
+            this.startBottomNavigationActivity();
         } else {
             signIn();
         }
@@ -100,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void signIn() {
-        startActivityForResult(
+        /*startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
                         .setTheme(R.style.LoginTheme)
@@ -111,6 +119,25 @@ public class MainActivity extends AppCompatActivity {
                         .setIsSmartLockEnabled(false, true)
                         .setLogo(R.drawable.ic_logo_go4lunch)
                         .build(),
-                RC_SIGN_IN);
+                RC_SIGN_IN);*/
+        AuthMethodPickerLayout customLayout = new AuthMethodPickerLayout
+                .Builder(R.layout.activity_main)
+                .setGoogleButtonId(R.id.google_signin)
+                .setFacebookButtonId(R.id.facebook_signin)
+                // ...
+                // .setTosAndPrivacyPolicyId(R.id.baz)
+                .build();
+
+        startActivityForResult(
+                AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setAuthMethodPickerLayout(customLayout)
+                        .setAvailableProviders(
+                                Arrays.asList(
+                                        //new AuthUI.IdpConfig.EmailBuilder().build(), //EMAIL
+                                        new AuthUI.IdpConfig.GoogleBuilder().build(), //GOOGLE
+                                        new AuthUI.IdpConfig.FacebookBuilder().build())) // FACEBOOK
+                        .build(), RC_SIGN_IN);
+
     }
 }

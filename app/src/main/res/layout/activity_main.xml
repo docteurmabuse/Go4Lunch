@@ -24,6 +24,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
              />
+
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/go4lunch_catch"
             android:text="@string/find_a_nice_restaurant_and_invite_your_co_workers_for_lunch"
@@ -32,7 +33,24 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/go4lunch_text"
-            />
+            app:layout_constraintTop_toTopOf="@id/go4lunch_text" />
+
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/google_signin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/go4lunch_catch" />
+
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/facebook_signin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/google_signin" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
