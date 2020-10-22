@@ -12,7 +12,7 @@
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <!-- Customize your theme here. -->
-        <item name="android:windowBackground">@drawable/backgrournd_image</item>
+<!--        <item name="android:windowBackground">@drawable/backgrournd_image</item>-->
     </style>
 
 </resources>

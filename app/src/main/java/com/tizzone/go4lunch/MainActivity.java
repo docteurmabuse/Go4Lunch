@@ -132,6 +132,8 @@ public class MainActivity extends AppCompatActivity {
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
                         .setAuthMethodPickerLayout(customLayout)
+                        .setTheme(R.style.LoginTheme)
+                        .setLogo(R.drawable.ic_logo_go4lunch)
                         .setAvailableProviders(
                                 Arrays.asList(
                                         //new AuthUI.IdpConfig.EmailBuilder().build(), //EMAIL

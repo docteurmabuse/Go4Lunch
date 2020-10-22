@@ -12,13 +12,28 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity">
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/bg_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/backgrournd_image" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="100dp"
+            android:background="@drawable/ic_logo_go4lunch"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/go4lunch_text"
+            android:textColor="@color/white"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/go4lunch"
             android:textSize="60sp"
-            android:textFontWeight="700"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -26,18 +41,21 @@
              />
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:textColor="@color/white"
             android:id="@+id/go4lunch_catch"
             android:text="@string/find_a_nice_restaurant_and_invite_your_co_workers_for_lunch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/go4lunch_text" />
+            app:layout_constraintTop_toBottomOf="@id/go4lunch_text" />
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/google_signin"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_vertical_margin"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -46,8 +64,12 @@
 
         <com.facebook.login.widget.LoginButton
             android:id="@+id/facebook_signin"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginEnd="@dimen/activity_vertical_margin"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
