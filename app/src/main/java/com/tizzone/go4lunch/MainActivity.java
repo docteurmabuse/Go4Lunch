@@ -96,7 +96,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (this.isCurrentUserLogged()) {
-            this.startBottomNavigationActivity();
+            signIn();
+            // this.startBottomNavigationActivity();
         } else {
             signIn();
         }
