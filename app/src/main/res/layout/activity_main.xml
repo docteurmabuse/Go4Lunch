@@ -29,9 +29,12 @@
             android:layout_height="80dp"
             android:layout_margin="16dp"
             android:text="@string/go4lunch"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textColor="@color/white"
             android:textSize="60sp"
             android:textStyle="bold"
+            android:typeface="normal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/logo_go4lunch" />
@@ -54,19 +57,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/activity_horizontal_margin"
-            app:layout_constraintTop_toBottomOf="@id/facebook_signin"
+            app:buttonSize="wide"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-             />
+            app:layout_constraintTop_toBottomOf="@id/facebook_signin" />
 
         <com.facebook.login.widget.LoginButton
             android:id="@+id/facebook_signin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/activity_horizontal_margin"
+            android:lineSpacingExtra="8sp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:typeface="normal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/go4lunch_catch" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

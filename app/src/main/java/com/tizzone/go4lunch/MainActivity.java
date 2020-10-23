@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                         .setLogo(R.drawable.ic_logo_go4lunch)
                         .setAvailableProviders(
                                 Arrays.asList(
-                                        //new AuthUI.IdpConfig.EmailBuilder().build(), //EMAIL
+                                        new AuthUI.IdpConfig.EmailBuilder().build(), //EMAIL
                                         new AuthUI.IdpConfig.GoogleBuilder().build(), //GOOGLE
                                         new AuthUI.IdpConfig.FacebookBuilder().build())) // FACEBOOK
                         .build(), RC_SIGN_IN);
