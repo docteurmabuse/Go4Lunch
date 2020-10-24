@@ -7,7 +7,6 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.navigation.ui.AppBarConfiguration;
 
 import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
@@ -81,10 +80,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = mBinding.getRoot();
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications)
-                .build();
-        setContentView(view);
+
         if (this.isCurrentUserLogged()) {
             this.startBottomNavigationActivity();
         } else {
@@ -125,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
                 .Builder(R.layout.activity_main)
                 .setGoogleButtonId(R.id.google_signin)
                 .setFacebookButtonId(R.id.facebook_signin)
+                .setEmailButtonId(R.id.email_button)
                 // ...
                 // .setTosAndPrivacyPolicyId(R.id.baz)
                 .build();
@@ -133,7 +130,6 @@ public class MainActivity extends AppCompatActivity {
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
                         .setAuthMethodPickerLayout(customLayout)
-                        .setTheme(R.style.LoginTheme)
                         .setLogo(R.drawable.ic_logo_go4lunch)
                         .setAvailableProviders(
                                 Arrays.asList(

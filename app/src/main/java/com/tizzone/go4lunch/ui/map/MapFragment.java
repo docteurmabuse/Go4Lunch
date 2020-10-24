@@ -1,4 +1,4 @@
-package com.tizzone.go4lunch.ui.home;
+package com.tizzone.go4lunch.ui.map;
 
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -21,7 +21,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.net.PlacesClient;
@@ -29,15 +28,16 @@ import com.tizzone.go4lunch.R;
 
 import static android.content.ContentValues.TAG;
 
-public class HomeFragment extends Fragment {
+public class MapFragment extends Fragment {
 
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 546;
     private static final float DEFAULT_ZOOM = 15;
     private GoogleMap mMap;
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation;
-    private LatLng mDefaultLocation = new LatLng(-34, 151);
+    private final LatLng mDefaultLocation = new LatLng(48.850559, 2.377078);
     private FusedLocationProviderClient mFusedLocationProviderClient;
+
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
 
         /**
@@ -51,10 +51,6 @@ public class HomeFragment extends Fragment {
          */
         @Override
         public void onMapReady(GoogleMap googleMap) {
-            LatLng sydney = new LatLng(-34, 151);
-            googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-            mMap = googleMap;
 
             // Do other setup activities here too, as described elsewhere in this tutorial.
 

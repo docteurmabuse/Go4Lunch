@@ -1,4 +1,4 @@
-package com.tizzone.go4lunch.ui.home;
+package com.tizzone.go4lunch.ui.map;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,15 +14,15 @@ import com.tizzone.go4lunch.R;
 
 public class HomeFragmentSav extends Fragment {
 
-    private HomeViewModel homeViewModel;
+    private MapViewModel mMapViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        homeViewModel =
-                new ViewModelProvider(this).get(HomeViewModel.class);
+        mMapViewModel =
+                new ViewModelProvider(this).get(MapViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         final TextView textView = root.findViewById(R.id.text_home);
-        homeViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
+        mMapViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
         return root;
     }
 }

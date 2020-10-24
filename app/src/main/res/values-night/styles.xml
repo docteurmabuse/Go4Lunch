@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="LoginTheme"></style>
+    <style name="LoginTheme" />
+
+
 </resources>
