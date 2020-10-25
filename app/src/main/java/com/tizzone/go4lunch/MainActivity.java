@@ -80,11 +80,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (this.isCurrentUserLogged()) {
-            this.startBottomNavigationActivity();
-        } else {
-            signIn();
-        }
     }
 
     private void startBottomNavigationActivity() {
@@ -95,10 +90,9 @@ public class MainActivity extends BaseActivity {
     private void signIn() {
         AuthMethodPickerLayout customLayout = new AuthMethodPickerLayout
                 .Builder(R.layout.activity_main)
-                .setEmailButtonId(R.id.email_signin)
                 .setGoogleButtonId(R.id.google_signin)
                 .setFacebookButtonId(R.id.facebook_signin)
-                // ...
+                .setEmailButtonId(R.id.email_signin)
                 // .setTosAndPrivacyPolicyId(R.id.baz)
                 .build();
 
@@ -110,9 +104,9 @@ public class MainActivity extends BaseActivity {
                         .setTheme(R.style.LoginTheme)
                         .setAvailableProviders(
                                 Arrays.asList(
-                                        new AuthUI.IdpConfig.EmailBuilder().build(), //EMAIL
                                         new AuthUI.IdpConfig.GoogleBuilder().build(), //GOOGLE
-                                        new AuthUI.IdpConfig.FacebookBuilder().build())) // FACEBOOK
+                                        new AuthUI.IdpConfig.FacebookBuilder().build(),// FACEBOOK
+                                        new AuthUI.IdpConfig.EmailBuilder().build())) //EMAIL
                         .build(), RC_SIGN_IN);
     }
 }

@@ -47,7 +47,7 @@
             android:textStyle="bold"
             android:text="@string/find_a_nice_restaurant_and_invite_your_co_workers_for_lunch"
             android:textColor="@color/white"
-            android:textSize="15dp"
+            android:textSize="14dp"
 
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/go4lunch_text" />
@@ -73,10 +73,11 @@
             android:textAlignment="center"
             android:textSize="18sp"
             android:typeface="normal"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/go4lunch_catch" />*
+            app:layout_constraintTop_toBottomOf="@id/go4lunch_catch" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/email_signin"

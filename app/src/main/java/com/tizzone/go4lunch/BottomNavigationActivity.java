@@ -33,7 +33,7 @@ public class BottomNavigationActivity extends AppCompatActivity {
         View view = mBinding.getRoot();
         setContentView(view);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+       // setSupportActionBar(toolbar);
         DrawerLayout drawer = mBinding.drawerLayout;
         NavigationView navigationView = mBinding.navView;
         BottomNavigationView bottomNavigationView = mBinding.bottomNavView;
