@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.firebase.ui.auth.AuthMethodPickerLayout;
@@ -12,8 +11,6 @@ import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityMainBinding;
 
@@ -24,19 +21,6 @@ public class MainActivity extends BaseActivity {
     private static final int RC_SIGN_IN = 9903;
     private static final String TAG = "SignInActivity";
     private ActivityMainBinding mBinding;
-
-    // --------------------
-    // UTILS
-    // --------------------
-
-    @Nullable
-    protected FirebaseUser getCurrentUser() {
-        return FirebaseAuth.getInstance().getCurrentUser();
-    }
-
-    protected Boolean isCurrentUserLogged() {
-        return (this.getCurrentUser() != null);
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

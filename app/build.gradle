@@ -72,6 +72,13 @@ dependencies {
 
     //Declare the dependency for the Facebook Authentification Library
     implementation 'com.facebook.android:facebook-android-sdk:7.1.0'
+
+
+    //BUTTERKNIFE
+    implementation 'com.jakewharton:butterknife:10.2.3'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
 }
 
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.jakewharton.butterknife'
+
