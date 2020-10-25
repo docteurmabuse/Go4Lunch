@@ -81,8 +81,7 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         if (this.isCurrentUserLogged()) {
-            signIn();
-            // this.startBottomNavigationActivity();
+            this.startBottomNavigationActivity();
         } else {
             signIn();
         }
@@ -94,23 +93,11 @@ public class MainActivity extends BaseActivity {
     }
 
     private void signIn() {
-        /*startActivityForResult(
-                AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setTheme(R.style.LoginTheme)
-                        .setAvailableProviders(
-                                Arrays.asList(new AuthUI.IdpConfig.EmailBuilder().build(), //EMAIL
-                                        new AuthUI.IdpConfig.GoogleBuilder().build(), //GOOGLE
-                                        new AuthUI.IdpConfig.FacebookBuilder().build())) // FACEBOOK
-                        .setIsSmartLockEnabled(false, true)
-                        .setLogo(R.drawable.ic_logo_go4lunch)
-                        .build(),
-                RC_SIGN_IN);*/
         AuthMethodPickerLayout customLayout = new AuthMethodPickerLayout
                 .Builder(R.layout.activity_main)
                 .setGoogleButtonId(R.id.google_signin)
                 .setFacebookButtonId(R.id.facebook_signin)
-                .setEmailButtonId(R.id.email_button)
+                // .setEmailButtonId(R.id.email_button)
                 // ...
                 // .setTosAndPrivacyPolicyId(R.id.baz)
                 .build();
@@ -120,12 +107,12 @@ public class MainActivity extends BaseActivity {
                         .createSignInIntentBuilder()
                         .setAuthMethodPickerLayout(customLayout)
                         .setLogo(R.drawable.ic_logo_go4lunch)
+                        .setTheme(R.style.LoginTheme)
                         .setAvailableProviders(
                                 Arrays.asList(
-                                        new AuthUI.IdpConfig.EmailBuilder().build(), //EMAIL
+                                        // new AuthUI.IdpConfig.EmailBuilder().build(), //EMAIL
                                         new AuthUI.IdpConfig.GoogleBuilder().build(), //GOOGLE
                                         new AuthUI.IdpConfig.FacebookBuilder().build())) // FACEBOOK
                         .build(), RC_SIGN_IN);
-
     }
 }

@@ -18,7 +18,6 @@ import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
 import com.tizzone.go4lunch.databinding.ActivityBottomNavigationBinding;
 
 public class BottomNavigationActivity extends AppCompatActivity {
@@ -54,8 +53,6 @@ public class BottomNavigationActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(MenuItem menuItem) {
                 int id = menuItem.getItemId();
                 if (id == R.id.nav_logout) {
-                    Snackbar.make(view, "hello", Snackbar.LENGTH_SHORT)
-                            .setAction("Action", null).show();
                     signOutUserFromFirebase();
                 }
                 drawer.closeDrawer(GravityCompat.START);
