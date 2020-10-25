@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -64,6 +65,7 @@ public class MapFragment extends Fragment {
 
     };
     private PlacesClient mPlaceDetectionClient;
+    private MapViewModel mMapViewModel;
 
 
     @Nullable
@@ -71,7 +73,12 @@ public class MapFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_maps, container, false);
+        mMapViewModel =
+                new ViewModelProvider(this).get(MapViewModel.class);
+        View root = inflater.inflate(R.layout.fragment_map, container, false);
+        // final TextView textView = root.findViewById(R.id.text_home);
+        //  mMapViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
+        return root;
     }
 
     @Override

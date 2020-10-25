@@ -28,25 +28,6 @@ public class BottomNavigationActivity extends AppCompatActivity {
         mBinding = ActivityBottomNavigationBinding.inflate(getLayoutInflater());
         View view = mBinding.getRoot();
         setContentView(view);
-//        Toolbar toolbar = findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-//        BottomNavigationView navView = mBinding.bottomNavView;
-//        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-//        NavigationView navigationView = findViewById(R.id.nav_view);
-//
-//        // Passing each menu ID as a set of Ids because each
-//        // menu should be considered as top level destinations.
-//        mAppBarConfiguration = new AppBarConfiguration.Builder(
-//                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications,R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
-//                .setOpenableLayout(drawer)
-//                .build();
-//        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
-//                .findFragmentById(R.id.nav_host_fragment);
-//        assert navHostFragment != null;
-//        NavController navController = navHostFragment.getNavController();
-//        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-//        NavigationUI.setupWithNavController(navView, navController);
-//        NavigationUI.setupWithNavController(navigationView, navController);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         DrawerLayout drawer = mBinding.drawerLayout;
@@ -55,20 +36,21 @@ public class BottomNavigationActivity extends AppCompatActivity {
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.map, R.id.nav_gallery, R.id.nav_slideshow)
+        mAppBarNavConfiguration = new AppBarConfiguration.Builder(
+                R.id.nav_gallery, R.id.nav_slideshow)
                 .setOpenableLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarNavConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        mAppBarNavConfiguration = new AppBarConfiguration.Builder(
+        mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications)
+                .setOpenableLayout(drawer)
                 .build();
         NavController navBottomController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarNavConfiguration);
-        NavigationUI.setupWithNavController(bottomNavigationView, navController);
+        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(bottomNavigationView, navBottomController);
     }
 
     @Override
@@ -81,7 +63,7 @@ public class BottomNavigationActivity extends AppCompatActivity {
     @Override
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
+        return NavigationUI.navigateUp(navController, mAppBarNavConfiguration)
                 || super.onSupportNavigateUp();
     }
 
