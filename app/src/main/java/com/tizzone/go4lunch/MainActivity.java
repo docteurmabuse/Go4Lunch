@@ -64,7 +64,6 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = mBinding.getRoot();
-
         if (this.isCurrentUserLogged()) {
             this.startBottomNavigationActivity();
         } else {
@@ -102,6 +101,7 @@ public class MainActivity extends BaseActivity {
                         .setAuthMethodPickerLayout(customLayout)
                         .setLogo(R.drawable.ic_logo_go4lunch)
                         .setTheme(R.style.LoginTheme)
+                        .setIsSmartLockEnabled(false, true)
                         .setAvailableProviders(
                                 Arrays.asList(
                                         new AuthUI.IdpConfig.GoogleBuilder().build(), //GOOGLE
