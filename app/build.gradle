@@ -72,7 +72,6 @@ dependencies {
 
     //Declare the dependency for the Facebook Authentification Library
     implementation 'com.facebook.android:facebook-android-sdk:7.1.0'
-
 }
 
 apply plugin: 'com.google.gms.google-services'

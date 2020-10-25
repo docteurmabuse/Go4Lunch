@@ -36,21 +36,14 @@ public class BottomNavigationActivity extends AppCompatActivity {
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        mAppBarNavConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_gallery, R.id.nav_slideshow)
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+
+        mAppBarNavConfiguration = new AppBarConfiguration.Builder(navController.getGraph())
                 .setOpenableLayout(drawer)
                 .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarNavConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
-
-        mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications)
-                .setOpenableLayout(drawer)
-                .build();
-        NavController navBottomController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(bottomNavigationView, navBottomController);
+        NavigationUI.setupWithNavController(bottomNavigationView, navController);
     }
 
     @Override
@@ -66,5 +59,6 @@ public class BottomNavigationActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, mAppBarNavConfiguration)
                 || super.onSupportNavigateUp();
     }
+
 
 }
