@@ -76,6 +76,24 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/go4lunch_catch" />
+            app:layout_constraintTop_toBottomOf="@id/go4lunch_catch" />*
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/email_signin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:drawableLeft="@android:drawable/ic_dialog_email"
+            android:lineSpacingExtra="8sp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="Se connecter par email"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:typeface="normal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/google_signin" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
