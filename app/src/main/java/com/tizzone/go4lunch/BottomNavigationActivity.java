@@ -1,10 +1,12 @@
 package com.tizzone.go4lunch;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
@@ -15,7 +17,8 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.tizzone.go4lunch.databinding.ActivityBottomNavigationBinding;
@@ -75,25 +78,16 @@ public class BottomNavigationActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
-
     private void signOutUserFromFirebase() {
         AuthUI.getInstance()
                 .signOut(this)
-                .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));
-    }
-
-    private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin) {
-        return new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                switch (origin) {
-                    case SIGN_OUT_TASK:
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Intent intent = new Intent(BottomNavigationActivity.this, MainActivity.class);
+                        startActivity(intent);
                         finish();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        };
+                    }
+                });
     }
 }

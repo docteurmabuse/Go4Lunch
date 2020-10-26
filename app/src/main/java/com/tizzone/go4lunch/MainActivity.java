@@ -15,6 +15,7 @@ import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityMainBinding;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends BaseActivity {
 
@@ -95,6 +96,15 @@ public class MainActivity extends BaseActivity {
                 // .setTosAndPrivacyPolicyId(R.id.baz)
                 .build();
 
+
+        // Choose authentication providers
+        List<AuthUI.IdpConfig> providers = Arrays.asList(
+                new AuthUI.IdpConfig.EmailBuilder().build(),
+                //  new AuthUI.IdpConfig.PhoneBuilder().build(),
+                new AuthUI.IdpConfig.GoogleBuilder().build(),
+                new AuthUI.IdpConfig.FacebookBuilder().build());
+        //  new AuthUI.IdpConfig.TwitterBuilder().build());
+
         startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
@@ -102,11 +112,9 @@ public class MainActivity extends BaseActivity {
                         .setLogo(R.drawable.ic_logo_go4lunch)
                         .setTheme(R.style.LoginTheme)
                         .setIsSmartLockEnabled(false, true)
-                        .setAvailableProviders(
-                                Arrays.asList(
-                                        new AuthUI.IdpConfig.GoogleBuilder().build(), //GOOGLE
-                                        new AuthUI.IdpConfig.FacebookBuilder().build(),// FACEBOOK
-                                        new AuthUI.IdpConfig.EmailBuilder().build())) //EMAIL
+                        .setAvailableProviders(providers) //EMAIL
                         .build(), RC_SIGN_IN);
     }
+
+
 }
