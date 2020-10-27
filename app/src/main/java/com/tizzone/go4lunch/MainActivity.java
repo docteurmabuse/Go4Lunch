@@ -68,7 +68,9 @@ public class MainActivity extends BaseActivity {
         if (this.isCurrentUserLogged()) {
             this.startBottomNavigationActivity();
         } else {
-            signIn();
+            // signIn();
+            this.startBottomNavigationActivity();
+
         }
     }
 

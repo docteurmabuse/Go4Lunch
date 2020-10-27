@@ -88,6 +88,28 @@ public class MapFragment extends Fragment {
         // final TextView textView = root.findViewById(R.id.text_home);
         //  mMapViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
 
+
+        return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        SupportMapFragment mapFragment =
+                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(callback);
+        }
+        // Initialize Places.
+        String apiKey = "AIzaSyBK_IN5GbLg77wSfRKVx1qrJHOVc2Tdv5g";
+        Places.initialize(requireActivity().getApplicationContext(), apiKey);
+
+        // Create a new Places client instance.
+        PlacesClient placesClient = Places.createClient(requireActivity());
+
+        // Construct a FusedLocationProviderClient.
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+
         // Use fields to define the data types to return.
         List<Place.Field> placeFields = Collections.singletonList(Place.Field.NAME);
 
@@ -96,7 +118,7 @@ public class MapFragment extends Fragment {
 
         // Call findCurrentPlace and handle the response (first check that the user has granted permission).
         if (ContextCompat.checkSelfPermission(getActivity(), ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Task<FindCurrentPlaceResponse> placeResponse = mPlaceDetectionClient.findCurrentPlace(request);
+            Task<FindCurrentPlaceResponse> placeResponse = placesClient.findCurrentPlace(request);
             placeResponse.addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     FindCurrentPlaceResponse response = task.getResult();
@@ -118,26 +140,6 @@ public class MapFragment extends Fragment {
             // See https://developer.android.com/training/permissions/requesting
             getLocationPermission();
         }
-        return root;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        SupportMapFragment mapFragment =
-                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(callback);
-        }
-        // Initialize Places.
-        String apiKey = "AIzaSyBK_IN5GbLg77wSfRKVx1qrJHOVc2Tdv5g";
-        Places.initialize(requireActivity().getApplicationContext(), apiKey);
-
-        // Create a new Places client instance.
-        PlacesClient placesClient = Places.createClient(requireActivity());
-
-        // Construct a FusedLocationProviderClient.
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
     }
 
     private void updateLocationUI() {
