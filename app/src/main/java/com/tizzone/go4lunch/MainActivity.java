@@ -64,6 +64,7 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = mBinding.getRoot();
+        super.onResume();
         if (this.isCurrentUserLogged()) {
             this.startBottomNavigationActivity();
         } else {
@@ -79,6 +80,11 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (this.isCurrentUserLogged()) {
+            this.startBottomNavigationActivity();
+        } else {
+            signIn();
+        }
     }
 
     private void startBottomNavigationActivity() {
@@ -88,7 +94,7 @@ public class MainActivity extends BaseActivity {
 
     private void signIn() {
         AuthMethodPickerLayout customLayout = new AuthMethodPickerLayout
-                .Builder(R.layout.activity_main)
+                .Builder(R.layout.activity_auth)
                 .setGoogleButtonId(R.id.google_signin)
                 .setFacebookButtonId(R.id.facebook_signin)
                 .setEmailButtonId(R.id.email_signin)
