@@ -4,10 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.tizzone.go4lunch.base.BaseActivity;
-import com.tizzone.go4lunch.ui.authentification.AuthActivity;
 
 public class MainActivity extends BaseActivity {
-
 
     @Override
     protected void onStart() {
@@ -17,12 +15,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        super.onResume();
-        if (this.isCurrentUserLogged()) {
-            this.startBottomNavigationActivity();
-        } else {
-            this.startAuthActivity();
-        }
     }
 
     @Override
@@ -33,6 +25,11 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (this.isCurrentUserLogged()) {
+            this.startBottomNavigationActivity();
+        } else {
+            this.startAuthActivity();
+        }
     }
 
     private void startBottomNavigationActivity() {
@@ -44,6 +41,4 @@ public class MainActivity extends BaseActivity {
         Intent intent = new Intent(this, AuthActivity.class);
         startActivity(intent);
     }
-
-
 }

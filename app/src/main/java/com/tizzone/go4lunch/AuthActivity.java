@@ -1,7 +1,8 @@
-package com.tizzone.go4lunch.ui.authentification;
+package com.tizzone.go4lunch;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -11,8 +12,6 @@ import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.material.snackbar.Snackbar;
-import com.tizzone.go4lunch.BottomNavigationActivity;
-import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.ActivityAuthBinding;
 
 import java.util.Arrays;
@@ -22,13 +21,21 @@ public class AuthActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 9903;
     private static final String TAG = "SignInActivity";
-    private ActivityAuthBinding mBinding;
+    private ActivityAuthBinding mAuthBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_auth);
+        mAuthBinding = ActivityAuthBinding.inflate(getLayoutInflater());
+        View view = mAuthBinding.getRoot();
+        setContentView(view);
+        signIn();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+            signIn();
     }
 
     // 2 - Show Snack Bar with a message
@@ -41,15 +48,15 @@ public class AuthActivity extends AppCompatActivity {
         IdpResponse response = IdpResponse.fromResultIntent(data);
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) { // SUCCESS
-                showSnackBar(this.mBinding.mainLayout, getString(R.string.connection_succeed));
+                showSnackBar(this.mAuthBinding.authLayout, getString(R.string.connection_succeed));
                 this.startBottomNavigationActivity();
             } else { // ERRORS
                 if (response == null) {
-                    showSnackBar(this.mBinding.mainLayout, getString(R.string.error_authentication_canceled));
+                    showSnackBar(this.mAuthBinding.authLayout, getString(R.string.error_authentication_canceled));
                 } else if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
-                    showSnackBar(this.mBinding.mainLayout, getString(R.string.error_no_internet));
+                    showSnackBar(this.mAuthBinding.authLayout, getString(R.string.error_no_internet));
                 } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
-                    showSnackBar(this.mBinding.mainLayout, getString(R.string.error_unknown_error));
+                    showSnackBar(this.mAuthBinding.authLayout, getString(R.string.error_unknown_error));
                 }
             }
         }
