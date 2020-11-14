@@ -9,9 +9,6 @@
         android:id="@+id/main_constraint"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/backgrournd_image"
         tools:context=".MainActivity">
-
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
