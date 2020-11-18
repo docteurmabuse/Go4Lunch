@@ -8,13 +8,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import butterknife.ButterKnife;
-
 public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         this.setContentView(this.getFragmentLayout());
-        ButterKnife.bind(this); //Configure Butterknife
         super.onCreate(savedInstanceState);
     }
 

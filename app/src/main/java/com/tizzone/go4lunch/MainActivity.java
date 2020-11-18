@@ -93,7 +93,7 @@ public class MainActivity extends BaseActivity {
                             .createSignInIntentBuilder()
                             .setAuthMethodPickerLayout(customLayout)
                             .setLogo(R.drawable.ic_logo_go4lunch)
-                            .setTheme(R.style.AppThemeFirebaseAuth)
+                            .setTheme(R.style.LoginTheme)
                             .setIsSmartLockEnabled(false, true)
                             .setAvailableProviders(providers) //EMAIL
                             .build(), RC_SIGN_IN);

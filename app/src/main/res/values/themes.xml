@@ -2,6 +2,8 @@
     <!-- Base application theme. -->
     <style name="Theme.Go4Lunch" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
         <item name="colorPrimary">@color/red_500</item>
         <item name="colorPrimaryVariant">@color/red_700</item>
         <item name="colorOnPrimary">@color/white</item>
@@ -25,12 +27,17 @@
 
     <style name="Theme.Go4Lunch.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="FirebaseAuthActionBarStyle" parent="Widget.AppCompat.ActionBar">
+    <style name="FirebaseAuthActionBarStyle" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:background">@color/white</item>
     </style>
 
     <style name="LoginTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:actionBarStyle">@style/FirebaseAuthActionBarStyle</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/red_500</item>
         <item name="colorPrimaryVariant">@color/red_700</item>
@@ -40,13 +47,14 @@
         <item name="colorSecondaryVariant">@color/red_700</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
         <item name="android:windowDisablePreview">true</item>
         <item name="android:windowAnimationStyle">@null</item>
     </style>
 
-    <style name="AppThemeFirebaseAuth" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="AppThemeFirebaseAuth" parent="Theme.AppCompat.NoActionBar">
+
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
         <item name="android:actionBarStyle">@style/FirebaseAuthActionBarStyle</item>
         <item name="android:windowActionBarOverlay">true</item>
         <item name="windowActionBar">false</item>
