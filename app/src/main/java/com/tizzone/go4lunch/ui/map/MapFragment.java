@@ -22,6 +22,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
@@ -60,10 +61,18 @@ public class MapFragment extends Fragment {
          * user has installed Google Play services and returned to the app.
          */
         @Override
-        public void onMapReady(GoogleMap googleMap) {
+        public void onMapReady(GoogleMap map) {
+            // Do other setup activities here too, as described elsewhere in this tutorial.@Override
+            LatLng paris = new LatLng(48.850167, 2.390770);
+            map.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
 
-            // Do other setup activities here too, as described elsewhere in this tutorial.
-
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(paris)      // Sets the center of the map to Mountain View
+                    .zoom(17)                   // Sets the zoom
+                    .bearing(90)                // Sets the orientation of the camera to east
+                    .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                    .build();                   // Creates a CameraPosition from the builder
+            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             // Turn on the My Location layer and the related control on the map.
             updateLocationUI();
 
@@ -101,8 +110,7 @@ public class MapFragment extends Fragment {
             mapFragment.getMapAsync(callback);
         }
         // Initialize Places.
-        String apiKey = "AIzaSyBK_IN5GbLg77wSfRKVx1qrJHOVc2Tdv5g";
-        Places.initialize(requireActivity().getApplicationContext(), apiKey);
+        Places.initialize(requireActivity(), "[APP_KEY]");
 
         // Create a new Places client instance.
         PlacesClient placesClient = Places.createClient(requireActivity());
@@ -222,5 +230,6 @@ public class MapFragment extends Fragment {
         }
         updateLocationUI();
     }
+
 
 }

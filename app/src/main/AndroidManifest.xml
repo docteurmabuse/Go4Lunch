@@ -30,9 +30,6 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".BottomNavigationActivity"
-            android:label="@string/title_activity_bottom_navigation" />
-        <activity
             android:name=".MainActivity"
             android:theme="@style/Theme.Go4Lunch.NoActionBar">
             <intent-filter>
@@ -41,7 +38,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AuthActivity" />
+        <activity
+            android:name=".BottomNavigationActivity"
+            android:label="@string/title_activity_bottom_navigation"></activity>
 
     </application>
 

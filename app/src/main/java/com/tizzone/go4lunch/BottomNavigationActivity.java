@@ -28,7 +28,6 @@ public class BottomNavigationActivity extends AppCompatActivity {
     ActivityBottomNavigationBinding mBinding;
     private AppBarConfiguration mAppBarConfiguration;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,7 +35,7 @@ public class BottomNavigationActivity extends AppCompatActivity {
         View view = mBinding.getRoot();
         setContentView(view);
         Toolbar toolbar = findViewById(R.id.toolbar);
-       // setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);
         DrawerLayout drawer = mBinding.drawerLayout;
         NavigationView navigationView = mBinding.navView;
         BottomNavigationView bottomNavigationView = mBinding.bottomNavView;
@@ -64,6 +63,7 @@ public class BottomNavigationActivity extends AppCompatActivity {
         });
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -84,10 +84,16 @@ public class BottomNavigationActivity extends AppCompatActivity {
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        Intent intent = new Intent(BottomNavigationActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
+                        startMainActivity();
+//                        finish();
                     }
                 });
     }
+
+    private void startMainActivity() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
+
+
 }
