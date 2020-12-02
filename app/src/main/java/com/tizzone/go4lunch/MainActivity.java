@@ -10,8 +10,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.ErrorCodes;
-import com.firebase.ui.auth.IdpResponse;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -103,31 +101,8 @@ public class MainActivity extends BaseActivity {
         };
     }
 
-    private void handleResponseAfterSignIn(int requestCode, int resultCode, Intent data) {
-        // 3 - Method that handles response after SignIn Activity close
-        IdpResponse response = IdpResponse.fromResultIntent(data);
-        if (requestCode == RC_SIGN_IN) {
-            if (resultCode == RESULT_OK) { // SUCCESS
-                showSnackBar(this.mBinding.mainLayout, getString(R.string.connection_succeed));
-            } else { // ERRORS
-                if (response == null) {
-                    showSnackBar(this.mBinding.mainLayout, getString(R.string.error_authentication_canceled));
-                } else if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
-                    showSnackBar(this.mBinding.mainLayout, getString(R.string.error_no_internet));
-                } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
-                    showSnackBar(this.mBinding.mainLayout, getString(R.string.error_unknown_error));
-                }
-            }
-        }
-    }
 
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        // 4 - Handle SignIn Activity response on activity result
-        this.handleResponseAfterSignIn(requestCode, resultCode, data);
-    }
 
     // 2 - Show Snack Bar with a message
     private void showSnackBar(CoordinatorLayout coordinatorLayout, String message) {
