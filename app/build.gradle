@@ -60,6 +60,8 @@ dependencies {
     //Declare the dependency for Google Play service location
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.android.gms:play-services-location:17.1.0'
+    implementation 'com.google.android.gms:play-services-basement:17.5.0'
+
     // Utilities for Maps SDK for Android (requires Google Play Services)
     implementation 'com.google.maps.android:android-maps-utils:2.0.3'
     implementation 'com.google.android.libraries.places:places:2.4.0'
@@ -82,6 +84,8 @@ dependencies {
     //RETROFIT
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.4.1'
+    implementation 'com.squareup.okhttp3:okhttp:3.14.9'
 
     implementation 'com.google.code.gson:gson:2.8.5'
 
