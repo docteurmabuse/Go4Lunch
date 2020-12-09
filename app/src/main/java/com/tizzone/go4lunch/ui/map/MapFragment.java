@@ -109,10 +109,10 @@ public class MapFragment extends Fragment {
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
         }
-        // Initialize Places.
+        // Initialize places.
         Places.initialize(requireActivity(), "[APP_KEY]");
 
-        // Create a new Places client instance.
+        // Create a new places client instance.
         PlacesClient placesClient = Places.createClient(requireActivity());
 
         // Construct a FusedLocationProviderClient.
