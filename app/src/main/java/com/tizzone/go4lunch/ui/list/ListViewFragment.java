@@ -39,7 +39,8 @@ public class ListViewFragment extends Fragment {
             String currentLocation = location.getLatitude() + "," + location.getLongitude();
             int radius = 1500;
             GoogleMapAPI googleMapAPI = APIClient.getClient().create(GoogleMapAPI.class);
-            googleMapAPI.getNearByPlaces(currentLocation, radius, "restaurant", key).enqueue(new Callback<PlacesResults>() {
+            googleMapAPI.getNearByPlaces("48.850167,2.39077", 10000, "restaurant", "AIzaSyBK_IN5GbLg77wSfRKVx1qrJHOVc2Tdv5g").enqueue(new Callback<PlacesResults>() {
+                //googleMapAPI.getNearByPlaces(currentLocation, radius, "restaurant", key).enqueue(new Callback<PlacesResults>() {
                 @Override
                 public void onResponse(Call<PlacesResults> call, Response<PlacesResults> response) {
                     if (response.isSuccessful()) {
@@ -73,7 +74,31 @@ public class ListViewFragment extends Fragment {
             Context context = view.getContext();
             recyclerViewPlaces = (RecyclerView) view;
             //   recyclerView.setAdapter(new PlacesListAdapters(DummyContent.ITEMS));
+            String key = getText(R.string.google_maps_key).toString();
+            //String currentLocation = location.getLatitude() + "," + location.getLongitude();
+            int radius = 1500;
+            GoogleMapAPI googleMapAPI = APIClient.getClient().create(GoogleMapAPI.class);
+            googleMapAPI.getNearByPlaces("48.850167,2.39077", 10000, "restaurant", "AIzaSyBK_IN5GbLg77wSfRKVx1qrJHOVc2Tdv5g").enqueue(new Callback<PlacesResults>() {
+                //googleMapAPI.getNearByPlaces(currentLocation, radius, "restaurant", key).enqueue(new Callback<PlacesResults>() {
+                @Override
+                public void onResponse(Call<PlacesResults> call, Response<PlacesResults> response) {
+                    if (response.isSuccessful()) {
+                        List<Result> results = response.body().getResults();
+                        PlacesListAdapters placesListAdapter = new PlacesListAdapters(results);
+                        recyclerViewPlaces.setAdapter(placesListAdapter);
+                    } else {
+                        Toast.makeText(getContext(), "Failed", Toast.LENGTH_LONG).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<PlacesResults> call, Throwable t) {
+                    Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
         }
+
+
         return view;
     }
 }
