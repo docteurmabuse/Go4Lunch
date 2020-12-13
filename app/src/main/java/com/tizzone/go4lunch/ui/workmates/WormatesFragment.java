@@ -1,4 +1,4 @@
-package com.tizzone.go4lunch.ui.gallery;
+package com.tizzone.go4lunch.ui.workmates;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

@@ -126,14 +126,14 @@ public class MapFragment extends Fragment {
 
     private void build_retrofit_and_get_response() {
 
-        String url = "https://maps.googleapis.com/maps/";
+        String url = "https://maps.googleapis.com/maps/api/";
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(url)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         GoogleMapAPI service = retrofit.create(GoogleMapAPI.class);
-        Call<PlacesResults> call = service.getNearbyPlaces(mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLongitude(), 10000, "restaurant", getString(R.string.google_maps_key));
+        Call<PlacesResults> call = service.getNearByPlaces("48.850167,2.39077", 10000, "restaurant", "AIzaSyBK_IN5GbLg77wSfRKVx1qrJHOVc2Tdv5g");
 
         call.enqueue(new Callback<PlacesResults>() {
             /**

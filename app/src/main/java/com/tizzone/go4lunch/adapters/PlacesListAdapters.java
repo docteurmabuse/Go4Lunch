@@ -7,12 +7,10 @@ import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.models.places.Result;
@@ -20,47 +18,36 @@ import com.tizzone.go4lunch.models.places.Result;
 import java.io.InputStream;
 import java.util.List;
 
-public class PlacesListAdapters extends ArrayAdapter<Result> {
+public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.ViewHolder> {
 
 
     private Context context;
-    private List<Result> results;
+    private final List<Result> mPlaces;
 
-    public PlacesListAdapters(@NonNull Context context, int resource, @NonNull List<Result> results) {
-        super(context, R.layout.place_item, results);
+    public PlacesListAdapters(List<Result> results) {
+        mPlaces = results;
     }
 
-    @NonNull
     @Override
-    public View getView(int position, @Nullable View view, @NonNull ViewGroup parent) {
-        try {
-            ViewHolder viewHolder;
-            if (view == null) {
-                viewHolder = new ViewHolder();
-                view = LayoutInflater.from(context).inflate(R.layout.place_item, null);
-                viewHolder.textViewName = view.findViewById(R.id.textViewName);
-                viewHolder.textViewAddress = view.findViewById(R.id.textViewAddress);
-                viewHolder.imageViewPhoto = view.findViewById(R.id.imageViewPhoto);
-                view.setTag(viewHolder);
-            } else {
-                viewHolder = (ViewHolder) view.getTag();
-            }
-            Result place = results.get(position);
-            viewHolder.textViewName.setText(place.getName());
-            viewHolder.textViewAddress.setText(place.getVicinity());
-            Bitmap photo = new ImageRequestAsk().execute(place.getIcon()).get();
-
-            viewHolder.imageViewPhoto.setImageBitmap(photo);
-            return view;
-        } catch (Exception e) {
-            return null;
-        }
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.place_item, parent, false);
+        return new ViewHolder(view);
     }
 
-    public static class ViewHolder {
-        public TextView textViewName;
-        public TextView textViewAddress;
-        public ImageView imageViewPhoto;
+    @Override
+    public void onBindViewHolder(final ViewHolder holder, int position) {
+        holder.mPlace = mPlaces.get(position);
+        Result place = mPlaces.get(position);
+        holder.textViewName.setText(place.getName());
+        holder.textViewAddress.setText(place.getVicinity());
+        //Bitmap photo = new ImageRequestAsk().execute(place.getIcon()).get();
+        //holder.imageViewPhoto.setImageBitmap(photo);
+    }
+
+    @Override
+    public int getItemCount() {
+        return mPlaces.size();
     }
 
     private class ImageRequestAsk extends AsyncTask<String, Void, Bitmap> {
@@ -73,6 +60,22 @@ public class PlacesListAdapters extends ArrayAdapter<Result> {
             } catch (Exception e) {
                 return null;
             }
+        }
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        public final View mView;
+        public TextView textViewName;
+        public TextView textViewAddress;
+        public ImageView imageViewPhoto;
+        public Result mPlace;
+
+        public ViewHolder(View view) {
+            super(view);
+            mView = view;
+            textViewName = view.findViewById(R.id.textViewName);
+            textViewAddress = view.findViewById(R.id.textViewAddress);
+            imageViewPhoto = view.findViewById(R.id.imageViewPhoto);
         }
     }
 }

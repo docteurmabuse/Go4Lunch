@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +30,7 @@ public class BottomNavigationActivity extends AppCompatActivity {
     ActivityBottomNavigationBinding mBinding;
     private AppBarConfiguration mAppBarConfiguration;
     private Location lastKnownLocation;
+    private ListView listViewPlaces;
 
 
     @Override
@@ -64,6 +66,8 @@ public class BottomNavigationActivity extends AppCompatActivity {
                 return true;
             }
         });
+        listViewPlaces = findViewById(R.id.listViewPlaces);
+
     }
 
 

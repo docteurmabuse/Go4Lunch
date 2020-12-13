@@ -1,4 +1,4 @@
-package com.tizzone.go4lunch.ui.dashboard;
+package com.tizzone.go4lunch.ui.list;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -10,7 +10,7 @@ public class ListViewModel extends ViewModel {
 
     public ListViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is dashboard fragment");
+        mText.setValue("This is list fragment");
     }
 
     public LiveData<String> getText() {

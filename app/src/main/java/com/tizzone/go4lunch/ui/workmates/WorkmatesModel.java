@@ -1,4 +1,4 @@
-package com.tizzone.go4lunch.ui.gallery;
+package com.tizzone.go4lunch.ui.workmates;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -10,7 +10,7 @@ public class WorkmatesModel extends ViewModel {
 
     public WorkmatesModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is gallery fragment");
+        mText.setValue("This is workmates fragment");
     }
 
     public LiveData<String> getText() {

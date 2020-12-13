@@ -13,7 +13,7 @@
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.tizzone.go4lunch.ui.dashboard.ListViewFragment"
+        android:name="com.tizzone.go4lunch.ui.list.ListViewFragment"
         android:label="@string/title_list_view"
         tools:layout="@layout/fragment_dashboard" />
 
@@ -26,7 +26,7 @@
 
     <fragment
         android:id="@+id/nav_lunch"
-        android:name="com.tizzone.go4lunch.ui.gallery.WormatesFragment"
+        android:name="com.tizzone.go4lunch.ui.workmates.WormatesFragment"
         android:label="@string/menu_lunch"
         tools:layout="@layout/fragment_gallery" />
 
