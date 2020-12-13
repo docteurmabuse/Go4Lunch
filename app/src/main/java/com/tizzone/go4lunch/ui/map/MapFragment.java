@@ -30,7 +30,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.api.GoogleMapAPI;
-import com.tizzone.go4lunch.models.places.GMapPlaces;
+import com.tizzone.go4lunch.models.places.PlacesResults;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -133,9 +133,9 @@ public class MapFragment extends Fragment {
                 .build();
 
         GoogleMapAPI service = retrofit.create(GoogleMapAPI.class);
-        Call<GMapPlaces> call = service.getNearbyPlaces(mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLongitude(), 10000, "restaurant", getString(R.string.google_maps_key));
+        Call<PlacesResults> call = service.getNearbyPlaces(mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLongitude(), 10000, "restaurant", getString(R.string.google_maps_key));
 
-        call.enqueue(new Callback<GMapPlaces>() {
+        call.enqueue(new Callback<PlacesResults>() {
             /**
              * Invoked for a received HTTP response.
              *
@@ -146,7 +146,7 @@ public class MapFragment extends Fragment {
              * @param response
              */
             @Override
-            public void onResponse(Call<GMapPlaces> call, Response<GMapPlaces> response) {
+            public void onResponse(Call<PlacesResults> call, Response<PlacesResults> response) {
                 try {
                     mMap.clear();
                     // This loop will go through all the results and add marker on each location.
@@ -183,7 +183,7 @@ public class MapFragment extends Fragment {
              * @param t
              */
             @Override
-            public void onFailure(Call<GMapPlaces> call, Throwable t) {
+            public void onFailure(Call<PlacesResults> call, Throwable t) {
                 Log.d("onFailure", t.toString());
             }
         });

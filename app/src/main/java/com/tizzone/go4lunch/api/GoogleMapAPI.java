@@ -1,6 +1,6 @@
 package com.tizzone.go4lunch.api;
 
-import com.tizzone.go4lunch.models.places.GMapPlaces;
+import com.tizzone.go4lunch.models.places.PlacesResults;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -13,7 +13,7 @@ public interface GoogleMapAPI {
      * And our method that will return us details of student.
      */
     @GET("lace/nearbysearch/json")
-    Call<GMapPlaces> getNearbyPlaces(
+    Call<PlacesResults> getNearbyPlaces(
             @Query("location") String location,
             @Query("radius") int radius,
             @Query("type") String type,

@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GMapPlaces {
+public class PlacesResults {
     @SerializedName("html_attributions")
     @Expose
     private List<Object> htmlAttributions = new ArrayList<Object>();
