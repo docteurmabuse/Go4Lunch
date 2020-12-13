@@ -1,16 +1,16 @@
-package com.tizzone.go4lunch.ui.dashboard;
+package com.tizzone.go4lunch.ui.gallery;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class DashboardViewModel extends ViewModel {
+public class WorkmatesModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public DashboardViewModel() {
+    public WorkmatesModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is dashboard fragment");
+        mText.setValue("This is gallery fragment");
     }
 
     public LiveData<String> getText() {

@@ -1,6 +1,7 @@
 package com.tizzone.go4lunch;
 
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +28,8 @@ public class BottomNavigationActivity extends AppCompatActivity {
     private static final int SIGN_OUT_TASK = 25;
     ActivityBottomNavigationBinding mBinding;
     private AppBarConfiguration mAppBarConfiguration;
+    private Location lastKnownLocation;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +88,6 @@ public class BottomNavigationActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         startMainActivity();
-//                        finish();
                     }
                 });
     }
@@ -95,5 +97,17 @@ public class BottomNavigationActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+//    /**
+//     * Saves the state of the map when the activity is paused.
+//     */
+//    // [START maps_current_place_on_save_instance_state]
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState) {
+//        if (map != null) {
+//            outState.putParcelable(KEY_CAMERA_POSITION, map.getCameraPosition());
+//            outState.putParcelable(KEY_LOCATION, lastKnownLocation);
+//        }
+//        super.onSaveInstanceState(outState);
+//    }
 
 }

@@ -14,17 +14,17 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.tizzone.go4lunch.R;
 
-public class GalleryFragment extends Fragment {
+public class WormatesFragment extends Fragment {
 
-    private GalleryViewModel galleryViewModel;
+    private WorkmatesModel workmatesModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        galleryViewModel =
-                new ViewModelProvider(this).get(GalleryViewModel.class);
+        workmatesModel =
+                new ViewModelProvider(this).get(WorkmatesModel.class);
         View root = inflater.inflate(R.layout.fragment_gallery, container, false);
         final TextView textView = root.findViewById(R.id.text_gallery);
-        galleryViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+        workmatesModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 textView.setText(s);

@@ -45,7 +45,7 @@ public class MapFragment extends Fragment {
 
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 546;
     private static final float DEFAULT_ZOOM = 15;
-    private static final int PROXIMITY_RADIUS = 100000;
+    private final int PROXIMITY_RADIUS = 100;
     private GoogleMap mMap;
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation;
@@ -54,6 +54,10 @@ public class MapFragment extends Fragment {
     private final double latitude = 48.850167;
     private final double longitude = 2.390770;
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
+        private Location mLastLocation;
+        private Marker mCurrLocationMarker;
+        private LocationRequest mLocationRequest;
+        private PlacesClient mPlaceDetectionClient;
 
         /**
          * Manipulates the map once available.
@@ -87,17 +91,15 @@ public class MapFragment extends Fragment {
 
         }
     };
-    Location mLastLocation;
-    Marker mCurrLocationMarker;
-    LocationRequest mLocationRequest;
-    private PlacesClient mPlaceDetectionClient;
-    private MapViewModel mMapViewModel;
+
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        MapViewModel mMapViewModel;
+
         mMapViewModel =
                 new ViewModelProvider(this).get(MapViewModel.class);
         View root = inflater.inflate(R.layout.fragment_map, container, false);
@@ -131,8 +133,7 @@ public class MapFragment extends Fragment {
                 .build();
 
         GoogleMapAPI service = retrofit.create(GoogleMapAPI.class);
-
-        Call<GMapPlaces> call = service.getNearbyPlaces("restaurant", latitude + "," + longitude, PROXIMITY_RADIUS);
+        Call<GMapPlaces> call = service.getNearbyPlaces(mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLongitude(), 10000, "restaurant", getString(R.string.google_maps_key));
 
         call.enqueue(new Callback<GMapPlaces>() {
             /**

@@ -12,17 +12,17 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.tizzone.go4lunch.R;
 
-public class DashboardFragment extends Fragment {
+public class ListViewFragment extends Fragment {
 
-    private DashboardViewModel dashboardViewModel;
+    private ListViewModel listViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        dashboardViewModel =
-                new ViewModelProvider(this).get(DashboardViewModel.class);
+        listViewModel =
+                new ViewModelProvider(this).get(ListViewModel.class);
         View root = inflater.inflate(R.layout.fragment_dashboard, container, false);
         final TextView textView = root.findViewById(R.id.text_dashboard);
-        dashboardViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
+        listViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
         return root;
     }
 }
