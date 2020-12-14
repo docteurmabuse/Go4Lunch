@@ -1,6 +1,5 @@
 package com.tizzone.go4lunch.adapters;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -20,11 +19,10 @@ import java.util.List;
 
 public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.ViewHolder> {
 
-
-    private Context context;
     private final List<Result> mPlaces;
 
     public PlacesListAdapters(List<Result> results) {
+
         mPlaces = results;
     }
 

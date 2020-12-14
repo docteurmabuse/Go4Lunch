@@ -133,7 +133,7 @@ public class MapFragment extends Fragment {
                 .build();
 
         GoogleMapAPI service = retrofit.create(GoogleMapAPI.class);
-        Call<PlacesResults> call = service.getNearByPlaces("48.850167,2.39077", 10000, "restaurant", "AIzaSyBK_IN5GbLg77wSfRKVx1qrJHOVc2Tdv5g");
+        Call<PlacesResults> call = service.getNearByPlaces("48.850167,2.39077", 5, "restaurant", "AIzaSyBK_IN5GbLg77wSfRKVx1qrJHOVc2Tdv5g");
 
         call.enqueue(new Callback<PlacesResults>() {
             /**

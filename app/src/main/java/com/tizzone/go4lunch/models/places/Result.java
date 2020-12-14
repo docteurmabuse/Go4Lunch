@@ -1,6 +1,5 @@
 package com.tizzone.go4lunch.models.places;
 
-import com.google.android.libraries.places.api.model.OpeningHours;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
