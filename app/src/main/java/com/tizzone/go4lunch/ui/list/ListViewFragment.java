@@ -58,11 +58,11 @@ public class ListViewFragment extends Fragment {
         double longitude = 151.1957362;
         //   recyclerView.setAdapter(new PlacesListAdapters(DummyContent.ITEMS));
         //String currentLocation = location.getLatitude() + "," + location.getLongitude();
-        int radius = 1500;
+        int radius = 1000;
         GoogleMapAPI googleMapAPI = APIClient.getClient().create(GoogleMapAPI.class);
-        //googleMapAPI.getNearByPlaces("48.850167,2.39077", 5, "restaurant", "AIzaSyBK_IN5GbLg77wSfRKVx1qrJHOVc2Tdv5g").enqueue(new Callback<PlacesResults>() {
-        //googleMapAPI.getNearByPlaces(currentLocation, radius, "restaurant", key).enqueue(new Callback<PlacesResults>() {
-        googleMapAPI.getNearByPlaces(latitude + "," + longitude, 1500, "restaurant", "AIzaSyBK_IN5GbLg77wSfRKVx1qrJHOVc2Tdv5g").enqueue(new Callback<PlacesResults>() {
+        googleMapAPI.getNearByPlaces("48.850167,2.39077", radius, "restaurant", key).enqueue(new Callback<PlacesResults>() {
+            //googleMapAPI.getNearByPlaces(currentLocation, radius, "restaurant", key).enqueue(new Callback<PlacesResults>() {
+            //googleMapAPI.getNearByPlaces(latitude + "," + longitude, 1500, "restaurant", "AIzaSyBK_IN5GbLg77wSfRKVx1qrJHOVc2Tdv5g").enqueue(new Callback<PlacesResults>() {
             @Override
             public void onResponse(Call<PlacesResults> call, Response<PlacesResults> response) {
                 if (response.isSuccessful()) {

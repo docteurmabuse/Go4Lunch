@@ -43,10 +43,11 @@ public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.
         holder.textViewName.setText(mPlaces.get(position).getName());
         holder.textViewAddress.setText(mPlaces.get(position).getVicinity());
         String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
-        String imageUrl = staticUrl + "maxwidth=400&photoreference=" + mPlaces.get(position).getPhotos().get(0).getPhotoReference() + "&key=" + mKey;
 
         //display place thumbnail
         if (mPlaces.get(position).getPhotos().get(0).getPhotoReference() != null) {
+            String imageUrl = staticUrl + "maxwidth=400&photoreference=" + mPlaces.get(position).getPhotos().get(0).getPhotoReference() + "&key=" + mKey;
+
             Glide.with(holder.itemView)
                     .load(imageUrl)
                     .into(holder.imageViewPhoto);
