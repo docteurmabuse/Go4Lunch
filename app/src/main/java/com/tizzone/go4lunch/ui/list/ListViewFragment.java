@@ -34,24 +34,29 @@ public class ListViewFragment extends Fragment {
     private RecyclerView recyclerViewPlaces;
     private PlacesListAdapters placesListAdapter;
     private List<Result> places;
+    private String key;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        places = new ArrayList<>();
         listViewModel =
                 new ViewModelProvider(this).get(ListViewModel.class);
         View root = inflater.inflate(R.layout.fragment_dashboard, container, false);
+        key = getText(R.string.google_maps_key).toString();
         final TextView textView = root.findViewById(R.id.text_dashboard);
         listViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
-        // BEGIN_INCLUDE(initializeRecyclerView)
-        recyclerViewPlaces = (RecyclerView) root.findViewById(R.id.listViewPlaces);
-        Context context = root.getContext();
-        recyclerViewPlaces.setLayoutManager(new LinearLayoutManager(context));
-        places = new ArrayList<>();
+        recyclerViewPlaces = root.findViewById(R.id.listViewPlaces);
+        recyclerViewPlaces.setHasFixedSize(true);
+        recyclerViewPlaces.setLayoutManager(new LinearLayoutManager(root.getContext()));
+        recyclerViewPlaces.setAdapter(new PlacesListAdapters(places, root.getContext(), key));
+
+        // recyclerViewPlaces.setLayoutManager(new LinearLayoutManager(getActivity()));
+        //placesListAdapter = new PlacesListAdapters(places, getActivity());
+        //recyclerViewPlaces.setAdapter(placesListAdapter);
 
         double latitude = -33.8670522;
         double longitude = 151.1957362;
         //   recyclerView.setAdapter(new PlacesListAdapters(DummyContent.ITEMS));
-        String key = getText(R.string.google_maps_key).toString();
         //String currentLocation = location.getLatitude() + "," + location.getLongitude();
         int radius = 1500;
         GoogleMapAPI googleMapAPI = APIClient.getClient().create(GoogleMapAPI.class);
@@ -62,6 +67,7 @@ public class ListViewFragment extends Fragment {
             public void onResponse(Call<PlacesResults> call, Response<PlacesResults> response) {
                 if (response.isSuccessful()) {
                     places = response.body().getResults();
+                    recyclerViewPlaces.setAdapter(new PlacesListAdapters(places, root.getContext(), key));
                 }
             }
 
@@ -70,13 +76,18 @@ public class ListViewFragment extends Fragment {
                 Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
-        placesListAdapter = new PlacesListAdapters(places);
-        recyclerViewPlaces.setAdapter(placesListAdapter);
+
+        Context context = root.getContext();
+        // placesListAdapter = new PlacesListAdapters(places);
         return root;
     }
 
     public void onResume() {
         super.onResume();
-        //recyclerViewPlaces.setAdapter(placesListAdapter);
+        if (placesListAdapter != null) {
+            recyclerViewPlaces.setAdapter(new PlacesListAdapters(places, getContext(), key));
+        }
     }
+
+
 }

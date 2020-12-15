@@ -1,8 +1,6 @@
 package com.tizzone.go4lunch.adapters;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,19 +9,24 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.models.places.Result;
 
-import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.ViewHolder> {
 
-    private final List<Result> mPlaces;
+    private final Context mContext;
+    private final String mKey;
+    private List<Result> mPlaces;
 
-    public PlacesListAdapters(List<Result> results) {
-
+    public PlacesListAdapters(List<Result> results, Context context, String key) {
+        mPlaces = new ArrayList<>();
         mPlaces = results;
+        mContext = context;
+        mKey = key;
     }
 
     @Override
@@ -36,29 +39,23 @@ public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mPlace = mPlaces.get(position);
-        Result place = mPlaces.get(position);
-        holder.textViewName.setText(place.getName());
-        holder.textViewAddress.setText(place.getVicinity());
-        //Bitmap photo = new ImageRequestAsk().execute(place.getIcon()).get();
-        //holder.imageViewPhoto.setImageBitmap(photo);
+        // Result place = mPlaces.get(position);
+        holder.textViewName.setText(mPlaces.get(position).getName());
+        holder.textViewAddress.setText(mPlaces.get(position).getVicinity());
+        String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
+        String imageUrl = staticUrl + "maxwidth=400&photoreference=" + mPlaces.get(position).getPhotos().get(0).getPhotoReference() + "&key=" + mKey;
+
+        //display place thumbnail
+        if (mPlaces.get(position).getPhotos().get(0).getPhotoReference() != null) {
+            Glide.with(holder.itemView)
+                    .load(imageUrl)
+                    .into(holder.imageViewPhoto);
+        }
     }
 
     @Override
     public int getItemCount() {
         return mPlaces.size();
-    }
-
-    private class ImageRequestAsk extends AsyncTask<String, Void, Bitmap> {
-
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            try {
-                InputStream inputStream = new java.net.URL(params[0]).openStream();
-                return BitmapFactory.decodeStream(inputStream);
-            } catch (Exception e) {
-                return null;
-            }
-        }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
