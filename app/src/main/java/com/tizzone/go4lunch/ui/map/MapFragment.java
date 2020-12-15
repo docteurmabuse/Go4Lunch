@@ -229,11 +229,13 @@ public class MapFragment extends Fragment {
                                     new LatLng(mLastKnownLocation.getLatitude(),
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
                             build_retrofit_and_get_response(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+                            mMap.setMyLocationEnabled(true);
 
                         } else {
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(latitude, longitude), DEFAULT_ZOOM));
                             build_retrofit_and_get_response(latitude, longitude);
+                            mMap.setMyLocationEnabled(true);
 
                         }
                     } else {
@@ -242,6 +244,7 @@ public class MapFragment extends Fragment {
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
                         mMap.getUiSettings().setMyLocationButtonEnabled(false);
                         build_retrofit_and_get_response(mDefaultLocation.latitude, mDefaultLocation.longitude);
+                        mMap.setMyLocationEnabled(true);
                     }
                 });
             }
