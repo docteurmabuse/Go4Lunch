@@ -45,7 +45,7 @@ public class MapFragment extends Fragment {
 
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 546;
     private static final float DEFAULT_ZOOM = 15;
-    private final int PROXIMITY_RADIUS = 100;
+    private final int PROXIMITY_RADIUS = 1000;
     private GoogleMap mMap;
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation;
@@ -53,6 +53,8 @@ public class MapFragment extends Fragment {
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private final double latitude = 48.850167;
     private final double longitude = 2.390770;
+    private String key;
+
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
         private Location mLastLocation;
         private Marker mCurrLocationMarker;
@@ -119,12 +121,12 @@ public class MapFragment extends Fragment {
             mapFragment.getMapAsync(callback);
         }
 
-
+        key = getText(R.string.google_maps_key).toString();
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
     }
 
-    private void build_retrofit_and_get_response() {
+    private void build_retrofit_and_get_response(double latitude, double longitude) {
 
         String url = "https://maps.googleapis.com/maps/api/";
         Retrofit retrofit = new Retrofit.Builder()
@@ -133,7 +135,7 @@ public class MapFragment extends Fragment {
                 .build();
 
         GoogleMapAPI service = retrofit.create(GoogleMapAPI.class);
-        Call<PlacesResults> call = service.getNearByPlaces("48.850167,2.39077", 5, "restaurant", "AIzaSyBK_IN5GbLg77wSfRKVx1qrJHOVc2Tdv5g");
+        Call<PlacesResults> call = service.getNearByPlaces(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
 
         call.enqueue(new Callback<PlacesResults>() {
             /**
@@ -167,7 +169,7 @@ public class MapFragment extends Fragment {
                         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
                         // move map camera
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                        mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+                        mMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM));
                     }
                 } catch (Exception e) {
                     Log.d("onResponse", "There is an error");
@@ -199,7 +201,6 @@ public class MapFragment extends Fragment {
             if (mLocationPermissionGranted) {
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setMyLocationButtonEnabled(true);
-
             } else {
                 mMap.setMyLocationEnabled(false);
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
@@ -227,12 +228,12 @@ public class MapFragment extends Fragment {
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(mLastKnownLocation.getLatitude(),
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-                            build_retrofit_and_get_response();
+                            build_retrofit_and_get_response(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
 
                         } else {
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(latitude, longitude), DEFAULT_ZOOM));
-                            build_retrofit_and_get_response();
+                            build_retrofit_and_get_response(latitude, longitude);
 
                         }
                     } else {
@@ -240,7 +241,7 @@ public class MapFragment extends Fragment {
                         Log.e(TAG, "Exception: %s", task.getException());
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
                         mMap.getUiSettings().setMyLocationButtonEnabled(false);
-                        build_retrofit_and_get_response();
+                        build_retrofit_and_get_response(mDefaultLocation.latitude, mDefaultLocation.longitude);
                     }
                 });
             }

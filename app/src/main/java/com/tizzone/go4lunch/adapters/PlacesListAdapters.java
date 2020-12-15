@@ -42,6 +42,9 @@ public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.
         // Result place = mPlaces.get(position);
         holder.textViewName.setText(mPlaces.get(position).getName());
         holder.textViewAddress.setText(mPlaces.get(position).getVicinity());
+        if (mPlaces.get(position).getOpeningHours() != null)
+            holder.textViewOpeningHours.setText(mPlaces.get(position).getOpeningHours().getWeekdayText().toString());
+
         String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
 
         //display place thumbnail
@@ -63,6 +66,7 @@ public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.
         public final View mView;
         public TextView textViewName;
         public TextView textViewAddress;
+        public TextView textViewOpeningHours;
         public ImageView imageViewPhoto;
         public Result mPlace;
 
@@ -71,7 +75,9 @@ public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.
             mView = view;
             textViewName = view.findViewById(R.id.textViewName);
             textViewAddress = view.findViewById(R.id.textViewAddress);
+            textViewOpeningHours = view.findViewById(R.id.textViewOpeningHours);
             imageViewPhoto = view.findViewById(R.id.imageViewPhoto);
+
         }
     }
 }
