@@ -41,13 +41,14 @@ public class PlacesRepository {
         return placesRepository;
     }
 
-    public void getNearByPlaces(String location, int radius, String type, String key) {
+    public void getNearByPlaces(String location, int radius, String type, String key, PlacesResultsInterface mPlacesResultsInterface) {
         googleMapAPI.getNearByPlaces(location, radius, type, key)
                 .enqueue(new Callback<PlacesResults>() {
                     @Override
                     public void onResponse(Call<PlacesResults> call, Response<PlacesResults> response) {
                         if (response.body() != null) {
                             placesResultsMutableLiveData.postValue(response.body());
+                            mPlacesResultsInterface.onResponse(response.body());
                         }
                     }
 
@@ -60,5 +61,9 @@ public class PlacesRepository {
 
     public LiveData<PlacesResults> getPlacesResultsLiveData() {
         return placesResultsMutableLiveData;
+    }
+
+    public interface PlacesResultsInterface{
+        void onResponse(PlacesResults placesResults);
     }
 }

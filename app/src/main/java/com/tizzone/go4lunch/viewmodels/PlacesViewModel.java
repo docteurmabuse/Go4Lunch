@@ -13,9 +13,6 @@ public class PlacesViewModel extends ViewModel {
     private PlacesRepository placesRepository;
     private LiveData<PlacesResults> placesResultsLiveData;
 
-    public PlacesViewModel(@NonNull Application application) {
-        super();
-    }
 
     public void init() {
         placesRepository = new PlacesRepository();
@@ -23,7 +20,12 @@ public class PlacesViewModel extends ViewModel {
     }
 
     public void getNearByPlaces(String location, int radius, String type, String key) {
-        placesRepository.getNearByPlaces(location, radius, type, key);
+        placesRepository.getNearByPlaces(location, radius, type, key, new PlacesRepository.PlacesResultsInterface() {
+            @Override
+            public void onResponse(PlacesResults placesResults) {
+
+            }
+        });
     }
 
     public LiveData<PlacesResults> getPlacesResultsLiveData() {
