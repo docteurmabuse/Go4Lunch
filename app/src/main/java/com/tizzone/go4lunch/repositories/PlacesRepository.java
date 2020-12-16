@@ -18,12 +18,12 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class PlacesRepository {
     private static final String PLACE_SEARCH_SERVICE_BASE_URL = "https://maps.googleapis.com/";
     private static PlacesRepository placesRepository;
-    private final GoogleMapAPI googleMapAPI;
-    private final MutableLiveData<PlacesResults> placesResultsMutableLiveData;
+    private  GoogleMapAPI googleMapAPI;
+    private  MutableLiveData<PlacesResults> placesResultsLiveData;
     private PlacesApi placesApi;
 
     public PlacesRepository() {
-        placesResultsMutableLiveData = new MutableLiveData<>();
+        placesResultsLiveData = new MutableLiveData<>();
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
@@ -47,20 +47,20 @@ public class PlacesRepository {
                     @Override
                     public void onResponse(Call<PlacesResults> call, Response<PlacesResults> response) {
                         if (response.body() != null) {
-                            placesResultsMutableLiveData.postValue(response.body());
+                            placesResultsLiveData.postValue(response.body());
                             mPlacesResultsInterface.onResponse(response.body());
                         }
                     }
 
                     @Override
                     public void onFailure(Call<PlacesResults> call, Throwable t) {
-                        placesResultsMutableLiveData.postValue(null);
+                        placesResultsLiveData.postValue(null);
                     }
                 });
     }
 
     public LiveData<PlacesResults> getPlacesResultsLiveData() {
-        return placesResultsMutableLiveData;
+        return placesResultsLiveData;
     }
 
     public interface PlacesResultsInterface{
