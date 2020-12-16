@@ -16,8 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.adapters.PlacesListAdapters;
-import com.tizzone.go4lunch.api.APIClient;
 import com.tizzone.go4lunch.api.GoogleMapAPI;
+import com.tizzone.go4lunch.api.PlacesApi;
 import com.tizzone.go4lunch.models.places.PlacesResults;
 import com.tizzone.go4lunch.models.places.Result;
 
@@ -59,7 +59,7 @@ public class ListViewFragment extends Fragment {
         //   recyclerView.setAdapter(new PlacesListAdapters(DummyContent.ITEMS));
         //String currentLocation = location.getLatitude() + "," + location.getLongitude();
         int radius = 1000;
-        GoogleMapAPI googleMapAPI = APIClient.getClient().create(GoogleMapAPI.class);
+        GoogleMapAPI googleMapAPI = PlacesApi.getClient().create(GoogleMapAPI.class);
         googleMapAPI.getNearByPlaces("48.850167,2.39077", radius, "restaurant", key).enqueue(new Callback<PlacesResults>() {
             //googleMapAPI.getNearByPlaces(currentLocation, radius, "restaurant", key).enqueue(new Callback<PlacesResults>() {
             //googleMapAPI.getNearByPlaces(latitude + "," + longitude, 1500, "restaurant", "AIzaSyBK_IN5GbLg77wSfRKVx1qrJHOVc2Tdv5g").enqueue(new Callback<PlacesResults>() {
