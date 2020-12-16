@@ -1,6 +1,5 @@
 package com.tizzone.go4lunch.adapters;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,16 +17,15 @@ import java.util.List;
 
 public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.ViewHolder> {
 
-    private final Context mContext;
-    private final String mKey;
-    private List<Result> mPlaces;
+    private String mKey;
+    private List<Result> mPlaces = new ArrayList<>();
 
-    public PlacesListAdapters(List<Result> results, Context context, String key) {
-        mPlaces = new ArrayList<>();
-        mPlaces = results;
-        mContext = context;
-        mKey = key;
-    }
+//    public PlacesListAdapters(List<Result> results, Context context, String key) {
+//        mPlaces = new ArrayList<>();
+//        mPlaces = results;
+//        mContext = context;
+//        mKey = key;
+//    }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -55,6 +53,12 @@ public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.
                     .load(imageUrl)
                     .into(holder.imageViewPhoto);
         }
+    }
+
+    public void setmPlaces(List<Result> results, String key) {
+        this.mPlaces = results;
+        this.mKey = key;
+        notifyDataSetChanged();
     }
 
     @Override
