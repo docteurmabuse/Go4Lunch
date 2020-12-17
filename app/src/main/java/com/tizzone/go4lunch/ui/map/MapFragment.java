@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -29,14 +30,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.tizzone.go4lunch.R;
-import com.tizzone.go4lunch.api.GoogleMapAPI;
 import com.tizzone.go4lunch.models.places.PlacesResults;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.ContentValues.TAG;
@@ -54,6 +49,8 @@ public class MapFragment extends Fragment {
     private final double latitude = 48.850167;
     private final double longitude = 2.390770;
     private String key;
+    private PlacesViewModel placesViewModel;
+
 
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
         private Location mLastLocation;
@@ -107,8 +104,9 @@ public class MapFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_map, container, false);
         // final TextView textView = root.findViewById(R.id.text_home);
         //  mMapViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
-
-
+        placesViewModel =
+                new ViewModelProvider(this).get(PlacesViewModel.class);
+        placesViewModel.init();
         return root;
     }
 
@@ -128,68 +126,41 @@ public class MapFragment extends Fragment {
 
     private void build_retrofit_and_get_response(double latitude, double longitude) {
 
-        String url = "https://maps.googleapis.com/maps/api/";
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(url)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        GoogleMapAPI service = retrofit.create(GoogleMapAPI.class);
-        Call<PlacesResults> call = service.getNearByPlaces(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
-
-        call.enqueue(new Callback<PlacesResults>() {
-            /**
-             * Invoked for a received HTTP response.
-             *
-             * <p>Note: An HTTP response may still indicate an application-level failure such as a 404 or 500.
-             * Call {@link Response#isSuccessful()} to determine if the response indicates success.
-             *
-             * @param call
-             * @param response
-             */
+        placesViewModel.getPlacesResultsLiveData().observe(this.getActivity(), new Observer<PlacesResults>() {
             @Override
-            public void onResponse(Call<PlacesResults> call, Response<PlacesResults> response) {
-                try {
-                    mMap.clear();
-                    // This loop will go through all the results and add marker on each location.
-                    for (int i = 0; i < response.body().getResults().size(); i++) {
-                        Double lat = response.body().getResults().get(i).getGeometry().getLocation().getLat();
-                        Double lng = response.body().getResults().get(i).getGeometry().getLocation().getLng();
-                        String placeName = response.body().getResults().get(i).getName();
-                        String vicinity = response.body().getResults().get(i).getVicinity();
-                        MarkerOptions markerOptions = new MarkerOptions();
-                        LatLng latLng = new LatLng(lat, lng);
-                        // Position of Marker on Map
-                        markerOptions.position(latLng);
-                        // Adding Title to the Marker
-                        markerOptions.title(placeName + " : " + vicinity);
-                        // Adding Marker to the Camera.
-                        Marker m = mMap.addMarker(markerOptions);
-                        // Adding colour to the marker
-                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-                        // move map camera
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                        mMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM));
+            public void onChanged(PlacesResults placesResults) {
+                if (placesResults != null) {
+
+                    try {
+                        mMap.clear();
+                        // This loop will go through all the results and add marker on each location.
+                        for (int i = 0; i < placesResults.getResults().size(); i++) {
+                            Double lat = placesResults.getResults().get(i).getGeometry().getLocation().getLat();
+                            Double lng = placesResults.getResults().get(i).getGeometry().getLocation().getLng();
+                            String placeName = placesResults.getResults().get(i).getName();
+                            String vicinity = placesResults.getResults().get(i).getVicinity();
+                            MarkerOptions markerOptions = new MarkerOptions();
+                            LatLng latLng = new LatLng(lat, lng);
+                            // Position of Marker on Map
+                            markerOptions.position(latLng);
+                            // Adding Title to the Marker
+                            markerOptions.title(placeName + " : " + vicinity);
+                            // Adding Marker to the Camera.
+                            Marker m = mMap.addMarker(markerOptions);
+                            // Adding colour to the marker
+                            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                            // move map camera
+                            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                            mMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM));
+                        }
+                    } catch (Exception e) {
+                        Log.d("onResponse", "There is an error");
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    Log.d("onResponse", "There is an error");
-                    e.printStackTrace();
                 }
             }
-
-            /**
-             * Invoked when a network exception occurred talking to the server or when an unexpected exception
-             * occurred creating the request or processing the response.
-             *
-             * @param call
-             * @param t
-             */
-            @Override
-            public void onFailure(Call<PlacesResults> call, Throwable t) {
-                Log.d("onFailure", t.toString());
-            }
         });
-
+        placesViewModel.getNearByPlaces(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
     }
 
 

@@ -16,10 +16,11 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PlacesRepository {
-    private static final String PLACE_SEARCH_SERVICE_BASE_URL = "https://maps.googleapis.com/";
+    //Error sur le base url
+    private static final String PLACE_SEARCH_SERVICE_BASE_URL = "https://maps.googleapis.com/maps/api/";
     private static PlacesRepository placesRepository;
-    private  GoogleMapAPI googleMapAPI;
-    private  MutableLiveData<PlacesResults> placesResultsLiveData;
+    private GoogleMapAPI googleMapAPI;
+    private MutableLiveData<PlacesResults> placesResultsLiveData;
     private PlacesApi placesApi;
 
     public PlacesRepository() {

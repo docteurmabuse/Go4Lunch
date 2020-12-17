@@ -67,6 +67,7 @@ public class ListViewFragment extends Fragment {
                 }
             }
         });
+        placesViewModel.getNearByPlaces(latitude + "," + longitude, radius, "restaurant", key);
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -80,33 +81,9 @@ public class ListViewFragment extends Fragment {
         recyclerViewPlaces = root.findViewById(R.id.listViewPlaces);
         recyclerViewPlaces.setHasFixedSize(true);
         recyclerViewPlaces.setLayoutManager(new LinearLayoutManager(root.getContext()));
-        // recyclerViewPlaces.setAdapter(new PlacesListAdapters(places, root.getContext(), key));
 
-        // recyclerViewPlaces.setLayoutManager(new LinearLayoutManager(getActivity()));
-        //placesListAdapter = new PlacesListAdapters(places, getActivity());
-        //recyclerViewPlaces.setAdapter(placesListAdapter);
+        recyclerViewPlaces.setAdapter(placesListAdapter);
 
-
-        //   recyclerView.setAdapter(new PlacesListAdapters(DummyContent.ITEMS));
-        //String currentLocation = location.getLatitude() + "," + location.getLongitude();
-       /* GoogleMapAPI googleMapAPI = PlacesApi.getClient().create(GoogleMapAPI.class);
-        googleMapAPI.getNearByPlaces("48.850167,2.39077", radius, "restaurant", key).enqueue(new Callback<PlacesResults>() {
-            //googleMapAPI.getNearByPlaces(currentLocation, radius, "restaurant", key).enqueue(new Callback<PlacesResults>() {
-            //googleMapAPI.getNearByPlaces(latitude + "," + longitude, 1500, "restaurant", "AIzaSyBK_IN5GbLg77wSfRKVx1qrJHOVc2Tdv5g").enqueue(new Callback<PlacesResults>() {
-            @Override
-            public void onResponse(Call<PlacesResults> call, Response<PlacesResults> response) {
-                if (response.isSuccessful()) {
-                    places = response.body().getResults();
-                    recyclerViewPlaces.setAdapter(new PlacesListAdapters(places, root.getContext(), key));
-                }
-            }
-
-            @Override
-            public void onFailure(Call<PlacesResults> call, Throwable t) {
-                Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
-*/
         Context context = root.getContext();
         // placesListAdapter = new PlacesListAdapters(places);
         return root;
