@@ -1,5 +1,9 @@
 package com.tizzone.go4lunch.adapters;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +15,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.models.places.Result;
+import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
+import com.tizzone.go4lunch.models.places.Result;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +26,7 @@ public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.
 
     private String mKey;
     private List<Result> mPlaces = new ArrayList<>();
+    public static final String DETAIL_PLACE = "detailPlace";
 
 //    public PlacesListAdapters(List<Result> results, Context context, String key) {
 //        mPlaces = new ArrayList<>();
@@ -37,7 +45,7 @@ public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mPlace = mPlaces.get(position);
-        // Result place = mPlaces.get(position);
+        Result place = mPlaces.get(position);
         holder.textViewName.setText(mPlaces.get(position).getName());
         holder.textViewAddress.setText(mPlaces.get(position).getVicinity());
         if (mPlaces.get(position).getOpeningHours() != null)
@@ -53,6 +61,18 @@ public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.
                     .load(imageUrl)
                     .into(holder.imageViewPhoto);
         }
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Context context = holder.itemView.getContext();
+                Bundle arguments = new Bundle();
+                Intent intent = new Intent(context, PlaceDetailActivity.class);
+                Result detailPlace = place;
+                arguments.putSerializable(DETAIL_PLACE, detailPlace);
+                intent.putExtras(arguments);
+                context.startActivity(intent);
+            }
+        });
     }
 
     public void setmPlaces(List<Result> results, String key) {

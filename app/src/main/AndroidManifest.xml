@@ -11,7 +11,6 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
-
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
@@ -19,6 +18,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Go4Lunch">
+        <activity android:name=".ui.list.PlaceDetailActivity"></activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -42,8 +42,7 @@
         </activity>
         <activity
             android:name=".BottomNavigationActivity"
-            android:label="@string/title_activity_bottom_navigation"></activity>
-
+            android:label="@string/title_activity_bottom_navigation" />
     </application>
 
 </manifest>
