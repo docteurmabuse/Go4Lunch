@@ -69,7 +69,10 @@ public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.
                 Intent intent = new Intent(context, PlaceDetailActivity.class);
                 Result detailPlace = place;
                 arguments.putSerializable(DETAIL_PLACE, detailPlace);
-                intent.putExtras(arguments);
+                intent.putExtra("placeName", place.getName());
+                intent.putExtra("placeAddress", place.getVicinity());
+                String placePhotoUrl =  staticUrl + "maxwidth=400&photoreference=" + place.getPhotos().get(0).getPhotoReference() + "&key=" + mKey;
+                intent.putExtra("placePhotoUrl", placePhotoUrl);
                 context.startActivity(intent);
             }
         });

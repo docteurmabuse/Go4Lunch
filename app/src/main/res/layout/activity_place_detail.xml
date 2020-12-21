@@ -35,7 +35,7 @@
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/detail_toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
+                android:layout_height="49dp"
                 app:layout_collapseMode="pin"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
@@ -43,11 +43,8 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/item_detail_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+    <include layout="@layout/content_layout_place_detail_activity"
+        />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
@@ -55,8 +52,12 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|start"
         android:layout_margin="@dimen/fab_margin"
-        app:layout_anchor="@+id/item_detail_container"
-        app:layout_anchorGravity="top|end"
-        app:srcCompat="@android:drawable/stat_notify_chat" />
-
+        android:background="#8BC34A"
+        android:tint="@color/green_200"
+        app:backgroundTint="@color/white"
+        app:fabSize="auto"
+        app:layout_anchor="@+id/app_bar"
+        app:layout_anchorGravity="bottom|end"
+        app:rippleColor="#7CB342"
+        app:srcCompat="@drawable/ic_baseline_check_circle_24" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
