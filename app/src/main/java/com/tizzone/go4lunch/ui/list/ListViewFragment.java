@@ -58,7 +58,6 @@ public class ListViewFragment extends Fragment {
         placesListAdapter = new PlacesListAdapters();
         placesViewModel =
                 new ViewModelProvider(this).get(PlacesViewModel.class);
-        placesViewModel.init();
         placesViewModel.getPlacesResultsLiveData().observe(this, new Observer<PlacesResults>() {
             @Override
             public void onChanged(PlacesResults placesResults) {

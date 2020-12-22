@@ -106,7 +106,6 @@ public class MapFragment extends Fragment {
         //  mMapViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
         placesViewModel =
                 new ViewModelProvider(this).get(PlacesViewModel.class);
-        placesViewModel.init();
         return root;
     }
 
@@ -125,12 +124,11 @@ public class MapFragment extends Fragment {
     }
 
     private void build_retrofit_and_get_response(double latitude, double longitude) {
-
+        placesViewModel.getNearByPlaces(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
         placesViewModel.getPlacesResultsLiveData().observe(this.getActivity(), new Observer<PlacesResults>() {
             @Override
             public void onChanged(PlacesResults placesResults) {
                 if (placesResults != null) {
-
                     try {
                         mMap.clear();
                         // This loop will go through all the results and add marker on each location.
@@ -160,7 +158,7 @@ public class MapFragment extends Fragment {
                 }
             }
         });
-        placesViewModel.getNearByPlaces(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
+
     }
 
 

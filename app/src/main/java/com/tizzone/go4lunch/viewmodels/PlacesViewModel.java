@@ -8,14 +8,8 @@ import com.tizzone.go4lunch.models.places.PlacesResults;
 import com.tizzone.go4lunch.repositories.PlacesRepository;
 
 public class PlacesViewModel extends ViewModel {
-    private PlacesRepository placesRepository;
-    private MutableLiveData<PlacesResults> mutableLiveDataPlaces;
-
-
-    public void init() {
-        placesRepository = new PlacesRepository();
-        mutableLiveDataPlaces = new MutableLiveData<>();
-    }
+    private PlacesRepository placesRepository = new PlacesRepository();;
+    private MutableLiveData<PlacesResults> mutableLiveDataPlaces = new MutableLiveData<>();
 
     public void getNearByPlaces(String location, int radius, String type, String key) {
         placesRepository.getNearByPlaces(location, radius, type, key, new PlacesRepository.PlacesResultsInterface() {

@@ -14,6 +14,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -29,6 +31,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.tizzone.go4lunch.databinding.ActivityBottomNavigationBinding;
 import com.tizzone.go4lunch.models.places.Result;
+import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
 import java.util.List;
 
@@ -46,6 +49,7 @@ public class BottomNavigationActivity extends AppCompatActivity {
     private List<Result> places;
     private String key;
     private MutableLiveData<List<Result>> placesList;
+    private PlacesViewModel placesViewModel;
 
 
     @Override
@@ -85,6 +89,9 @@ public class BottomNavigationActivity extends AppCompatActivity {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         key = getText(R.string.google_maps_key).toString();
         //getDeviceLocation();
+//
+//        placesViewModel = ViewModelProviders.of(this).get(PlacesViewModel.class);
+//        placesViewModel.getPlacesResultsLiveData().observe(this);
     }
 
 
