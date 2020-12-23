@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -52,21 +53,10 @@ public class ListViewFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         key = getText(R.string.google_maps_key).toString();
-        double latitude = -33.8670522;
-        double longitude = 151.1957362;
+        double latitude ;
+        double longitude ;
         int radius = 1000;
         placesListAdapter = new PlacesListAdapters();
-        placesViewModel =
-                new ViewModelProvider(this).get(PlacesViewModel.class);
-        placesViewModel.getPlacesResultsLiveData().observe(this, new Observer<PlacesResults>() {
-            @Override
-            public void onChanged(PlacesResults placesResults) {
-                if (placesResults != null) {
-                    placesListAdapter.setmPlaces(placesResults.getResults(), key);
-                }
-            }
-        });
-        placesViewModel.getNearByPlaces(latitude + "," + longitude, radius, "restaurant", key);
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -74,9 +64,13 @@ public class ListViewFragment extends Fragment {
         places = new ArrayList<>();
 
         View root = inflater.inflate(R.layout.fragment_dashboard, container, false);
-        // final TextView textView = root.findViewById(R.id.text_dashboard);
-        // placesViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
 
+        placesViewModel =
+                new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+        placesViewModel.getPlacesResultsLiveData().observe(getViewLifecycleOwner(), placesResults -> {
+            placesListAdapter.setmPlaces(placesResults.getResults(), key);
+
+        });
         recyclerViewPlaces = root.findViewById(R.id.listViewPlaces);
         recyclerViewPlaces.setHasFixedSize(true);
         recyclerViewPlaces.setLayoutManager(new LinearLayoutManager(root.getContext()));
@@ -84,13 +78,10 @@ public class ListViewFragment extends Fragment {
         recyclerViewPlaces.setAdapter(placesListAdapter);
 
         Context context = root.getContext();
-        // placesListAdapter = new PlacesListAdapters(places);
         return root;
     }
 
     public void onResume() {
         super.onResume();
     }
-
-
 }

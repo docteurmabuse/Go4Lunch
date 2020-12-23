@@ -50,6 +50,7 @@ public class MapFragment extends Fragment {
     private final double longitude = 2.390770;
     private String key;
     private PlacesViewModel placesViewModel;
+    private MapViewModel mMapViewModel;
 
 
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
@@ -97,15 +98,15 @@ public class MapFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        MapViewModel mMapViewModel;
-
-        mMapViewModel =
-                new ViewModelProvider(this).get(MapViewModel.class);
+//
+//        mMapViewModel =
+//                new ViewModelProvider(this).get(MapViewModel.class);
         View root = inflater.inflate(R.layout.fragment_map, container, false);
         // final TextView textView = root.findViewById(R.id.text_home);
         //  mMapViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
         placesViewModel =
-                new ViewModelProvider(this).get(PlacesViewModel.class);
+                new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+        placesViewModel.init();
         return root;
     }
 
@@ -125,7 +126,7 @@ public class MapFragment extends Fragment {
 
     private void build_retrofit_and_get_response(double latitude, double longitude) {
         placesViewModel.getNearByPlaces(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
-        placesViewModel.getPlacesResultsLiveData().observe(this.getActivity(), new Observer<PlacesResults>() {
+        placesViewModel.getPlacesResultsLiveData().observe(this, new Observer<PlacesResults>() {
             @Override
             public void onChanged(PlacesResults placesResults) {
                 if (placesResults != null) {
