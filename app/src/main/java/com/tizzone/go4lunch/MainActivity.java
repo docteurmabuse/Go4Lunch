@@ -6,10 +6,12 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.IdpResponse;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -38,6 +40,7 @@ public class MainActivity extends BaseActivity {
         if (mAuthStateListener != null) mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +61,11 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (this.isCurrentUserLogged()) {
+            this.startBottomNavigationActivity();
+        } else {
+            init();
+        }
     }
 
     private void init() {
@@ -83,6 +91,7 @@ public class MainActivity extends BaseActivity {
                 FirebaseUser user = mFirebaseAuth.getCurrentUser();
                 if (user != null) {
                     startBottomNavigationActivity();
+                    showSnackBar("You're already logged in with uid: " + user.getUid());
                     Toast.makeText(MainActivity.this, "You're already logged in with uid: " + user.getUid(), Toast.LENGTH_SHORT);
 
                 } else {
@@ -101,11 +110,30 @@ public class MainActivity extends BaseActivity {
         };
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == RC_SIGN_IN) {
+            IdpResponse response = IdpResponse.fromResultIntent(data);
 
+            if (resultCode == RESULT_OK) {
+                // Successfully signed in
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                startBottomNavigationActivity();
+
+                // ...
+            } else {
+                // Sign in failed. If response is null the user canceled the
+                // sign-in flow using the back button. Otherwise check
+                // response.getError().getErrorCode() and handle the error.
+                // ...
+            }
+        }
+    }
 
     // 2 - Show Snack Bar with a message
-    private void showSnackBar(CoordinatorLayout coordinatorLayout, String message) {
+    private void showSnackBar( String message) {
         Snackbar.make(mBinding.mainLayout, message, Snackbar.LENGTH_SHORT).show();
     }
 

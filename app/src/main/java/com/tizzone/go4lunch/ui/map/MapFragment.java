@@ -1,5 +1,6 @@
 package com.tizzone.go4lunch.ui.map;
 
+import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -50,9 +51,16 @@ public class MapFragment extends Fragment {
     private final double longitude = 2.390770;
     private String key;
     private PlacesViewModel placesViewModel;
-    private MapViewModel mMapViewModel;
 
-
+    private void setupMap() {
+        if (ActivityCompat.checkSelfPermission(getContext(), ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED){
+            mMap.setMyLocationEnabled(true);
+            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        }
+        else {
+            // Show rationale and request permission.
+        }
+    }
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
         private Location mLastLocation;
         private Marker mCurrLocationMarker;
@@ -72,6 +80,8 @@ public class MapFragment extends Fragment {
         @Override
         public void onMapReady(GoogleMap googleMap) {
             mMap = googleMap;
+
+
 //                // Do other setup activities here too, as described elsewhere in this tutorial.@Override
 //                LatLng paris = new LatLng(48.850167, 2.390770);
 //                mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
@@ -88,8 +98,16 @@ public class MapFragment extends Fragment {
 
             // Get the current location of the device and set the position of the map.
             getDeviceLocation();
-
+            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                mMap.setMyLocationEnabled(true);
+                mMap.getUiSettings().setMyLocationButtonEnabled(true);
+                mMap.getUiSettings().setZoomControlsEnabled(true);
+            }
         }
+
+
     };
 
 
@@ -98,12 +116,9 @@ public class MapFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-//
-//        mMapViewModel =
-//                new ViewModelProvider(this).get(MapViewModel.class);
+
         View root = inflater.inflate(R.layout.fragment_map, container, false);
-        // final TextView textView = root.findViewById(R.id.text_home);
-        //  mMapViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
+
         placesViewModel =
                 new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         placesViewModel.init();
@@ -200,13 +215,13 @@ public class MapFragment extends Fragment {
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
                             build_retrofit_and_get_response(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
                             mMap.setMyLocationEnabled(true);
-
+                            mMap.getUiSettings().setMyLocationButtonEnabled(true);
                         } else {
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(latitude, longitude), DEFAULT_ZOOM));
                             build_retrofit_and_get_response(latitude, longitude);
                             mMap.setMyLocationEnabled(true);
-
+                            mMap.getUiSettings().setMyLocationButtonEnabled(true);
                         }
                     } else {
                         Log.d(TAG, "Current location is null. Using defaults.");
@@ -215,6 +230,8 @@ public class MapFragment extends Fragment {
                         mMap.getUiSettings().setMyLocationButtonEnabled(false);
                         build_retrofit_and_get_response(mDefaultLocation.latitude, mDefaultLocation.longitude);
                         mMap.setMyLocationEnabled(true);
+                        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+
                     }
                 });
             }
