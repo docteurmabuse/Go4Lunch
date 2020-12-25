@@ -18,7 +18,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Go4Lunch">
-        <activity android:name=".ui.list.PlaceDetailActivity"></activity>
+        <activity
+            android:name=".ui.list.PlaceDetailActivity"
+            android:parentActivityName=".BottomNavigationActivity" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").

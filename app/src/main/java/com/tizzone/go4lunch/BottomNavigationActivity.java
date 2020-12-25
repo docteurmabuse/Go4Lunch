@@ -88,10 +88,6 @@ public class BottomNavigationActivity extends AppCompatActivity {
         listViewPlaces = findViewById(R.id.listViewPlaces);
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         key = getText(R.string.google_maps_key).toString();
-        //getDeviceLocation();
-//
-//        placesViewModel = ViewModelProviders.of(this).get(PlacesViewModel.class);
-//        placesViewModel.getPlacesResultsLiveData().observe(this);
     }
 
 

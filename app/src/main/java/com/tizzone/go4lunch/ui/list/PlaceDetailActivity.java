@@ -30,7 +30,7 @@ public class PlaceDetailActivity extends AppCompatActivity {
             setContentView(R.layout.activity_place_detail);
             Toolbar toolbar = findViewById(R.id.toolbar);
             AppBarLayout appbar = (AppBarLayout)findViewById(R.id.app_bar);
-
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             ImageView DetailImage = findViewById(R.id.mDetailImage);
             TextView placeName =findViewById(R.id.place_name);
             TextView placeAddress =findViewById(R.id.place_address);
