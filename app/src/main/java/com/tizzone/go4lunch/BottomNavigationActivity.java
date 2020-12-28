@@ -37,7 +37,7 @@ import java.util.List;
 
 public class BottomNavigationActivity extends AppCompatActivity {
     private static final int SIGN_OUT_TASK = 25;
-    ActivityBottomNavigationBinding mBinding;
+    private ActivityBottomNavigationBinding mBinding;
     private AppBarConfiguration mAppBarConfiguration;
     private Location lastKnownLocation;
     private ListView listViewPlaces;

@@ -23,4 +23,6 @@
     <string name="menu_logout">LOGOUT</string>
     <string name="menu_lunch">YOUR LUNCH</string>
     <string name="menu_settings">SETTINGS</string>
+    <string name="set_restaurant_button">Set restaurant button</string>
+    <string name="detail_restaurant_image">Detail Restaurant Image</string>
 </resources>
