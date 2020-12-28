@@ -38,20 +38,21 @@ public class PlaceDetailActivity extends AppCompatActivity {
             Toolbar toolbar = findViewById(R.id.detail_toolbar);
             CollapsingToolbarLayout collapsingToolbar =
                     findViewById(R.id.toolbar_layout);
-            AppBarLayout appbar = placeDetailBinding.appBarDetail;
+            AppBarLayout appbar = findViewById (R.id.app_bar_detail);
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
             ImageView DetailImage = findViewById(R.id.mDetailImage);
             TextView placeName =findViewById(R.id.place_name);
             TextView placeAddress =findViewById(R.id.place_address);
+            TextView placesDetailsTitle = findViewById(R.id.place_details_title);
+            TextView placesDetailsAddress = findViewById(R.id.place_details_address);
 
             mDetailPhotoUrl = intent.getStringExtra("placePhotoUrl");
             Glide.with(DetailImage.getContext())
                     .load(mDetailPhotoUrl)
                     .into(DetailImage);
-            //  setSupportActionBar(toolbar);
-            //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
             mDetailName= intent.getStringExtra("placeName");
             placeName.setText(mDetailName);
 
@@ -62,18 +63,26 @@ public class PlaceDetailActivity extends AppCompatActivity {
                     if (Math.abs(verticalOffset)-appBarLayout.getTotalScrollRange() == 0)
                     {
                         // Collapsed
-                        collapsingToolbar.setTitle(mDetailName);
+                        collapsingToolbar.setTitle(intent.getStringExtra("placeName"));
+                        toolbar.setTitle(intent.getStringExtra("placeAddress"));
+                        toolbar.setSubtitle(intent.getStringExtra("placeAddress"));
+                        placesDetailsTitle.setText(intent.getStringExtra("placeName"));
+                        placesDetailsAddress.setText(intent.getStringExtra("placeAddress"));
+                        placeAddress.setVisibility(View.INVISIBLE);
+                        placeName.setVisibility(View.INVISIBLE);
                     }
                     else
                     {
                         // Expanded
                         collapsingToolbar.setTitle("");
+                        toolbar.setTitle(intent.getStringExtra("placeAddress"));
+                        mDetailAdress= intent.getStringExtra("placeAddress");
+                        placeAddress.setText(mDetailAdress);
                     }
                 }
             });
            // collapsingToolbar.setTitle(mDetailName);
-            mDetailAdress= intent.getStringExtra("placeAddress");
-            placeAddress.setText(mDetailAdress);
+
             getPlaceDetail();
             fabOnClickListener();
         }
