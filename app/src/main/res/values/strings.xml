@@ -25,4 +25,7 @@
     <string name="menu_settings">SETTINGS</string>
     <string name="set_restaurant_button">Set restaurant button</string>
     <string name="detail_restaurant_image">Detail Restaurant Image</string>
+    <string name="call">CALL</string>
+    <string name="like">LIKE</string>
+    <string name="website">WEBSITE</string>
 </resources>
