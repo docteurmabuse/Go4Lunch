@@ -67,9 +67,8 @@ public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.
                 final Context context = holder.itemView.getContext();
                 Bundle arguments = new Bundle();
                 Intent intent = new Intent(context, PlaceDetailActivity.class);
-                Result detailPlace = place;
-                arguments.putSerializable(DETAIL_PLACE, detailPlace);
                 intent.putExtra("placeName", place.getName());
+                intent.putExtra("placeId", place.getPlaceId());
                 intent.putExtra("placeAddress", place.getVicinity());
                 String placePhotoUrl =  staticUrl + "maxwidth=400&photoreference=" + place.getPhotos().get(0).getPhotoReference() + "&key=" + mKey;
                 intent.putExtra("placePhotoUrl", placePhotoUrl);

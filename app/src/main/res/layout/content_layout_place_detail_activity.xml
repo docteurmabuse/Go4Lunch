@@ -19,13 +19,14 @@
             app:layout_anchorGravity="bottom|start">
 
             <LinearLayout
+                android:id="@+id/detail_title_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/red_500"
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/place_name"
+                    android:id="@+id/detail_place_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -62,15 +63,17 @@
                         android:gravity="center"
                         android:orientation="vertical">
 
-                        <androidx.appcompat.widget.AppCompatImageView
+                        <androidx.appcompat.widget.AppCompatImageButton
+                            android:id="@+id/call_button"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:color="@color/red_500"
-                            android:background="@drawable/ic_baseline_call_24" />
+                            android:background="@drawable/ic_baseline_call_24"
+                            android:color="@color/red_500" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:id="@+id/call_text"
                             android:color="@color/red_500"
                             android:text="@string/call" />
                     </LinearLayout>
@@ -88,8 +91,8 @@
                         <androidx.appcompat.widget.AppCompatImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:color="@color/red_500"
-                            android:background="@drawable/ic_baseline_star_border_24" />
+                            android:background="@drawable/ic_baseline_star_border_24"
+                            android:color="@color/red_500" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -111,8 +114,8 @@
                         <androidx.appcompat.widget.AppCompatImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:color="@color/red_500"
-                            android:background="@drawable/ic_baseline_public_24" />
+                            android:background="@drawable/ic_baseline_public_24"
+                            android:color="@color/red_500" />
 
                         <TextView
                             android:layout_width="wrap_content"
