@@ -45,7 +45,6 @@ public class PlaceDetailActivity extends AppCompatActivity {
         placeDetailBinding = ActivityPlaceDetailBinding.inflate(getLayoutInflater());
         View view = placeDetailBinding.getRoot();
         setContentView(view);
-        TextView placeName = findViewById(R.id.detail_place_name);
         Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
         PlacesClient placesClient = Places.createClient(this);
         //setContentView(R.layout.activity_place_detail);
@@ -58,7 +57,8 @@ public class PlaceDetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         ImageView DetailImage = findViewById(R.id.mDetailImage);
-        TextView placeAddress = findViewById(R.id.place_address);
+        TextView placeName = findViewById(R.id.detail_place_name);
+        TextView placeAddress = findViewById(R.id.detail_place_address);
         TextView placesDetailsTitle = findViewById(R.id.place_details_title);
         TextView placesDetailsAddress = findViewById(R.id.place_details_address);
 
@@ -78,8 +78,7 @@ public class PlaceDetailActivity extends AppCompatActivity {
                 placePhone= place.getPhoneNumber();
                 placeWebsite = place.getWebsiteUri();
                 mDetailName = place.getName();
-                placeName.setText(mDetailName);
-
+                mDetailAddress = place.getAddress();
                 Log.i(TAG, "Place found: " + place.getName());
             }).addOnFailureListener((exception) -> {
                 if (exception instanceof ApiException) {
@@ -128,13 +127,13 @@ public class PlaceDetailActivity extends AppCompatActivity {
                         placesDetailsTitle.setVisibility(View.VISIBLE);
                         placesDetailsAddress.setVisibility(View.VISIBLE);
                         placeAddress.setVisibility(View.INVISIBLE);
-                        placeName.setVisibility(View.VISIBLE);
+                        placeName.setVisibility(View.INVISIBLE);
                         findViewById(R.id.detail_title_layout).setVisibility(View.GONE);
                     } else {
                         // Expanded
                         collapsingToolbar.setTitle("");
                         toolbar.setTitle(intent.getStringExtra("placeAddress"));
-                        mDetailAddress = intent.getStringExtra("placeAddress");
+                       // mDetailAddress = intent.getStringExtra("placeAddress");
                         placeAddress.setText(mDetailAddress);
                         placeName.setText(mDetailName);
                         placeAddress.setVisibility(View.VISIBLE);
@@ -146,7 +145,6 @@ public class PlaceDetailActivity extends AppCompatActivity {
                     }
                 }
             });
-           collapsingToolbar.setTitle("bar");
 
             getPlaceDetail();
             fabOnClickListener();
