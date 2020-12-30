@@ -50,7 +50,6 @@ public class PlaceDetailActivity extends AppCompatActivity {
         setContentView(view);
         Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
         PlacesClient placesClient = Places.createClient(this);
-        //setContentView(R.layout.activity_place_detail);
 
         setContentView(R.layout.activity_place_detail);
         Toolbar toolbar = findViewById(R.id.detail_toolbar);
@@ -98,6 +97,14 @@ public class PlaceDetailActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     dialPhoneNumber(placePhone);
+                }
+            });
+
+            AppCompatImageButton website = findViewById(R.id.website_button);
+            website.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    openWebPage(placeWebsite);
                 }
             });
 
@@ -161,6 +168,13 @@ public class PlaceDetailActivity extends AppCompatActivity {
     public void dialPhoneNumber(String phoneNumber) {
         Intent intent = new Intent(Intent.ACTION_DIAL);
         intent.setData(Uri.parse("tel:" + phoneNumber));
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
+    public void openWebPage(Uri url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, url);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }

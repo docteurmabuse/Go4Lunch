@@ -1,8 +1,13 @@
 package com.tizzone.go4lunch.ui.map;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,8 +16,10 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -24,6 +31,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -104,6 +112,7 @@ public class MapFragment extends Fragment {
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setMyLocationButtonEnabled(true);
                 mMap.getUiSettings().setZoomControlsEnabled(true);
+                mMap.clear();
             }
         }
 
@@ -146,7 +155,6 @@ public class MapFragment extends Fragment {
             public void onChanged(PlacesResults placesResults) {
                 if (placesResults != null) {
                     try {
-                        mMap.clear();
                         // This loop will go through all the results and add marker on each location.
                         for (int i = 0; i < placesResults.getResults().size(); i++) {
                             Double lat = placesResults.getResults().get(i).getGeometry().getLocation().getLat();
@@ -156,13 +164,25 @@ public class MapFragment extends Fragment {
                             MarkerOptions markerOptions = new MarkerOptions();
                             LatLng latLng = new LatLng(lat, lng);
                             // Position of Marker on Map
+                            //markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_baseline_restaurant_24));
+                           // markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher_foreground));
                             markerOptions.position(latLng);
                             // Adding Title to the Marker
                             markerOptions.title(placeName + " : " + vicinity);
+                            Bitmap bitmap = getBitmapFromVectorDrawable(getContext(),R.drawable.ic_restaurant_pin);
+                            BitmapDescriptor mapIcon =BitmapDescriptorFactory.fromBitmap(bitmap);
                             // Adding Marker to the Camera.
-                            Marker m = mMap.addMarker(markerOptions);
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(latLng)
+                                    .title(placeName)
+                                    .snippet(vicinity)
+                                    .icon(mapIcon)
+
+                                    //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+
+                            );
                             // Adding colour to the marker
-                            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                            //markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
                             // move map camera
                             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                             mMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM));
@@ -274,4 +294,17 @@ public class MapFragment extends Fragment {
         updateLocationUI();
     }
 
+    public static Bitmap getBitmapFromVectorDrawable(Context context, int drawableId) {
+        Drawable drawable =  AppCompatResources.getDrawable(context, drawableId);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            drawable = (DrawableCompat.wrap(drawable)).mutate();
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
+                drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+        return bitmap;
+    }
 }

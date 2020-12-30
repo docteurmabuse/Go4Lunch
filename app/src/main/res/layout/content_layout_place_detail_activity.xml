@@ -92,7 +92,7 @@
                         <androidx.appcompat.widget.AppCompatImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:background="@drawable/ic_baseline_star_border_24"
+                            android:background="@drawable/ic_baseline_star_24"
                             android:color="@color/red_500" />
 
                         <TextView
@@ -112,9 +112,10 @@
                         android:gravity="center"
                         android:orientation="vertical">
 
-                        <androidx.appcompat.widget.AppCompatImageView
+                        <androidx.appcompat.widget.AppCompatImageButton
                             android:layout_width="24dp"
                             android:layout_height="24dp"
+                            android:id="@+id/website_button"
                             android:background="@drawable/ic_baseline_public_24"
                             android:color="@color/red_500" />
 
