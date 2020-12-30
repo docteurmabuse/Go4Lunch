@@ -66,7 +66,7 @@ public class PlaceDetailActivity extends AppCompatActivity {
         Intent intent = this.getIntent();
         if (intent != null) {
             // Specify the fields to return.
-            final List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
+            final List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME,  Place.Field.ADDRESS,  Place.Field.TYPES,  Place.Field.PHONE_NUMBER);
 
             // Construct a request object, passing the place ID and fields array.
             placeId = intent.getStringExtra("placeId");
