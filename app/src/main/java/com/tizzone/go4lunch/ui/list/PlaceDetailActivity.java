@@ -1,16 +1,18 @@
 package com.tizzone.go4lunch.ui.list;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatImageButton;
-import androidx.appcompat.widget.Toolbar;
-
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageButton;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.common.api.ApiException;
@@ -28,6 +30,7 @@ import java.util.List;
 
 public class PlaceDetailActivity extends AppCompatActivity {
     private static final String TAG = "1543";
+    private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 5873;
     private String mDetailAddress;
     private String mDetailName;
     private String mDetailPhotoUrl;
@@ -66,7 +69,7 @@ public class PlaceDetailActivity extends AppCompatActivity {
         Intent intent = this.getIntent();
         if (intent != null) {
             // Specify the fields to return.
-            final List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME,  Place.Field.ADDRESS,  Place.Field.TYPES,  Place.Field.PHONE_NUMBER);
+            final List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.TYPES, Place.Field.WEBSITE_URI, Place.Field.PHONE_NUMBER);
 
             // Construct a request object, passing the place ID and fields array.
             placeId = intent.getStringExtra("placeId");
@@ -75,7 +78,7 @@ public class PlaceDetailActivity extends AppCompatActivity {
 
             placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
                 Place place = response.getPlace();
-                placePhone= place.getPhoneNumber();
+                placePhone = place.getPhoneNumber();
                 placeWebsite = place.getWebsiteUri();
                 mDetailName = place.getName();
                 mDetailAddress = place.getAddress();
@@ -90,14 +93,11 @@ public class PlaceDetailActivity extends AppCompatActivity {
             });
 
 
-
             AppCompatImageButton call = findViewById(R.id.call_button);
             call.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent callIntent = new Intent(Intent.ACTION_CALL);
-                    callIntent.setData(Uri.parse("tel:" + placePhone));
-                    startActivity(callIntent);
+                    dialPhoneNumber(placePhone);
                 }
             });
 
@@ -106,9 +106,6 @@ public class PlaceDetailActivity extends AppCompatActivity {
             Glide.with(DetailImage.getContext())
                     .load(mDetailPhotoUrl)
                     .into(DetailImage);
-
-          //  mDetailName = intent.getStringExtra("placeName");
-            //placeName.setText(mDetailName);
 
             // Set title of Detail page
             appbar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
@@ -133,7 +130,7 @@ public class PlaceDetailActivity extends AppCompatActivity {
                         // Expanded
                         collapsingToolbar.setTitle("");
                         toolbar.setTitle(intent.getStringExtra("placeAddress"));
-                       // mDetailAddress = intent.getStringExtra("placeAddress");
+                        // mDetailAddress = intent.getStringExtra("placeAddress");
                         placeAddress.setText(mDetailAddress);
                         placeName.setText(mDetailName);
                         placeAddress.setVisibility(View.VISIBLE);
@@ -159,5 +156,13 @@ public class PlaceDetailActivity extends AppCompatActivity {
 
     private void getPlaceDetail() {
 
+    }
+
+    public void dialPhoneNumber(String phoneNumber) {
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse("tel:" + phoneNumber));
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
     }
 }
