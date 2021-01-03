@@ -1,4 +1,4 @@
-package com.tizzone.go4lunch;
+package com.tizzone.go4lunch.ui.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +13,8 @@ import com.firebase.ui.auth.IdpResponse;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.tizzone.go4lunch.MainActivity;
+import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityAuthBinding;
 
@@ -51,10 +53,10 @@ public class AuthActivity extends BaseActivity {
         init();
     }
 
-    @Override
-    public int getFragmentLayout() {
-        return R.layout.activity_auth;
-    }
+//    @Override
+//    public int getFragmentLayout() {
+//        return R.layout.activity_auth;
+//    }
 
     @Override
     protected void onResume() {
@@ -126,6 +128,7 @@ public class AuthActivity extends BaseActivity {
                 // sign-in flow using the back button. Otherwise check
                 // response.getError().getErrorCode() and handle the error.
                 // ...
+                showSnackBar("Signing error. Code:" + response.getError().getErrorCode());
             }
         }
     }

@@ -39,7 +39,7 @@
             android:resource="@xml/searchable" />
 
         <activity
-            android:name=".AuthActivity"
+            android:name=".ui.auth.AuthActivity"
             android:theme="@style/Theme.Go4Lunch.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -4,18 +4,19 @@ import java.lang.reflect.Array;
 
 public class User {
 
-    private int id;
+    public String uid;
+    public boolean isAuthenticated;
     private String lastName;
     private String photoUrl;
     private Array favoriteRestaurants;
     private int lunchSpot;
 
-    public int getId() {
-        return id;
+    public String getUid() {
+        return uid;
     }
 
-    public User setId(int id) {
-        this.id = id;
+    public User setUid(String uid) {
+        this.uid = uid;
         return this;
     }
 

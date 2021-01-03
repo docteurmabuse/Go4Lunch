@@ -11,11 +11,11 @@ import com.google.firebase.auth.FirebaseUser;
 public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        this.setContentView(this.getFragmentLayout());
+      //  this.setContentView(this.getFragmentLayout());
         super.onCreate(savedInstanceState);
     }
 
-    public abstract int getFragmentLayout();
+   // public abstract int getFragmentLayout();
 
 // --------------------
     // UTILS
