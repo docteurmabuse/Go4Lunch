@@ -79,7 +79,7 @@ public class MainActivity extends BaseActivity implements OnNavigationItemSelect
         DrawerLayout drawer = mBinding.drawerLayout;
         NavigationView navigationView = mBinding.drawerNavView;
         BottomNavigationView bottomNavigationView = mBinding.bottomNavView;
-        navHeaderMainBinding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.nav_header_main,mBinding.drawerNavView,false);
+
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -104,17 +104,22 @@ public class MainActivity extends BaseActivity implements OnNavigationItemSelect
         listViewPlaces = findViewById(R.id.listViewPlaces);
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         key = getText(R.string.google_maps_key).toString();
+        View headerView = mBinding.drawerNavView.getHeaderView(0);
+
+        navHeaderMainBinding = NavHeaderMainBinding.bind(headerView);
         updateProfileWhenCreating();
     }
 
     private void updateProfileWhenCreating() {
-        if (this.getCurrentUser() != null){
-            Objects.requireNonNull(navHeaderMainBinding.profileName).setText(this.getCurrentUser().getDisplayName());
-            navHeaderMainBinding.profileEmail  .setText(this.getCurrentUser().getEmail());
-            Glide.with(this)
-                    .load(this.getCurrentUser().getPhotoUrl())
-                    .apply(RequestOptions.circleCropTransform())
-                    .into(navHeaderMainBinding.profilePicture);
+        if (this.getCurrentUser() != null) {
+            (navHeaderMainBinding.profileName.setText(this.getCurrentUser().getDisplayName());
+            navHeaderMainBinding.profileEmail.setText(this.getCurrentUser().getEmail());
+            if (this.getCurrentUser().getDisplayName() != null) {
+                Glide.with(this)
+                        .load(this.getCurrentUser().getPhotoUrl())
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(navHeaderMainBinding.profilePicture);
+            }
         }
     }
 
