@@ -1,6 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Go4Lunch</string>
-    <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb367361037800074</string>
     <string name="title_activity_bottom_navigation">Navigation activity</string>
     <string name="title_map_view">Map View</string>
     <string name="title_list_view">List View</string>
@@ -20,4 +19,6 @@
     <string name="website">WEBSITE</string>
     <string name="search_title">Serach</string>
     <string name="search_hint">Search</string>
+    <string name="facebook_application_id" translatable="false">367361037800074</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fb367361037800074</string>
 </resources>

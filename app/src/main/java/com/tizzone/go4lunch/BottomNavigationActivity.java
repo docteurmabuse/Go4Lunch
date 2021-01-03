@@ -65,7 +65,7 @@ public class BottomNavigationActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         DrawerLayout drawer = mBinding.drawerLayout;
-        NavigationView navigationView = mBinding.navView;
+        NavigationView navigationView = mBinding.drawerNavView;
         BottomNavigationView bottomNavigationView = mBinding.bottomNavView;
 
         // Passing each menu ID as a set of Ids because each
