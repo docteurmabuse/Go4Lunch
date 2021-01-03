@@ -7,7 +7,6 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/item_detail_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -50,7 +49,6 @@
                 android:layout_height="wrap_content">
 
                 <RelativeLayout
-                    android:id="@+id/card_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
@@ -74,13 +72,11 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:id="@+id/call_text"
                             android:color="@color/red_500"
                             android:text="@string/call" />
                     </LinearLayout>
 
                     <LinearLayout
-                        android:id="@+id/start_layout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"

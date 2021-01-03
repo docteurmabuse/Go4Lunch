@@ -27,6 +27,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.tizzone.go4lunch.databinding.ActivityBottomNavigationBinding;
 import com.tizzone.go4lunch.models.places.Result;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
@@ -48,11 +50,15 @@ public class BottomNavigationActivity extends AppCompatActivity {
     private String key;
     private MutableLiveData<List<Result>> placesList;
     private PlacesViewModel placesViewModel;
-
+    private StorageReference mStorageRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Declare a StorageReference and initialize it in the onCreate method
+        mStorageRef = FirebaseStorage.getInstance().getReference();
+
         mBinding = ActivityBottomNavigationBinding.inflate(getLayoutInflater());
         View view = mBinding.getRoot();
         setContentView(view);

@@ -1,6 +1,4 @@
-package com.tizzone.go4lunch.models.places.user;
-
-import com.google.maps.android.data.LineString;
+package com.tizzone.go4lunch.models.user;
 
 import java.lang.reflect.Array;
 
