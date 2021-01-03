@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "159906018184-rb660b3ulg4mbf83k343db3hu13j7t2a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tizzone.go4lunch",
+            "certificate_hash": "482aa68a1ef13bb45bc045d532fd5c3edecdc7db"
+          }
+        },
+        {
           "client_id": "159906018184-m97gvefv3fmhossm5rolqrpd8us3iqvk.apps.googleusercontent.com",
           "client_type": 3
         }
