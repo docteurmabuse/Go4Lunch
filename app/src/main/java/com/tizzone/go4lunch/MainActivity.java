@@ -112,7 +112,7 @@ public class MainActivity extends BaseActivity implements OnNavigationItemSelect
 
     private void updateProfileWhenCreating() {
         if (this.getCurrentUser() != null) {
-            (navHeaderMainBinding.profileName.setText(this.getCurrentUser().getDisplayName());
+            navHeaderMainBinding.profileName.setText(this.getCurrentUser().getDisplayName());
             navHeaderMainBinding.profileEmail.setText(this.getCurrentUser().getEmail());
             if (this.getCurrentUser().getDisplayName() != null) {
                 Glide.with(this)
