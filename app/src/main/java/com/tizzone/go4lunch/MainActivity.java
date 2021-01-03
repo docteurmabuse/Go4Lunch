@@ -1,144 +1,136 @@
 package com.tizzone.go4lunch;
 
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.ListView;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.MutableLiveData;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
-import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.IdpResponse;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.tizzone.go4lunch.base.BaseActivity;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.tizzone.go4lunch.databinding.ActivityMainBinding;
+import com.tizzone.go4lunch.models.places.Result;
+import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
-import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends BaseActivity {
-    private static final int RC_SIGN_IN = 9903;
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
-    private List<AuthUI.IdpConfig> providers;
+public class MainActivity extends AppCompatActivity {
+    private static final int SIGN_OUT_TASK = 25;
     private ActivityMainBinding mBinding;
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mAuthStateListener != null) mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
-    }
-
+    private AppBarConfiguration mAppBarConfiguration;
+    private Location lastKnownLocation;
+    private ListView listViewPlaces;
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 546;
+    private final LatLng mDefaultLocation = new LatLng(48.850559, 2.377078);
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+    private boolean mLocationPermissionGranted;
+    private Location mLastKnownLocation;
+    private List<Result> places;
+    private String key;
+    private MutableLiveData<List<Result>> placesList;
+    private PlacesViewModel placesViewModel;
+    private StorageReference mStorageRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Declare a StorageReference and initialize it in the onCreate method
+        mStorageRef = FirebaseStorage.getInstance().getReference();
+
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = mBinding.getRoot();
         setContentView(view);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().hide();
-        }
-        init();
-    }
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        DrawerLayout drawer = mBinding.drawerLayout;
+        NavigationView navigationView = mBinding.drawerNavView;
+        BottomNavigationView bottomNavigationView = mBinding.bottomNavView;
 
-    @Override
-    public int getFragmentLayout() {
-        return R.layout.activity_main;
-    }
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (this.isCurrentUserLogged()) {
-            this.startBottomNavigationActivity();
-        } else {
-            init();
-        }
-    }
-
-    private void init() {
-        AuthMethodPickerLayout customLayout = new AuthMethodPickerLayout
-                .Builder(R.layout.fragment_auth)
-                .setGoogleButtonId(R.id.google_signin)
-                .setFacebookButtonId(R.id.facebook_signin)
-                .setEmailButtonId(R.id.email_signin)
-                // .setTosAndPrivacyPolicyId(R.id.baz)
+        mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph())
+                .setOpenableLayout(drawer)
                 .build();
-
-        providers = Arrays.asList(
-                new AuthUI.IdpConfig.EmailBuilder().build(),
-                //  new AuthUI.IdpConfig.PhoneBuilder().build(),
-                new AuthUI.IdpConfig.GoogleBuilder().build(),
-                new AuthUI.IdpConfig.FacebookBuilder().build());
-        //  new AuthUI.IdpConfig.TwitterBuilder().build());
-
-        mFirebaseAuth = FirebaseAuth.getInstance(); //Init state of Firebase Auth
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(navigationView, navController);
+        NavigationUI.setupWithNavController(bottomNavigationView, navController);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = mFirebaseAuth.getCurrentUser();
-                if (user != null) {
-                    startBottomNavigationActivity();
-                    showSnackBar("You're already logged in with uid: " + user.getUid());
-                    Toast.makeText(MainActivity.this, "You're already logged in with uid: " + user.getUid(), Toast.LENGTH_SHORT);
-
-                } else {
-                    //Login
-                    startActivityForResult(AuthUI.getInstance()
-                            .createSignInIntentBuilder()
-                            .setAuthMethodPickerLayout(customLayout)
-                            .setLogo(R.drawable.ic_logo_go4lunch)
-                            .setTheme(R.style.LoginTheme)
-                            .setIsSmartLockEnabled(false, true)
-                            .setAvailableProviders(providers) //EMAIL
-                            .build(), RC_SIGN_IN);
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                int id = menuItem.getItemId();
+                if (id == R.id.nav_logout) {
+                    signOutUserFromFirebase();
                 }
+                drawer.closeDrawer(GravityCompat.START);
+                return true;
             }
+        });
+        listViewPlaces = findViewById(R.id.listViewPlaces);
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        key = getText(R.string.google_maps_key).toString();
+    }
 
-        };
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.search, menu);
+
+        // Associate searchable configuration with the SearchView
+//        SearchManager searchManager =
+//                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+//        SearchView searchView =
+//                (SearchView) menu.findItem(R.id.search).getActionView();
+//        searchView.setSearchableInfo(
+//                searchManager.getSearchableInfo(getComponentName()));
+
+        return true;
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == RC_SIGN_IN) {
-            IdpResponse response = IdpResponse.fromResultIntent(data);
-
-            if (resultCode == RESULT_OK) {
-                // Successfully signed in
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                startBottomNavigationActivity();
-
-                // ...
-            } else {
-                // Sign in failed. If response is null the user canceled the
-                // sign-in flow using the back button. Otherwise check
-                // response.getError().getErrorCode() and handle the error.
-                // ...
-            }
-        }
+    public boolean onSupportNavigateUp() {
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
+                || super.onSupportNavigateUp();
     }
 
-    // 2 - Show Snack Bar with a message
-    private void showSnackBar( String message) {
-        Snackbar.make(mBinding.mainLayout, message, Snackbar.LENGTH_SHORT).show();
+    private void signOutUserFromFirebase() {
+        AuthUI.getInstance()
+                .signOut(this)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        startMainActivity();
+                    }
+                });
     }
 
-    private void startBottomNavigationActivity() {
-        Intent intent = new Intent(this, BottomNavigationActivity.class);
+    private void startMainActivity() {
+        Intent intent = new Intent(this, AuthActivity.class);
         startActivity(intent);
     }
 }
