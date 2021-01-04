@@ -8,19 +8,18 @@ public class User {
 
     public String uid;
     public boolean isAuthenticated;
-    private String lastName;
+    private String userName;
     @Nullable private String photoUrl;
-    private Array favoriteRestaurants;
-    private int lunchSpot;
+    @Nullable private Array favoriteRestaurants;
+    @Nullable private int lunchSpot;
 
-    public User(String uid, boolean isAuthenticated, String lastName, String photoUrl, Array favoriteRestaurants, int lunchSpot, String firstName) {
+    public User(String uid, boolean isAuthenticated, String userName, String photoUrl, Array favoriteRestaurants, int lunchSpot) {
         this.uid = uid;
         this.isAuthenticated = isAuthenticated;
-        this.lastName = lastName;
+        this.userName = userName;
         this.photoUrl = photoUrl;
         this.favoriteRestaurants = favoriteRestaurants;
         this.lunchSpot = lunchSpot;
-        this.firstName = firstName;
     }
 
     public String getUid() {
@@ -33,23 +32,14 @@ public class User {
     }
 
 
-    private String firstName;
 
-    public String getFirstName() {
-        return firstName;
+
+    public String getUserName() {
+        return userName;
     }
 
-    public User setFirstName(String firstName) {
-        this.firstName = firstName;
-        return this;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public User setLastName(String lastName) {
-        this.lastName = lastName;
+    public User setUserName(String userName) {
+        this.userName = userName;
         return this;
     }
 
