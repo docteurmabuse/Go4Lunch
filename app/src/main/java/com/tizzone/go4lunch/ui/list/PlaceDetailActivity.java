@@ -1,18 +1,18 @@
 package com.tizzone.go4lunch.ui.list;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.common.api.ApiException;
@@ -43,6 +43,17 @@ public class PlaceDetailActivity extends AppCompatActivity {
     private PlacesClient placesClient;
 
     @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         placeDetailBinding = ActivityPlaceDetailBinding.inflate(getLayoutInflater());
@@ -57,6 +68,7 @@ public class PlaceDetailActivity extends AppCompatActivity {
         AppBarLayout appbar = findViewById(R.id.app_bar_detail);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         ImageView DetailImage = findViewById(R.id.mDetailImage);
         TextView placeName = findViewById(R.id.detail_place_name);

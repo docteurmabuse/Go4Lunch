@@ -12,11 +12,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.tizzone.go4lunch.models.user.User;
 
 public class UserRepository {
-    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-    private User user = new User();
-    private FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
-    private CollectionReference usersRef = rootRef.collection("USERS");
-    private static String TAG = "FirebaseAuthAppTag";
+    private static final String TAG = "FirebaseAuthAppTag";
+    private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    private final FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
+    private final CollectionReference usersRef = rootRef.collection("USERS");
+    private User user;
 
     MutableLiveData<User> checkIfUserIsAuthenticatedInFirebase() {
         MutableLiveData<User> isUserAuthenticateInFirebaseMutableLiveData = new MutableLiveData<>();
