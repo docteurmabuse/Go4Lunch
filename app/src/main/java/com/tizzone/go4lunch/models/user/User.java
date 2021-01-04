@@ -1,5 +1,7 @@
 package com.tizzone.go4lunch.models.user;
 
+import com.google.firebase.database.annotations.Nullable;
+
 import java.lang.reflect.Array;
 
 public class User {
@@ -7,9 +9,19 @@ public class User {
     public String uid;
     public boolean isAuthenticated;
     private String lastName;
-    private String photoUrl;
+    @Nullable private String photoUrl;
     private Array favoriteRestaurants;
     private int lunchSpot;
+
+    public User(String uid, boolean isAuthenticated, String lastName, String photoUrl, Array favoriteRestaurants, int lunchSpot, String firstName) {
+        this.uid = uid;
+        this.isAuthenticated = isAuthenticated;
+        this.lastName = lastName;
+        this.photoUrl = photoUrl;
+        this.favoriteRestaurants = favoriteRestaurants;
+        this.lunchSpot = lunchSpot;
+        this.firstName = firstName;
+    }
 
     public String getUid() {
         return uid;
