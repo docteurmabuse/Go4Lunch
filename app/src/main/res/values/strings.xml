@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name">Go4Lunch</string>
     <string name="title_activity_bottom_navigation">Navigation activity</string>
     <string name="title_map_view">Map View</string>
@@ -21,4 +21,5 @@
     <string name="search_hint">Search</string>
     <string name="facebook_application_id" translatable="false">367361037800074</string>
     <string name="facebook_login_protocol_scheme" translatable="false">fb367361037800074</string>
+    <string name="error_unknown_error">unknown error</string>
 </resources>

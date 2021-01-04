@@ -6,8 +6,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.tizzone.go4lunch.models.user.User;
 
-import java.lang.reflect.Array;
-
 public class UserHelper {
     private static final String COLLECTION_NAME = "users";
 
@@ -19,7 +17,7 @@ public class UserHelper {
 
     // --- CREATE ---
 
-    public static Task<Void> createUser(String uid, boolean isAuthenticated, String username, String photoUrl, Array favoriteRestaurants, int lunchSpot) {
+    public static Task<Void> createUser(String uid, boolean isAuthenticated, String username, String photoUrl, String[] favoriteRestaurants, int lunchSpot) {
         User userToCreate = new User(uid, isAuthenticated, username, photoUrl, favoriteRestaurants, lunchSpot);
         return UserHelper.getUsersCollection().document(uid).set(userToCreate);
     }
@@ -37,6 +35,10 @@ public class UserHelper {
 
     public static Task<Void> updatePhotoUrl(String photoUrl, String uid) {
         return UserHelper.getUsersCollection().document(uid).update("photoUrl", photoUrl);
+    }
+
+    public static Task<Void> updateFavoriteRestaurants(String[] favoriteRestaurants, String uid) {
+        return UserHelper.getUsersCollection().document(uid).update("favoriteRestaurants", favoriteRestaurants);
     }
 
     public static Task<Void> updateLunchSpot(int lunchSpot, String uid) {

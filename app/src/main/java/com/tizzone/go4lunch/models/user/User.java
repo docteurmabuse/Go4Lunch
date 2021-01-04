@@ -2,18 +2,19 @@ package com.tizzone.go4lunch.models.user;
 
 import com.google.firebase.database.annotations.Nullable;
 
-import java.lang.reflect.Array;
-
 public class User {
 
     public String uid;
     public boolean isAuthenticated;
     private String userName;
-    @Nullable private String photoUrl;
-    @Nullable private Array favoriteRestaurants;
-    @Nullable private int lunchSpot;
+    @Nullable
+    private String photoUrl;
+    @Nullable
+    private String[] favoriteRestaurants;
+    @Nullable
+    private int lunchSpot;
 
-    public User(String uid, boolean isAuthenticated, String userName, String photoUrl, Array favoriteRestaurants, int lunchSpot) {
+    public User(String uid, boolean isAuthenticated, String userName, String photoUrl, String[] favoriteRestaurants, int lunchSpot) {
         this.uid = uid;
         this.isAuthenticated = isAuthenticated;
         this.userName = userName;
@@ -30,8 +31,6 @@ public class User {
         this.uid = uid;
         return this;
     }
-
-
 
 
     public String getUserName() {
@@ -52,11 +51,11 @@ public class User {
         return this;
     }
 
-    public Array getFavoriteRestaurants() {
+    public String[] getFavoriteRestaurants() {
         return favoriteRestaurants;
     }
 
-    public User setFavoriteRestaurants(Array favoriteRestaurants) {
+    public User setFavoriteRestaurants(String[] favoriteRestaurants) {
         this.favoriteRestaurants = favoriteRestaurants;
         return this;
     }
@@ -69,7 +68,6 @@ public class User {
         this.lunchSpot = lunchSpot;
         return this;
     }
-
 
 
 }
