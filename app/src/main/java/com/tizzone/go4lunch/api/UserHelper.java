@@ -41,7 +41,11 @@ public class UserHelper {
         return UserHelper.getUsersCollection().document(uid).update("favoriteRestaurants", favoriteRestaurants);
     }
 
-    public static Task<Void> updateLunchSpot(int lunchSpot, String uid) {
+    public static Task<Void> updateIsAuthenticated(boolean isAuthenticated, String uid) {
+        return UserHelper.getUsersCollection().document(uid).update("isAuthenticated", isAuthenticated);
+    }
+
+    public static Task<Void> updateLunchSpot(String lunchSpot, String uid) {
         return UserHelper.getUsersCollection().document(uid).update("lunchSpot", lunchSpot);
     }
 

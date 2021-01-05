@@ -11,7 +11,6 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
-import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
@@ -26,22 +25,24 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.tizzone.go4lunch.api.UserHelper;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityMainBinding;
 import com.tizzone.go4lunch.databinding.NavHeaderMainBinding;
-import com.tizzone.go4lunch.databinding.AppBarMainBinding;
 import com.tizzone.go4lunch.models.places.Result;
+import com.tizzone.go4lunch.models.user.User;
 import com.tizzone.go4lunch.ui.auth.AuthActivity;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
 import java.util.List;
-import java.util.Objects;
 
 public class MainActivity extends BaseActivity implements OnNavigationItemSelectedListener{
     private static final int SIGN_OUT_TASK = 25;
@@ -172,4 +173,21 @@ public class MainActivity extends BaseActivity implements OnNavigationItemSelect
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         return false;
     }
+
+    private void getUserInFirestore() {
+
+        if (this.getCurrentUser() != null) {
+            String uid = this.getCurrentUser().getUid();
+            // 5 - Get additional data from Firestore
+            UserHelper.getUser(this.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    User currentUser = documentSnapshot.toObject(User.class);
+
+                }
+            });
+        }
+    }
+
+
 }

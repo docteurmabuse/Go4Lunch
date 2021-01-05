@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
 
@@ -22,18 +21,23 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.tizzone.go4lunch.R;
+import com.tizzone.go4lunch.api.UserHelper;
+import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityPlaceDetailBinding;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class PlaceDetailActivity extends AppCompatActivity {
+public class PlaceDetailActivity extends BaseActivity {
     private static final String TAG = "1543";
     private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 5873;
     private String mDetailAddress;
     private String mDetailName;
     private String mDetailPhotoUrl;
+    private int lunchSpot;
     private ActivityPlaceDetailBinding placeDetailBinding;
     private String placePhone;
     private Uri placeWebsite;
@@ -56,25 +60,26 @@ public class PlaceDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         placeDetailBinding = ActivityPlaceDetailBinding.inflate(getLayoutInflater());
         View view = placeDetailBinding.getRoot();
         setContentView(view);
         Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
         PlacesClient placesClient = Places.createClient(this);
 
-        setContentView(R.layout.activity_place_detail);
-        Toolbar toolbar = findViewById(R.id.detail_toolbar);
-        CollapsingToolbarLayout collapsingToolbar = findViewById(R.id.toolbar_layout);
-        AppBarLayout appbar = findViewById(R.id.app_bar_detail);
+        //setContentView(R.layout.activity_place_detail);
+        Toolbar toolbar = placeDetailBinding.detailToolbar;
+        CollapsingToolbarLayout collapsingToolbar = placeDetailBinding.toolbarLayout;
+        AppBarLayout appbar = placeDetailBinding.appBarDetail;
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
-        ImageView DetailImage = findViewById(R.id.mDetailImage);
+        ImageView DetailImage = placeDetailBinding.mDetailImage;
         TextView placeName = findViewById(R.id.detail_place_name);
-        TextView placeAddress = findViewById(R.id.detail_place_address);
-        TextView placesDetailsTitle = findViewById(R.id.place_details_title);
-        TextView placesDetailsAddress = findViewById(R.id.place_details_address);
+        TextView placeAddress = placeDetailBinding.placeDetailsAddress;
+        TextView placesDetailsTitle = placeDetailBinding.placeDetailsTitle;
+        TextView placesDetailsAddress = placeDetailBinding.placeDetailsAddress;
 
 
         Intent intent = this.getIntent();
@@ -169,7 +174,15 @@ public class PlaceDetailActivity extends AppCompatActivity {
     }
 
     private void fabOnClickListener() {
-
+        FloatingActionButton addSpotLunch = placeDetailBinding.addSpotLunchButton;
+        addSpotLunch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Here's a click", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+                addLunchSpotInFirebase(placeId);
+            }
+        });
     }
 
 
@@ -191,4 +204,22 @@ public class PlaceDetailActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
+
+    //Add Lunch Spot
+    private void addLunchSpotInFirebase(String lunchSpot) {
+        if (this.getCurrentUser() != null) {
+            String uid = this.getCurrentUser().getUid();
+            UserHelper.updateLunchSpot(lunchSpot, uid).addOnFailureListener(this.onFailureListener());
+        }
+    }
+
+    private void addLunchSpotInFirebaseInFirestore() {
+
+        if (this.getCurrentUser() != null) {
+            String uid = this.getCurrentUser().getUid();
+            UserHelper.updateIsAuthenticated(true, uid).addOnFailureListener(this.onFailureListener());
+        }
+    }
+
+
 }

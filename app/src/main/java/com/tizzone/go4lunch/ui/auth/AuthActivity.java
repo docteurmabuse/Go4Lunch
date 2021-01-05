@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.tizzone.go4lunch.MainActivity;
 import com.tizzone.go4lunch.R;
+import com.tizzone.go4lunch.api.UserHelper;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityAuthBinding;
 
@@ -62,6 +63,7 @@ public class AuthActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         if (this.isCurrentUserLogged()) {
+            updateUserIsAuthenticatedInFirestore();
             this.startBottomNavigationActivity();
         } else {
             init();
@@ -119,7 +121,7 @@ public class AuthActivity extends BaseActivity {
 
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                createUserInFirestore();
                 startBottomNavigationActivity();
 
                 // ...
@@ -134,12 +136,36 @@ public class AuthActivity extends BaseActivity {
     }
 
     // 2 - Show Snack Bar with a message
-    private void showSnackBar( String message) {
+    private void showSnackBar(String message) {
         Snackbar.make(mBinding.mainLayout, message, Snackbar.LENGTH_SHORT).show();
     }
 
     private void startBottomNavigationActivity() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
+    }
+
+    // --------------------
+    // REST REQUEST
+    // --------------------
+
+    private void createUserInFirestore() {
+
+        if (this.getCurrentUser() != null) {
+
+            String urlPicture = (this.getCurrentUser().getPhotoUrl() != null) ? this.getCurrentUser().getPhotoUrl().toString() : null;
+            String username = this.getCurrentUser().getDisplayName();
+            String uid = this.getCurrentUser().getUid();
+
+            UserHelper.createUser(uid, true, username, urlPicture, null, 0).addOnFailureListener(this.onFailureListener());
+        }
+    }
+
+    private void updateUserIsAuthenticatedInFirestore() {
+
+        if (this.getCurrentUser() != null) {
+            String uid = this.getCurrentUser().getUid();
+            UserHelper.updateIsAuthenticated(true, uid).addOnFailureListener(this.onFailureListener());
+        }
     }
 }

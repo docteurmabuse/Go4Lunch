@@ -4,42 +4,55 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardElevation="20dp">
+    android:layout_marginStart="0dp"
+    android:layout_marginBottom="5dp"
+    app:cardElevation="2dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_margin="5dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
             android:id="@+id/place_vertical_layout"
-            android:layout_margin="5dp"
-            android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_margin="5dp"
             android:orientation="vertical"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/place_vertical_layout"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
                 android:id="@+id/textViewName"
-                android:layout_marginRight="5dp"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_gravity="start"
+                android:singleLine="false"
                 android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+                android:textSize="14sp"
+                app:layout_constrainedWidth="true"
                 android:textStyle="bold"
                 tools:text="This is some temp text" />
 
             <TextView
                 android:id="@+id/textViewAddress"
-                android:layout_marginRight="5dp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:textSize="12sp"
+                app:layout_constrainedWidth="true"
+                tools:text="This is some temp text" />
 
             <TextView
                 android:id="@+id/textViewOpeningHours"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                android:textSize="10sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -53,10 +66,11 @@
 
             <TextView
                 android:id="@+id/distance_text_view"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:text="0m" />
+                android:text="0m"
+                android:textAlignment="viewEnd" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -65,19 +79,17 @@
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_gravity="end"
                     android:background="#00FFFFFF"
                     app:srcCompat="@drawable/fui_ic_anonymous_white_24dp"
-
                     app:tint="#000000" />
 
                 <TextView
                     android:id="@+id/workmates_count"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end"
                     android:text="(0)" />
             </LinearLayout>
 
@@ -94,13 +106,14 @@
 
 
         <ImageView
-            android:layout_height="wrap_content"
             android:id="@+id/imageViewPhoto"
             android:layout_width="80dp"
+            android:layout_height="60dp"
             android:layout_margin="5dp"
-            android:contentDescription="Google Place Image"
+            android:contentDescription="@string/google_place_image"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_baseline_lunch_menu_24" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

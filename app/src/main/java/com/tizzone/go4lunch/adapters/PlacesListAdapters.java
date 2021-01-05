@@ -3,11 +3,11 @@ package com.tizzone.go4lunch.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,8 +16,6 @@ import com.bumptech.glide.Glide;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.models.places.Result;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
-import com.tizzone.go4lunch.models.places.Result;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +44,12 @@ public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mPlace = mPlaces.get(position);
         Result place = mPlaces.get(position);
-        holder.textViewName.setText(mPlaces.get(position).getName());
-        holder.textViewAddress.setText(mPlaces.get(position).getVicinity());
+        holder.textViewName.setText(place.getName());
+        holder.textViewAddress.setText(place.getVicinity());
+        Double ratingFiveStar = place.getRating();
+        float ratingFiveStarFloat = ratingFiveStar.floatValue();
+        float ratingThreeStars = (ratingFiveStarFloat * 3) / 5;
+        holder.ratingBar.setRating(ratingThreeStars);
         if (mPlaces.get(position).getOpeningHours() != null)
             holder.textViewOpeningHours.setText(mPlaces.get(position).getOpeningHours().getWeekdayText().toString());
 
@@ -95,6 +97,7 @@ public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.
         public TextView textViewOpeningHours;
         public ImageView imageViewPhoto;
         public Result mPlace;
+        public RatingBar ratingBar;
 
         public ViewHolder(View view) {
             super(view);
@@ -103,7 +106,7 @@ public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.
             textViewAddress = view.findViewById(R.id.textViewAddress);
             textViewOpeningHours = view.findViewById(R.id.textViewOpeningHours);
             imageViewPhoto = view.findViewById(R.id.imageViewPhoto);
-
+            ratingBar = view.findViewById(R.id.rating);
         }
     }
 }

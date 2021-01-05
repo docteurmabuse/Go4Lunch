@@ -22,4 +22,5 @@
     <string name="facebook_application_id" translatable="false">367361037800074</string>
     <string name="facebook_login_protocol_scheme" translatable="false">fb367361037800074</string>
     <string name="error_unknown_error">unknown error</string>
+    <string name="google_place_image">Google Place Image</string>
 </resources>
