@@ -187,12 +187,6 @@ public class PlaceDetailActivity extends BaseActivity {
     private void fabOnClickListener() {
         addSpotLunch = placeDetailBinding.addSpotLunchButton;
 
-        if (!isLunchSpot) {
-            addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
-        } else {
-            addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
-        }
-
         addSpotLunch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -240,6 +234,11 @@ public class PlaceDetailActivity extends BaseActivity {
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 User currentUser = documentSnapshot.toObject(User.class);
                 isLunchSpot = currentUser.getLunchSpot().equals(placeId);
+                if (!isLunchSpot) {
+                    addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
+                } else {
+                    addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
+                }
             }
         });
     }
