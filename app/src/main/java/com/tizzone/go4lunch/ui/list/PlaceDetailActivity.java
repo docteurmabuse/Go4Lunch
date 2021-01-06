@@ -15,6 +15,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
@@ -23,10 +24,12 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.api.UserHelper;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityPlaceDetailBinding;
+import com.tizzone.go4lunch.models.user.User;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,6 +51,11 @@ public class PlaceDetailActivity extends BaseActivity {
     // Define a Place ID.
     private String placeId;
     private PlacesClient placesClient;
+    private boolean isLunchSpot;
+    private TextView placeName;
+    private TextView placeAddress;
+    private TextView placesDetailsTitle;
+    private TextView placesDetailsAddress;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -76,8 +84,11 @@ public class PlaceDetailActivity extends BaseActivity {
         appbar = placeDetailBinding.appBarDetail;
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        placeName = findViewById(R.id.detail_place_name);
+        placeAddress = findViewById(R.id.detail_place_address);
 
-
+        placesDetailsTitle = placeDetailBinding.placeDetailsTitle;
+        placesDetailsAddress = placeDetailBinding.placeDetailsAddress;
         ImageView DetailImage = placeDetailBinding.mDetailImage;
 
         Intent intent = this.getIntent();
@@ -87,7 +98,7 @@ public class PlaceDetailActivity extends BaseActivity {
 
             // Construct a request object, passing the place ID and fields array.
             placeId = intent.getStringExtra("placeId");
-
+            getUserDataFromFirebase(this.getCurrentUser().getUid());
             final FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeId, placeFields);
 
             placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
@@ -105,6 +116,10 @@ public class PlaceDetailActivity extends BaseActivity {
                     // TODO: Handle error with given status code.
                 }
             });
+
+            placeAddress.setText(mDetailAddress);
+            placeName.setText(mDetailName);
+            addOnOffsetChangedListener();
 
             AppCompatImageButton call = findViewById(R.id.call_button);
             call.setOnClickListener(new View.OnClickListener() {
@@ -128,7 +143,6 @@ public class PlaceDetailActivity extends BaseActivity {
                     .into(DetailImage);
 
 
-            addOnOffsetChangedListener();
             getPlaceDetail();
             fabOnClickListener();
         }
@@ -136,10 +150,7 @@ public class PlaceDetailActivity extends BaseActivity {
     }
 
     private void addOnOffsetChangedListener() {
-        TextView placeName = findViewById(R.id.detail_place_name);
-        TextView placeAddress = findViewById(R.id.detail_place_address);
-        TextView placesDetailsTitle = placeDetailBinding.placeDetailsTitle;
-        TextView placesDetailsAddress = placeDetailBinding.placeDetailsAddress;
+
         // Set title of Detail page
         appbar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
@@ -175,10 +186,17 @@ public class PlaceDetailActivity extends BaseActivity {
 
     private void fabOnClickListener() {
         addSpotLunch = placeDetailBinding.addSpotLunchButton;
+
+        if (!isLunchSpot) {
+            addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
+        } else {
+            addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
+        }
+
         addSpotLunch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "You're going to" + mDetailName + "for lunch!", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "You're going to " + mDetailName + " for lunch!", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                 addLunchSpotInFirebase(placeId);
             }
@@ -214,12 +232,16 @@ public class PlaceDetailActivity extends BaseActivity {
         }
     }
 
-    private void addLunchSpotInFirebaseInFirestore() {
-        if (this.getCurrentUser() != null) {
-            String uid = this.getCurrentUser().getUid();
-            UserHelper.updateIsAuthenticated(true, uid).addOnFailureListener(this.onFailureListener());
-        }
-    }
 
+    private void getUserDataFromFirebase(String uid) {
+        // 5 - Get additional data from Firestore
+        UserHelper.getUser(uid).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                User currentUser = documentSnapshot.toObject(User.class);
+                isLunchSpot = currentUser.getLunchSpot().equals(placeId);
+            }
+        });
+    }
 
 }

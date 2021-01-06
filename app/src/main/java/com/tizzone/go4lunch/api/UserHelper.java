@@ -17,7 +17,7 @@ public class UserHelper {
 
     // --- CREATE ---
 
-    public static Task<Void> createUser(String uid, boolean isAuthenticated, String username, String photoUrl, String[] favoriteRestaurants, int lunchSpot) {
+    public static Task<Void> createUser(String uid, boolean isAuthenticated, String username, String photoUrl, String[] favoriteRestaurants, String lunchSpot) {
         User userToCreate = new User(uid, isAuthenticated, username, photoUrl, favoriteRestaurants, lunchSpot);
         return UserHelper.getUsersCollection().document(uid).set(userToCreate);
     }

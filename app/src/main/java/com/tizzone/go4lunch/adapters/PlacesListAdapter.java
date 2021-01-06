@@ -20,13 +20,13 @@ import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlacesListAdapters extends RecyclerView.Adapter<PlacesListAdapters.ViewHolder> {
+public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.ViewHolder> {
 
     private String mKey;
     private List<Result> mPlaces = new ArrayList<>();
     public static final String DETAIL_PLACE = "detailPlace";
 
-//    public PlacesListAdapters(List<Result> results, Context context, String key) {
+//    public PlacesListAdapter(List<Result> results, Context context, String key) {
 //        mPlaces = new ArrayList<>();
 //        mPlaces = results;
 //        mContext = context;

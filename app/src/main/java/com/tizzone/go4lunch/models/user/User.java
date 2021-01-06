@@ -12,9 +12,12 @@ public class User {
     @Nullable
     private String[] favoriteRestaurants;
     @Nullable
-    private int lunchSpot;
+    private String lunchSpot;
 
-    public User(String uid, boolean isAuthenticated, String userName, String photoUrl, String[] favoriteRestaurants, int lunchSpot) {
+    public User() {
+    }
+
+    public User(String uid, boolean isAuthenticated, String userName, String photoUrl, String[] favoriteRestaurants, String lunchSpot) {
         this.uid = uid;
         this.isAuthenticated = isAuthenticated;
         this.userName = userName;
@@ -60,11 +63,11 @@ public class User {
         return this;
     }
 
-    public int getLunchSpot() {
+    public String getLunchSpot() {
         return lunchSpot;
     }
 
-    public User setLunchSpot(int lunchSpot) {
+    public User setLunchSpot(String lunchSpot) {
         this.lunchSpot = lunchSpot;
         return this;
     }

@@ -157,7 +157,7 @@ public class AuthActivity extends BaseActivity {
             String username = this.getCurrentUser().getDisplayName();
             String uid = this.getCurrentUser().getUid();
 
-            UserHelper.createUser(uid, true, username, urlPicture, null, 0).addOnFailureListener(this.onFailureListener());
+            UserHelper.createUser(uid, true, username, urlPicture, null, null).addOnFailureListener(this.onFailureListener());
         }
     }
 

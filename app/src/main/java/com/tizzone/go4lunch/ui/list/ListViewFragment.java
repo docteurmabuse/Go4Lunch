@@ -9,15 +9,12 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.tizzone.go4lunch.R;
-import com.tizzone.go4lunch.adapters.PlacesListAdapters;
-import com.tizzone.go4lunch.models.places.PlacesResults;
+import com.tizzone.go4lunch.adapters.PlacesListAdapter;
 import com.tizzone.go4lunch.models.places.Result;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
@@ -28,7 +25,7 @@ public class ListViewFragment extends Fragment {
 
     private PlacesViewModel placesViewModel;
     private RecyclerView recyclerViewPlaces;
-    private PlacesListAdapters placesListAdapter;
+    private PlacesListAdapter placesListAdapter;
     private List<Result> places;
     private String key;
 
@@ -56,7 +53,7 @@ public class ListViewFragment extends Fragment {
         double latitude ;
         double longitude ;
         int radius = 1000;
-        placesListAdapter = new PlacesListAdapters();
+        placesListAdapter = new PlacesListAdapter();
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
