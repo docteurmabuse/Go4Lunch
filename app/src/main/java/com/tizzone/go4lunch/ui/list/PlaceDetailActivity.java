@@ -41,7 +41,10 @@ public class PlaceDetailActivity extends BaseActivity {
     private ActivityPlaceDetailBinding placeDetailBinding;
     private String placePhone;
     private Uri placeWebsite;
-
+    private FloatingActionButton addSpotLunch;
+    private Toolbar toolbar;
+    private CollapsingToolbarLayout collapsingToolbar;
+    private AppBarLayout appbar;
     // Define a Place ID.
     private String placeId;
     private PlacesClient placesClient;
@@ -68,19 +71,14 @@ public class PlaceDetailActivity extends BaseActivity {
         PlacesClient placesClient = Places.createClient(this);
 
         //setContentView(R.layout.activity_place_detail);
-        Toolbar toolbar = placeDetailBinding.detailToolbar;
-        CollapsingToolbarLayout collapsingToolbar = placeDetailBinding.toolbarLayout;
-        AppBarLayout appbar = placeDetailBinding.appBarDetail;
+        toolbar = placeDetailBinding.detailToolbar;
+        collapsingToolbar = placeDetailBinding.toolbarLayout;
+        appbar = placeDetailBinding.appBarDetail;
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
         ImageView DetailImage = placeDetailBinding.mDetailImage;
-        TextView placeName = findViewById(R.id.detail_place_name);
-        TextView placeAddress = placeDetailBinding.placeDetailsAddress;
-        TextView placesDetailsTitle = placeDetailBinding.placeDetailsTitle;
-        TextView placesDetailsAddress = placeDetailBinding.placeDetailsAddress;
-
 
         Intent intent = this.getIntent();
         if (intent != null) {
@@ -108,7 +106,6 @@ public class PlaceDetailActivity extends BaseActivity {
                 }
             });
 
-
             AppCompatImageButton call = findViewById(R.id.call_button);
             call.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -125,60 +122,63 @@ public class PlaceDetailActivity extends BaseActivity {
                 }
             });
 
-            getPlaceDetail();
             mDetailPhotoUrl = intent.getStringExtra("placePhotoUrl");
             Glide.with(DetailImage.getContext())
                     .load(mDetailPhotoUrl)
                     .into(DetailImage);
 
-            // Set title of Detail page
-            appbar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-                @Override
-                public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                    if (Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() == 0) {
-                        // Collapsed
-                        // collapsingToolbar.setCollapsedTitleTextColor(0xffffff);
-                        collapsingToolbar.setTitle("hjello");
-                        getSupportActionBar().setSubtitle("sairam");
 
-                        toolbar.setTitle("placeName");
-                        toolbar.setSubtitle("placeAddress");
-                        placesDetailsTitle.setText(mDetailName);
-                        placesDetailsAddress.setText(mDetailAddress);
-                        placesDetailsTitle.setVisibility(View.VISIBLE);
-                        placesDetailsAddress.setVisibility(View.VISIBLE);
-                        placeAddress.setVisibility(View.INVISIBLE);
-                        placeName.setVisibility(View.INVISIBLE);
-                        findViewById(R.id.detail_title_layout).setVisibility(View.GONE);
-                    } else {
-                        // Expanded
-                        collapsingToolbar.setTitle("");
-                        toolbar.setTitle(intent.getStringExtra("placeAddress"));
-                        // mDetailAddress = intent.getStringExtra("placeAddress");
-                        placeAddress.setText(mDetailAddress);
-                        placeName.setText(mDetailName);
-                        placeAddress.setVisibility(View.VISIBLE);
-                        placeName.setVisibility(View.VISIBLE);
-                        findViewById(R.id.detail_title_layout).setVisibility(View.VISIBLE);
-                        placesDetailsTitle.setVisibility(View.INVISIBLE);
-                        placesDetailsAddress.setVisibility(View.INVISIBLE);
-
-                    }
-                }
-            });
-
+            addOnOffsetChangedListener();
             getPlaceDetail();
             fabOnClickListener();
         }
 
     }
 
+    private void addOnOffsetChangedListener() {
+        TextView placeName = findViewById(R.id.detail_place_name);
+        TextView placeAddress = findViewById(R.id.detail_place_address);
+        TextView placesDetailsTitle = placeDetailBinding.placeDetailsTitle;
+        TextView placesDetailsAddress = placeDetailBinding.placeDetailsAddress;
+        // Set title of Detail page
+        appbar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if (Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() == 0) {
+                    // Collapsed
+                    // collapsingToolbar.setCollapsedTitleTextColor(0xffffff);
+                    toolbar.setTitle("placeName");
+                    toolbar.setSubtitle("placeAddress");
+                    placesDetailsTitle.setText(mDetailName);
+                    placesDetailsAddress.setText(mDetailAddress);
+                    placesDetailsTitle.setVisibility(View.VISIBLE);
+                    placesDetailsAddress.setVisibility(View.VISIBLE);
+                    placeAddress.setVisibility(View.INVISIBLE);
+                    placeName.setVisibility(View.INVISIBLE);
+                    findViewById(R.id.detail_title_layout).setVisibility(View.GONE);
+                } else {
+                    // Expanded
+                    collapsingToolbar.setTitle("");
+                    toolbar.setTitle(mDetailAddress);
+                    // mDetailAddress = intent.getStringExtra("placeAddress");
+                    placeAddress.setText(mDetailAddress);
+                    placeName.setText(mDetailName);
+                    placeAddress.setVisibility(View.VISIBLE);
+                    placeName.setVisibility(View.VISIBLE);
+                    findViewById(R.id.detail_title_layout).setVisibility(View.VISIBLE);
+                    placesDetailsTitle.setVisibility(View.INVISIBLE);
+                    placesDetailsAddress.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+    }
+
     private void fabOnClickListener() {
-        FloatingActionButton addSpotLunch = placeDetailBinding.addSpotLunchButton;
+        addSpotLunch = placeDetailBinding.addSpotLunchButton;
         addSpotLunch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Here's a click", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "You're going to" + mDetailName + "for lunch!", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                 addLunchSpotInFirebase(placeId);
             }
@@ -210,11 +210,11 @@ public class PlaceDetailActivity extends BaseActivity {
         if (this.getCurrentUser() != null) {
             String uid = this.getCurrentUser().getUid();
             UserHelper.updateLunchSpot(lunchSpot, uid).addOnFailureListener(this.onFailureListener());
+            addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
         }
     }
 
     private void addLunchSpotInFirebaseInFirestore() {
-
         if (this.getCurrentUser() != null) {
             String uid = this.getCurrentUser().getUid();
             UserHelper.updateIsAuthenticated(true, uid).addOnFailureListener(this.onFailureListener());

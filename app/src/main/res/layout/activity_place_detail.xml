@@ -88,17 +88,17 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
             android:layout_margin="@dimen/fab_margin"
-            android:background="@color/green_700"
+            android:background="@color/red_700"
             android:contentDescription="@string/set_restaurant_button"
             android:theme="@style/Widget.Design.FloatingActionButton"
-            android:tint="@color/green_200"
+            android:tint="@color/red_700"
             app:backgroundTint="@color/white"
             app:backgroundTintMode="screen"
             app:fabSize="auto"
             app:layout_anchor="@+id/app_bar_detail"
             app:layout_anchorGravity="bottom|end"
-            app:rippleColor="#7CB342"
-            app:srcCompat="@drawable/ic_baseline_check_circle_24"
-            tools:background="@color/green_700" />
+            app:rippleColor="#FF5722"
+            app:srcCompat="@drawable/ic_baseline_add_circle_24"
+            tools:background="@color/red_700" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
