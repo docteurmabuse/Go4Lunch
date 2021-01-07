@@ -80,7 +80,9 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <include layout="@layout/content_layout_place_detail_activity" />
+        <include
+            android:id="@+id/content_layout_place_detail_activity"
+            layout="@layout/content_layout_place_detail_activity" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/add_spot_lunch_button"

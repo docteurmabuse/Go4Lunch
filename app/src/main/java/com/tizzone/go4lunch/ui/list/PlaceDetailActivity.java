@@ -34,16 +34,16 @@ import com.tizzone.go4lunch.models.user.User;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class PlaceDetailActivity extends BaseActivity {
     private static final String TAG = "1543";
     private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 5873;
     private String mDetailAddress;
     private String mDetailName;
-    private String mDetailPhotoUrl;
     private int lunchSpot;
     private ActivityPlaceDetailBinding placeDetailBinding;
-    private ContentLayoutPlaceDetailActivityBinding contentLayoutPlaceDetailActivityBinding;
+    private ContentLayoutPlaceDetailActivityBinding contentLayoutBinding;
     private String placePhone;
     private Uri placeWebsite;
     private FloatingActionButton addSpotLunch;
@@ -58,6 +58,7 @@ public class PlaceDetailActivity extends BaseActivity {
     private TextView placeAddress;
     private TextView placesDetailsTitle;
     private TextView placesDetailsAddress;
+    private String uid;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -73,10 +74,15 @@ public class PlaceDetailActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         placeDetailBinding = ActivityPlaceDetailBinding.inflate(getLayoutInflater());
+        contentLayoutBinding = placeDetailBinding.contentLayoutPlaceDetailActivity;
         View view = placeDetailBinding.getRoot();
         setContentView(view);
+
+        if (this.getCurrentUser() != null) {
+            uid = this.getCurrentUser().getUid();
+        }
+
         Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
         PlacesClient placesClient = Places.createClient(this);
 
@@ -85,9 +91,9 @@ public class PlaceDetailActivity extends BaseActivity {
         collapsingToolbar = placeDetailBinding.toolbarLayout;
         appbar = placeDetailBinding.appBarDetail;
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        placeName = findViewById(R.id.detail_place_name);
-        placeAddress = findViewById(R.id.detail_place_address);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        placeName = contentLayoutBinding.detailPlaceName;
+        placeAddress = contentLayoutBinding.detailPlaceAddress;
 
         placesDetailsTitle = placeDetailBinding.placeDetailsTitle;
         placesDetailsAddress = placeDetailBinding.placeDetailsAddress;
@@ -109,6 +115,8 @@ public class PlaceDetailActivity extends BaseActivity {
                 placeWebsite = place.getWebsiteUri();
                 mDetailName = place.getName();
                 mDetailAddress = place.getAddress();
+                placeAddress.setText(mDetailAddress);
+                placeName.setText(mDetailName);
                 Log.i(TAG, "Place found: " + place.getName());
             }).addOnFailureListener((exception) -> {
                 if (exception instanceof ApiException) {
@@ -119,27 +127,16 @@ public class PlaceDetailActivity extends BaseActivity {
                 }
             });
 
-            placeAddress.setText(mDetailAddress);
-            placeName.setText(mDetailName);
+
             addOnOffsetChangedListener();
 
             AppCompatImageButton call = findViewById(R.id.call_button);
-            call.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    dialPhoneNumber(placePhone);
-                }
-            });
+            call.setOnClickListener(view1 -> dialPhoneNumber(placePhone));
 
             AppCompatImageButton website = findViewById(R.id.website_button);
-            website.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    openWebPage(placeWebsite);
-                }
-            });
+            website.setOnClickListener(view12 -> openWebPage(placeWebsite));
 
-            mDetailPhotoUrl = intent.getStringExtra("placePhotoUrl");
+            String mDetailPhotoUrl = intent.getStringExtra("placePhotoUrl");
             Glide.with(DetailImage.getContext())
                     .load(mDetailPhotoUrl)
                     .into(DetailImage);
@@ -188,13 +185,24 @@ public class PlaceDetailActivity extends BaseActivity {
 
     private void fabOnClickListener() {
         addSpotLunch = placeDetailBinding.addSpotLunchButton;
+        if (uid != null) {
+            getUserDataFromFirebase(uid);
+        }
 
         addSpotLunch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "You're going to " + mDetailName + " for lunch!", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                addLunchSpotInFirebase(placeId);
+                if (!isLunchSpot) {
+                    addLunchSpotInFirebase(placeId, uid);
+                    addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
+                    isLunchSpot = true;
+                } else {
+                    addLunchSpotInFirebase(null, uid);
+                    addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
+                    isLunchSpot = false;
+                }
             }
         });
     }
@@ -205,7 +213,7 @@ public class PlaceDetailActivity extends BaseActivity {
     }
 
     public void dialPhoneNumber(String phoneNumber) {
-        Intent intent = new Intent(Intent.ACTION_DIAL);
+        Intent intent = new Intent(Intent.ACTION_CALL);
         intent.setData(Uri.parse("tel:" + phoneNumber));
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
@@ -220,12 +228,8 @@ public class PlaceDetailActivity extends BaseActivity {
     }
 
     //Add Lunch Spot
-    private void addLunchSpotInFirebase(String lunchSpot) {
-        if (this.getCurrentUser() != null) {
-            String uid = this.getCurrentUser().getUid();
-            UserHelper.updateLunchSpot(lunchSpot, uid).addOnFailureListener(this.onFailureListener());
-            addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
-        }
+    private void addLunchSpotInFirebase(String lunchSpot, String uid) {
+        UserHelper.updateLunchSpot(lunchSpot, uid).addOnFailureListener(this.onFailureListener());
     }
 
 
@@ -235,11 +239,17 @@ public class PlaceDetailActivity extends BaseActivity {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 User currentUser = documentSnapshot.toObject(User.class);
-                isLunchSpot = currentUser.getLunchSpot().equals(placeId);
-                if (!isLunchSpot) {
-                    addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
+                assert currentUser != null;
+                if (currentUser.getLunchSpot() != null) {
+                    isLunchSpot = currentUser.getLunchSpot().equals(placeId);
+                    if (!isLunchSpot) {
+                        addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
+                    } else {
+                        addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
+                    }
                 } else {
-                    addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
+                    isLunchSpot = false;
+                    addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
                 }
             }
         });
