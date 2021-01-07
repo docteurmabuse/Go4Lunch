@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -58,6 +59,7 @@ public class PlaceDetailActivity extends BaseActivity {
     private TextView placeAddress;
     private TextView placesDetailsTitle;
     private TextView placesDetailsAddress;
+    private RatingBar placeRatingBar;
     private String uid;
 
     @Override
@@ -92,6 +94,7 @@ public class PlaceDetailActivity extends BaseActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         placeName = contentLayoutBinding.detailPlaceName;
         placeAddress = contentLayoutBinding.detailPlaceAddress;
+        placeRatingBar = contentLayoutBinding.detailRatingBar;
 
         placesDetailsTitle = placeDetailBinding.placeDetailsTitle;
         placesDetailsAddress = placeDetailBinding.placeDetailsAddress;
@@ -100,7 +103,7 @@ public class PlaceDetailActivity extends BaseActivity {
         Intent intent = this.getIntent();
         if (intent != null) {
             // Specify the fields to return.
-            final List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.TYPES, Place.Field.WEBSITE_URI, Place.Field.PHONE_NUMBER);
+            final List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.TYPES, Place.Field.WEBSITE_URI, Place.Field.PHONE_NUMBER, Place.Field.RATING);
 
             // Construct a request object, passing the place ID and fields array.
             placeId = intent.getStringExtra("placeId");
@@ -115,6 +118,11 @@ public class PlaceDetailActivity extends BaseActivity {
                 mDetailAddress = place.getAddress();
                 placeAddress.setText(mDetailAddress);
                 placeName.setText(mDetailName);
+                Double ratingFiveStar = place.getRating();
+                float ratingFiveStarFloat = ratingFiveStar.floatValue();
+                float ratingThreeStars = (ratingFiveStarFloat * 3) / 5;
+                placeRatingBar.setRating(ratingThreeStars);
+
                 Log.i(TAG, "Place found: " + place.getName());
             }).addOnFailureListener((exception) -> {
                 if (exception instanceof ApiException) {
@@ -190,7 +198,6 @@ public class PlaceDetailActivity extends BaseActivity {
         addSpotLunch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 if (!isLunchSpot) {
                     addLunchSpotInFirebase(placeId, uid);
                     addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);

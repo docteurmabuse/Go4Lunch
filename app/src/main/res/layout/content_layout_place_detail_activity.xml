@@ -24,14 +24,33 @@
                 android:background="@color/red_500"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/detail_place_name"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/detail_title_rating_layout"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/activity_horizontal_margin"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:textColor="@color/white"
-                    android:textSize="16sp" />
+                    android:background="@color/red_500"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/detail_place_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/activity_horizontal_margin"
+                        android:layout_marginTop="@dimen/activity_vertical_margin"
+                        android:text="title"
+                        android:textColor="@color/white"
+                        android:textSize="16sp" />
+
+                    <RatingBar
+                        android:id="@+id/detail_rating_bar"
+                        style="@style/Widget.AppCompat.RatingBar.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginTop="20dp"
+                        android:numStars="3"
+                        android:theme="@style/RatingBar" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/detail_place_address"
@@ -44,9 +63,9 @@
             </LinearLayout>
 
             <com.google.android.material.card.MaterialCardView
-                android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -109,9 +128,9 @@
                         android:orientation="vertical">
 
                         <androidx.appcompat.widget.AppCompatImageButton
+                            android:id="@+id/website_button"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:id="@+id/website_button"
                             android:background="@drawable/ic_baseline_public_24"
                             android:color="@color/red_500" />
 
