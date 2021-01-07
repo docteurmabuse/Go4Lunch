@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.adapters.PlacesListAdapter;
+import com.tizzone.go4lunch.databinding.FragmentListBinding;
 import com.tizzone.go4lunch.models.places.Result;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
@@ -28,6 +29,7 @@ public class ListViewFragment extends Fragment {
     private PlacesListAdapter placesListAdapter;
     private List<Result> places;
     private String key;
+    private FragmentListBinding fragmentListBinding;
 
     /**
      * Called to do initial creation of a fragment.  This is called after
@@ -53,20 +55,22 @@ public class ListViewFragment extends Fragment {
         double latitude ;
         double longitude ;
         int radius = 1000;
-        placesListAdapter = new PlacesListAdapter();
+        // placesListAdapter = new PlacesListAdapter();
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        fragmentListBinding = FragmentListBinding.inflate(inflater, container, false);
+        View root = fragmentListBinding.getRoot();
         places = new ArrayList<>();
 
-        View root = inflater.inflate(R.layout.fragment_dashboard, container, false);
+        //View root = inflater.inflate(R.layout.fragment_list, container, false);
+        placesListAdapter = new PlacesListAdapter(places, key, getContext());
 
         placesViewModel =
                 new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         placesViewModel.getPlacesResultsLiveData().observe(getViewLifecycleOwner(), placesResults -> {
             placesListAdapter.setmPlaces(placesResults.getResults(), key);
-
         });
         recyclerViewPlaces = root.findViewById(R.id.listViewPlaces);
         recyclerViewPlaces.setHasFixedSize(true);
@@ -80,5 +84,11 @@ public class ListViewFragment extends Fragment {
 
     public void onResume() {
         super.onResume();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        fragmentListBinding = null;
     }
 }
