@@ -25,8 +25,13 @@ public class UserHelper {
 
     // --- READ ---
     public static Task<DocumentSnapshot> getUser(String uid) {
-    return UserHelper.getUsersCollection().document(uid).get();
+        return UserHelper.getUsersCollection().document(uid).get();
     }
+
+    public static Task<DocumentSnapshot> getUser() {
+        return UserHelper.getUsersCollection().document().get();
+    }
+
 
     // --- UPDATE ---
     public static Task<Void> updateUsername(String username, String uid) {

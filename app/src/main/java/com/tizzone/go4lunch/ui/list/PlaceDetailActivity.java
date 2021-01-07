@@ -13,6 +13,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.common.api.ApiException;
@@ -27,12 +29,15 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.tizzone.go4lunch.R;
+import com.tizzone.go4lunch.adapters.UsersListAdapter;
 import com.tizzone.go4lunch.api.UserHelper;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityPlaceDetailBinding;
 import com.tizzone.go4lunch.databinding.ContentLayoutPlaceDetailActivityBinding;
+import com.tizzone.go4lunch.databinding.FragmentListBinding;
 import com.tizzone.go4lunch.models.user.User;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -45,6 +50,7 @@ public class PlaceDetailActivity extends BaseActivity {
     private int lunchSpot;
     private ActivityPlaceDetailBinding placeDetailBinding;
     private ContentLayoutPlaceDetailActivityBinding contentLayoutBinding;
+    private FragmentListBinding listBinding;
     private String placePhone;
     private Uri placeWebsite;
     private FloatingActionButton addSpotLunch;
@@ -61,6 +67,9 @@ public class PlaceDetailActivity extends BaseActivity {
     private TextView placesDetailsAddress;
     private RatingBar placeRatingBar;
     private String uid;
+    private List<User> mUsers;
+    private UsersListAdapter usersListAdapter;
+    private RecyclerView usersRecyclerView;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -78,10 +87,12 @@ public class PlaceDetailActivity extends BaseActivity {
         contentLayoutBinding = placeDetailBinding.contentLayoutPlaceDetailActivity;
         View view = placeDetailBinding.getRoot();
         setContentView(view);
+        mUsers = new ArrayList<>();
 
         if (this.getCurrentUser() != null) {
             uid = this.getCurrentUser().getUid();
         }
+        usersListAdapter = new UsersListAdapter(mUsers, this);
 
         Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
         PlacesClient placesClient = Places.createClient(this);
@@ -99,6 +110,11 @@ public class PlaceDetailActivity extends BaseActivity {
         placesDetailsTitle = placeDetailBinding.placeDetailsTitle;
         placesDetailsAddress = placeDetailBinding.placeDetailsAddress;
         ImageView DetailImage = placeDetailBinding.mDetailImage;
+        usersRecyclerView = listBinding.listViewPlaces;
+        usersRecyclerView.setHasFixedSize(true);
+        usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        usersRecyclerView.setAdapter(usersListAdapter);
 
         Intent intent = this.getIntent();
         if (intent != null) {

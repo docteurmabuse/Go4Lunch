@@ -23,4 +23,7 @@
     <string name="facebook_login_protocol_scheme" translatable="false">fb367361037800074</string>
     <string name="error_unknown_error">unknown error</string>
     <string name="google_place_image">Google Place Image</string>
+    <string name="connection_succeed">Connnection Succeed</string>
+    <string name="error_authentication_canceled">Authentication canceled</string>
+    <string name="error_no_internet">No Internet</string>
 </resources>
