@@ -21,8 +21,7 @@
         android:theme="@style/Theme.Go4Lunch">
         <activity android:name=".ui.list.PlaceDetailActivity">
             <intent-filter>
-                <action android:name="android.intent.action.CALL_PHONE" />
-
+                <action android:name="android.intent.action.DIAL_PHONE" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.VIEW" />
             </intent-filter>

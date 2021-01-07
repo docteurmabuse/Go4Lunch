@@ -221,7 +221,7 @@ public class PlaceDetailActivity extends BaseActivity {
     }
 
     public void dialPhoneNumber(String phoneNumber) {
-        Intent intent = new Intent(Intent.ACTION_CALL);
+        Intent intent = new Intent(Intent.ACTION_DIAL);
         intent.setData(Uri.parse("tel:" + phoneNumber));
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
@@ -247,17 +247,18 @@ public class PlaceDetailActivity extends BaseActivity {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 User currentUser = documentSnapshot.toObject(User.class);
-                assert currentUser != null;
-                if (currentUser.getLunchSpot() != null) {
-                    isLunchSpot = currentUser.getLunchSpot().equals(placeId);
-                    if (!isLunchSpot) {
-                        addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
+                if (currentUser != null) {
+                    if (currentUser.getLunchSpot() != null) {
+                        isLunchSpot = currentUser.getLunchSpot().equals(placeId);
+                        if (!isLunchSpot) {
+                            addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
+                        } else {
+                            addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
+                        }
                     } else {
-                        addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
+                        isLunchSpot = false;
+                        addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
                     }
-                } else {
-                    isLunchSpot = false;
-                    addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
                 }
             }
         });

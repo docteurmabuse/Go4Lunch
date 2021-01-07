@@ -70,7 +70,7 @@ public class ListViewFragment extends Fragment {
         placesViewModel =
                 new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         placesViewModel.getPlacesResultsLiveData().observe(getViewLifecycleOwner(), placesResults -> {
-            placesListAdapter.setmPlaces(placesResults.getResults(), key);
+            placesListAdapter.setPlaces(placesResults.getResults(), key);
         });
         recyclerViewPlaces = root.findViewById(R.id.listViewPlaces);
         recyclerViewPlaces.setHasFixedSize(true);

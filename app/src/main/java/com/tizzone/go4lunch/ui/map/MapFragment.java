@@ -115,8 +115,6 @@ public class MapFragment extends Fragment {
                 mMap.clear();
             }
         }
-
-
     };
 
 

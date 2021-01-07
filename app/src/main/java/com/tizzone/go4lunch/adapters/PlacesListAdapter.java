@@ -61,9 +61,12 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
         holder.textViewName.setText(place.getName());
         holder.textViewAddress.setText(place.getVicinity());
         Double ratingFiveStar = place.getRating();
-        float ratingFiveStarFloat = ratingFiveStar.floatValue();
-        float ratingThreeStars = (ratingFiveStarFloat * 3) / 5;
-        holder.ratingBar.setRating(ratingThreeStars);
+        if (place.getRating() != null) {
+            float ratingFiveStarFloat = ratingFiveStar.floatValue();
+            float ratingThreeStars = (ratingFiveStarFloat * 3) / 5;
+            holder.ratingBar.setRating(ratingThreeStars);
+        }
+
         if (mPlaces.get(position).getOpeningHours() != null) {
             boolean isOpen = mPlaces.get(position).getOpeningHours().getOpenNow();
             if (isOpen)
@@ -74,7 +77,7 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
         String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
 
         //display place thumbnail
-        if (mPlaces.get(position).getPhotos().get(0).getPhotoReference() != null) {
+        if (mPlaces.get(position).getPhotos().size() != 0) {
             String imageUrl = staticUrl + "maxwidth=400&photoreference=" + mPlaces.get(position).getPhotos().get(0).getPhotoReference() + "&key=" + mKey;
 
             Glide.with(holder.itemView)
@@ -97,7 +100,7 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
         });
     }
 
-    public void setmPlaces(List<Result> results, String key) {
+    public void setPlaces(List<Result> results, String key) {
         this.mPlaces = results;
         this.mKey = key;
         notifyDataSetChanged();
@@ -112,6 +115,7 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
         public TextView textViewName;
         public TextView textViewAddress;
         public TextView textViewOpeningHours;
+        public TextView distance;
         public ImageView imageViewPhoto;
         public Result mPlace;
         public RatingBar ratingBar;
@@ -126,6 +130,7 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
             textViewOpeningHours = placeItemBinding.textViewOpeningHours;
             imageViewPhoto = placeItemBinding.imageViewPhoto;
             ratingBar = placeItemBinding.rating;
+            distance = placeItemBinding.distanceTextView;
         }
     }
 }
