@@ -50,7 +50,7 @@
             android:id="@+id/textViewOpeningHours"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="5dp"
+            android:layout_marginStart="5dp"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"

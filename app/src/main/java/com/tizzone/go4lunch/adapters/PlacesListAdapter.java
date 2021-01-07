@@ -50,8 +50,12 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
         float ratingFiveStarFloat = ratingFiveStar.floatValue();
         float ratingThreeStars = (ratingFiveStarFloat * 3) / 5;
         holder.ratingBar.setRating(ratingThreeStars);
-        if (mPlaces.get(position).getOpeningHours() != null)
-            holder.textViewOpeningHours.setText(mPlaces.get(position).getOpeningHours().getWeekdayText().toString());
+        if (mPlaces.get(position).getOpeningHours() != null) {
+            boolean isOpen = mPlaces.get(position).getOpeningHours().getOpenNow();
+            if (isOpen)
+                holder.textViewOpeningHours.setText("Open Now");
+            else holder.textViewOpeningHours.setText("Closed");
+        }
 
         String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
 
