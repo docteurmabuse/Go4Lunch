@@ -62,13 +62,11 @@ public class PlaceDetailActivity extends BaseActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -192,16 +190,19 @@ public class PlaceDetailActivity extends BaseActivity {
         addSpotLunch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "You're going to " + mDetailName + " for lunch!", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
                 if (!isLunchSpot) {
                     addLunchSpotInFirebase(placeId, uid);
                     addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
                     isLunchSpot = true;
+                    Snackbar.make(view, "You're going to " + mDetailName + " for lunch!", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
                 } else {
                     addLunchSpotInFirebase(null, uid);
                     addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
                     isLunchSpot = false;
+                    Snackbar.make(view, "You're not going anymore to " + mDetailName + " for lunch!", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
                 }
             }
         });
