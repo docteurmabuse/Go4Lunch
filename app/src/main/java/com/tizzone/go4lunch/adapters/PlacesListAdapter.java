@@ -13,7 +13,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.tizzone.go4lunch.R;
+import com.tizzone.go4lunch.databinding.PlaceItemBinding;
 import com.tizzone.go4lunch.models.places.Result;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 
@@ -35,9 +35,8 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.place_item, parent, false);
-        return new ViewHolder(view);
+        PlaceItemBinding placeItemBinding = PlaceItemBinding.inflate(LayoutInflater.from(parent.getContext()));
+        return new ViewHolder(placeItemBinding);
     }
 
     @Override
@@ -91,22 +90,24 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public TextView textViewName;
+        private final PlaceItemBinding placeItemBinding;
         public TextView textViewAddress;
         public TextView textViewOpeningHours;
         public ImageView imageViewPhoto;
         public Result mPlace;
         public RatingBar ratingBar;
+        // public final View mView;
+        public TextView textViewName;
 
-        public ViewHolder(View view) {
-            super(view);
-            mView = view;
-            textViewName = view.findViewById(R.id.textViewName);
-            textViewAddress = view.findViewById(R.id.textViewAddress);
-            textViewOpeningHours = view.findViewById(R.id.textViewOpeningHours);
-            imageViewPhoto = view.findViewById(R.id.imageViewPhoto);
-            ratingBar = view.findViewById(R.id.rating);
+
+        public ViewHolder(PlaceItemBinding placeItemBinding) {
+            super(placeItemBinding.getRoot());
+            this.placeItemBinding = placeItemBinding;
+            textViewName = placeItemBinding.textViewName;
+            textViewAddress = placeItemBinding.textViewAddress;
+            textViewOpeningHours = placeItemBinding.textViewOpeningHours;
+            imageViewPhoto = placeItemBinding.imageViewPhoto;
+            ratingBar = placeItemBinding.rating;
         }
     }
 }

@@ -29,6 +29,7 @@ import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.api.UserHelper;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityPlaceDetailBinding;
+import com.tizzone.go4lunch.databinding.ContentLayoutPlaceDetailActivityBinding;
 import com.tizzone.go4lunch.models.user.User;
 
 import java.util.Arrays;
@@ -42,6 +43,7 @@ public class PlaceDetailActivity extends BaseActivity {
     private String mDetailPhotoUrl;
     private int lunchSpot;
     private ActivityPlaceDetailBinding placeDetailBinding;
+    private ContentLayoutPlaceDetailActivityBinding contentLayoutPlaceDetailActivityBinding;
     private String placePhone;
     private Uri placeWebsite;
     private FloatingActionButton addSpotLunch;
