@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
@@ -28,6 +29,7 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Query;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.adapters.UsersListAdapter;
 import com.tizzone.go4lunch.api.UserHelper;
@@ -42,7 +44,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class PlaceDetailActivity extends BaseActivity {
+public class PlaceDetailActivity extends BaseActivity implements UsersListAdapter.Listener {
     private static final String TAG = "1543";
     private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 5873;
     private String mDetailAddress;
@@ -58,7 +60,7 @@ public class PlaceDetailActivity extends BaseActivity {
     private CollapsingToolbarLayout collapsingToolbar;
     private AppBarLayout appbar;
     // Define a Place ID.
-    private String placeId;
+    private String currentPlaceId;
     private PlacesClient placesClient;
     private boolean isLunchSpot;
     private TextView placeName;
@@ -92,7 +94,7 @@ public class PlaceDetailActivity extends BaseActivity {
         if (this.getCurrentUser() != null) {
             uid = this.getCurrentUser().getUid();
         }
-        usersListAdapter = new UsersListAdapter(mUsers, this);
+        // usersListAdapter = new UsersListAdapter(mUsers, this);
 
         Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
         PlacesClient placesClient = Places.createClient(this);
@@ -110,11 +112,8 @@ public class PlaceDetailActivity extends BaseActivity {
         placesDetailsTitle = placeDetailBinding.placeDetailsTitle;
         placesDetailsAddress = placeDetailBinding.placeDetailsAddress;
         ImageView DetailImage = placeDetailBinding.mDetailImage;
-        usersRecyclerView = listBinding.listViewPlaces;
-        usersRecyclerView.setHasFixedSize(true);
-        usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        usersRecyclerView = placeDetailBinding.contentLayoutPlaceDetailActivity.usersSpotList;
 
-        usersRecyclerView.setAdapter(usersListAdapter);
 
         Intent intent = this.getIntent();
         if (intent != null) {
@@ -122,9 +121,9 @@ public class PlaceDetailActivity extends BaseActivity {
             final List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.TYPES, Place.Field.WEBSITE_URI, Place.Field.PHONE_NUMBER, Place.Field.RATING);
 
             // Construct a request object, passing the place ID and fields array.
-            placeId = intent.getStringExtra("placeId");
+            currentPlaceId = intent.getStringExtra("placeId");
             getUserDataFromFirebase(this.getCurrentUser().getUid());
-            final FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeId, placeFields);
+            final FetchPlaceRequest request = FetchPlaceRequest.newInstance(currentPlaceId, placeFields);
 
             placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
                 Place place = response.getPlace();
@@ -149,7 +148,10 @@ public class PlaceDetailActivity extends BaseActivity {
                 }
             });
 
+            usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            usersRecyclerView.setHasFixedSize(true);
 
+            usersRecyclerView.setAdapter(usersListAdapter);
             addOnOffsetChangedListener();
 
             AppCompatImageButton call = findViewById(R.id.call_button);
@@ -215,7 +217,7 @@ public class PlaceDetailActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 if (!isLunchSpot) {
-                    addLunchSpotInFirebase(placeId, uid);
+                    addLunchSpotInFirebase(currentPlaceId, uid);
                     addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
                     isLunchSpot = true;
                     Snackbar.make(view, "You're going to " + mDetailName + " for lunch!", Snackbar.LENGTH_LONG)
@@ -265,7 +267,7 @@ public class PlaceDetailActivity extends BaseActivity {
                 User currentUser = documentSnapshot.toObject(User.class);
                 if (currentUser != null) {
                     if (currentUser.getLunchSpot() != null) {
-                        isLunchSpot = currentUser.getLunchSpot().equals(placeId);
+                        isLunchSpot = currentUser.getLunchSpot().equals(currentPlaceId);
                         if (!isLunchSpot) {
                             addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
                         } else {
@@ -280,4 +282,40 @@ public class PlaceDetailActivity extends BaseActivity {
         });
     }
 
+    // --------------------
+    // UI
+    // --------------------
+    // 5 - Configure RecyclerView with a Query
+    private void configureRecyclerView(String placeId) {
+        //Track current chat name
+        this.currentPlaceId = placeId;
+        //Configure Adapter & RecyclerView
+        this.usersListAdapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getAllUsers(this.currentPlaceId)), Glide.with(this), this, this.getCurrentUser().getUid());
+        usersListAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                usersRecyclerView.smoothScrollToPosition(usersListAdapter.getItemCount()); // Scroll to bottom on new messages
+            }
+        });
+        usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        usersRecyclerView.setAdapter(this.usersListAdapter);
+    }
+
+    // 6 - Create options for RecyclerView from a Query
+    private FirestoreRecyclerOptions<User> generateOptionsForAdapter(Query query) {
+        return new FirestoreRecyclerOptions.Builder<User>()
+                .setQuery(query, User.class)
+                .setLifecycleOwner(this)
+                .build();
+    }
+
+
+    // --------------------
+    // CALLBACK
+    // --------------------
+
+    @Override
+    public void onDataChanged() {
+
+    }
 }

@@ -10,29 +10,31 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.tizzone.go4lunch.databinding.UsersListItemBinding;
 import com.tizzone.go4lunch.models.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.UserViewHolder> {
+public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAdapter.UserViewHolder> {
     private final Context mContext;
-    private List<User> mUsers = new ArrayList<>();
+    private final List<User> mUsers = new ArrayList<>();
     private UsersListItemBinding userBinding;
     private String userLunch;
+    //FOR DATA
+    private final RequestManager glide;
+    private final String idCurrentUser;
+    //FOR COMMUNICATION
+    private Listener callback;
 
-    public UsersListAdapter(List<User> mUsers, Context mContext) {
-        this.mUsers = mUsers;
+    public UsersListAdapter(FirestoreRecyclerOptions<User> options, RequestManager glide, Listener callback, String idCurrentUser, Context mContext) {
+        super(options);
         this.mContext = mContext;
-    }
-
-    @NonNull
-    @Override
-    public UsersListAdapter.UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(mContext);
-        userBinding = UsersListItemBinding.inflate(inflater, parent, false);
-        return new UsersListAdapter.UserViewHolder(userBinding);
+        this.glide = glide;
+        this.idCurrentUser = idCurrentUser;
     }
 
     /**
@@ -41,8 +43,8 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.User
      * @param position The position of the item within the adapter's data set.
      */
     @Override
-    public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
-        User user = mUsers.get(position);
+    public void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User user) {
+        user = mUsers.get(position);
 
         //display place thumbnail
         if (user.getPhotoUrl() != null) {
@@ -53,6 +55,18 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.User
         }
 
         holder.userText.setText(user.getUserName() + userLunch);
+    }
+
+    @NonNull
+    @Override
+    public UsersListAdapter.UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(mContext);
+        userBinding = UsersListItemBinding.inflate(inflater, parent, false);
+        return new UsersListAdapter.UserViewHolder(userBinding);
+    }
+
+    public interface Listener {
+        void onDataChanged();
     }
 
 

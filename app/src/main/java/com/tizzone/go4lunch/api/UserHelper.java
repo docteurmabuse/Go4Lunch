@@ -4,6 +4,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.tizzone.go4lunch.models.user.User;
 
 public class UserHelper {
@@ -28,8 +29,8 @@ public class UserHelper {
         return UserHelper.getUsersCollection().document(uid).get();
     }
 
-    public static Task<DocumentSnapshot> getUser() {
-        return UserHelper.getUsersCollection().document().get();
+    public static Query getAllUsers(String currentPlaceId) {
+        return UserHelper.getUsersCollection().orderBy("name", Query.Direction.DESCENDING).limit(100).get();
     }
 
 

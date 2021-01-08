@@ -83,8 +83,8 @@
 
                         <androidx.appcompat.widget.AppCompatImageButton
                             android:id="@+id/call_button"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:background="@drawable/ic_baseline_call_24"
                             android:color="@color/red_500" />
 
@@ -105,8 +105,8 @@
                         android:orientation="vertical">
 
                         <androidx.appcompat.widget.AppCompatImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:background="@drawable/ic_baseline_star_24"
                             android:color="@color/red_500" />
 
@@ -129,8 +129,8 @@
 
                         <androidx.appcompat.widget.AppCompatImageButton
                             android:id="@+id/website_button"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:background="@drawable/ic_baseline_public_24"
                             android:color="@color/red_500" />
 
@@ -143,6 +143,12 @@
                     </LinearLayout>
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/users_spot_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
