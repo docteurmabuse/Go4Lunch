@@ -37,7 +37,7 @@ import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityPlaceDetailBinding;
 import com.tizzone.go4lunch.databinding.ContentLayoutPlaceDetailActivityBinding;
 import com.tizzone.go4lunch.databinding.FragmentListBinding;
-import com.tizzone.go4lunch.models.user.User;
+import com.tizzone.go4lunch.models.User;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -148,10 +148,10 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 }
             });
 
-            usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            usersRecyclerView.setHasFixedSize(true);
+            // usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            //  usersRecyclerView.setHasFixedSize(true);
 
-            usersRecyclerView.setAdapter(usersListAdapter);
+            //  usersRecyclerView.setAdapter(usersListAdapter);
             addOnOffsetChangedListener();
 
             AppCompatImageButton call = findViewById(R.id.call_button);
@@ -168,6 +168,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
             getPlaceDetail();
             fabOnClickListener();
+            configureRecyclerView(currentPlaceId);
         }
 
     }
@@ -290,7 +291,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         //Track current chat name
         this.currentPlaceId = placeId;
         //Configure Adapter & RecyclerView
-        this.usersListAdapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getAllUsers(this.currentPlaceId)), Glide.with(this), this, this.getCurrentUser().getUid());
+        this.usersListAdapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersLunchSpot(this.currentPlaceId)), Glide.with(this), this, this.getCurrentUser().getUid(), getApplicationContext());
         usersListAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {

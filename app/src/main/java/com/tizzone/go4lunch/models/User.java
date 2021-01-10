@@ -1,6 +1,7 @@
-package com.tizzone.go4lunch.models.user;
+package com.tizzone.go4lunch.models;
 
-import com.google.firebase.database.annotations.Nullable;
+
+import androidx.annotation.Nullable;
 
 public class User {
 
@@ -30,9 +31,8 @@ public class User {
         return uid;
     }
 
-    public User setUid(String uid) {
+    public void setUid(String uid) {
         this.uid = uid;
-        return this;
     }
 
 
@@ -40,36 +40,32 @@ public class User {
         return userName;
     }
 
-    public User setUserName(String userName) {
+    public void setUserName(String userName) {
         this.userName = userName;
-        return this;
     }
 
     public String getPhotoUrl() {
         return photoUrl;
     }
 
-    public User setPhotoUrl(String photoUrl) {
+    public void setPhotoUrl(String photoUrl) {
         this.photoUrl = photoUrl;
-        return this;
     }
 
     public String[] getFavoriteRestaurants() {
         return favoriteRestaurants;
     }
 
-    public User setFavoriteRestaurants(String[] favoriteRestaurants) {
+    public void setFavoriteRestaurants(String[] favoriteRestaurants) {
         this.favoriteRestaurants = favoriteRestaurants;
-        return this;
     }
 
     public String getLunchSpot() {
         return lunchSpot;
     }
 
-    public User setLunchSpot(String lunchSpot) {
+    public void setLunchSpot(String lunchSpot) {
         this.lunchSpot = lunchSpot;
-        return this;
     }
 
 

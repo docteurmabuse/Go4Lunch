@@ -37,8 +37,8 @@ import com.tizzone.go4lunch.api.UserHelper;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityMainBinding;
 import com.tizzone.go4lunch.databinding.NavHeaderMainBinding;
+import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.models.places.Result;
-import com.tizzone.go4lunch.models.user.User;
 import com.tizzone.go4lunch.ui.auth.AuthActivity;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 

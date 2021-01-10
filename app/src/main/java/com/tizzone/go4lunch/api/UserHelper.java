@@ -5,7 +5,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.tizzone.go4lunch.models.user.User;
+import com.tizzone.go4lunch.models.User;
 
 public class UserHelper {
     private static final String COLLECTION_NAME = "users";
@@ -29,10 +29,9 @@ public class UserHelper {
         return UserHelper.getUsersCollection().document(uid).get();
     }
 
-    public static Query getAllUsers(String currentPlaceId) {
-        return UserHelper.getUsersCollection().orderBy("name", Query.Direction.DESCENDING).limit(100).get();
+    public static Query getUsersLunchSpot(String uid) {
+        return getUsersCollection().whereEqualTo("placeId", uid);
     }
-
 
     // --- UPDATE ---
     public static Task<Void> updateUsername(String username, String uid) {

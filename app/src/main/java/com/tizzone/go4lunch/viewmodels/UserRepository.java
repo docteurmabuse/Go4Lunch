@@ -9,7 +9,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.tizzone.go4lunch.models.user.User;
+import com.tizzone.go4lunch.models.User;
 
 public class UserRepository {
     private static final String TAG = "FirebaseAuthAppTag";

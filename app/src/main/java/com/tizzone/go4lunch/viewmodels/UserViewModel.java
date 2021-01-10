@@ -1,12 +1,9 @@
 package com.tizzone.go4lunch.viewmodels;
 
-import android.app.Application;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModel;
 
-import com.tizzone.go4lunch.models.user.User;
+import com.tizzone.go4lunch.models.User;
 
 public class UserViewModel extends ViewModel {
     private UserRepository userRepository;

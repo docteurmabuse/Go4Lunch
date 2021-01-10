@@ -14,7 +14,7 @@ import com.bumptech.glide.RequestManager;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.tizzone.go4lunch.databinding.UsersListItemBinding;
-import com.tizzone.go4lunch.models.user.User;
+import com.tizzone.go4lunch.models.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,13 +28,21 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     private final RequestManager glide;
     private final String idCurrentUser;
     //FOR COMMUNICATION
-    private Listener callback;
+    private final Listener callback;
 
     public UsersListAdapter(FirestoreRecyclerOptions<User> options, RequestManager glide, Listener callback, String idCurrentUser, Context mContext) {
         super(options);
         this.mContext = mContext;
         this.glide = glide;
         this.idCurrentUser = idCurrentUser;
+        this.callback = callback;
+
+    }
+
+    @Override
+    public void onDataChanged() {
+        super.onDataChanged();
+        this.callback.onDataChanged();
     }
 
     /**
