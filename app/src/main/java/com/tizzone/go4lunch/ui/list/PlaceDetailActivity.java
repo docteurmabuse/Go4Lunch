@@ -67,7 +67,9 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private TextView placeAddress;
     private TextView placesDetailsTitle;
     private TextView placesDetailsAddress;
+    private TextView noWorkmates;
     private RatingBar placeRatingBar;
+
     private String uid;
     private List<User> mUsers;
     private UsersListAdapter usersListAdapter;
@@ -113,6 +115,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         placesDetailsAddress = placeDetailBinding.placeDetailsAddress;
         ImageView DetailImage = placeDetailBinding.mDetailImage;
         usersRecyclerView = placeDetailBinding.contentLayoutPlaceDetailActivity.usersSpotList;
+        noWorkmates = placeDetailBinding.contentLayoutPlaceDetailActivity.noWorlmatesTextView;
 
 
         Intent intent = this.getIntent();
@@ -317,6 +320,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
     @Override
     public void onDataChanged() {
-
+        noWorkmates.setVisibility(this.usersListAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
     }
 }
