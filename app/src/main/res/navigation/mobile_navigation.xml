@@ -18,14 +18,14 @@
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="com.tizzone.go4lunch.ui.notifications.NotificationsFragment"
+        android:name="com.tizzone.go4lunch.ui.workmates.WorkmatesFragment"
         android:label="@string/title_workmates"
-        tools:layout="@layout/fragment_notifications" />
+        tools:layout="@layout/fragment_workmates" />
 
 
     <fragment
         android:id="@+id/nav_lunch"
-        android:name="com.tizzone.go4lunch.ui.workmates.WormatesFragment"
+        android:name="com.tizzone.go4lunch.ui.gallery.GalleryFragment"
         android:label="@string/menu_lunch"
         tools:layout="@layout/fragment_gallery" />
 

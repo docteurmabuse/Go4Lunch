@@ -1,4 +1,4 @@
-package com.tizzone.go4lunch.ui.workmates;
+package com.tizzone.go4lunch.ui.gallery;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,17 +14,17 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.tizzone.go4lunch.R;
 
-public class WormatesFragment extends Fragment {
+public class GalleryFragment extends Fragment {
 
-    private WorkmatesModel workmatesModel;
+    private GalleryModel galleryModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        workmatesModel =
-                new ViewModelProvider(this).get(WorkmatesModel.class);
+        galleryModel =
+                new ViewModelProvider(this).get(GalleryModel.class);
         View root = inflater.inflate(R.layout.fragment_gallery, container, false);
         final TextView textView = root.findViewById(R.id.text_gallery);
-        workmatesModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+        galleryModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 textView.setText(s);

@@ -9,19 +9,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.tizzone.go4lunch.databinding.UsersListItemBinding;
 import com.tizzone.go4lunch.models.User;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAdapter.UserViewHolder> {
-    private final Context mContext;
-    private final List<User> mUsers = new ArrayList<>();
     private UsersListItemBinding userBinding;
     private String userLunch;
     //FOR DATA
@@ -30,13 +25,11 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     //FOR COMMUNICATION
     private final Listener callback;
 
-    public UsersListAdapter(FirestoreRecyclerOptions<User> options, RequestManager glide, Listener callback, String idCurrentUser, Context mContext) {
+    public UsersListAdapter(FirestoreRecyclerOptions<User> options, RequestManager glide, Listener callback, String idCurrentUser) {
         super(options);
-        this.mContext = mContext;
         this.glide = glide;
         this.idCurrentUser = idCurrentUser;
         this.callback = callback;
-
     }
 
     @Override
@@ -52,40 +45,33 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
      */
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User user) {
-        user = mUsers.get(position);
-
+        //  User user= users.get(position);
+        //  User 2 = new User("122112",false,"Ben","https://lh3.googleusercontent.com/a-/AOh14GgjDPW9btHlUI8CJCUHHodyZxrGaZt3BRZssJybow=s96-c",null,"ChIJP_-HCS9u5kcRsj9b1x7Pl8w");
+        //mUsers.add(user1);
         //display place thumbnail
-        if (user.getPhotoUrl() != null) {
-            String imageUrl = user.getPhotoUrl();
-            Glide.with(holder.itemView)
-                    .load(imageUrl)
-                    .into(holder.avatarView);
-        }
 
-        holder.userText.setText(user.getUserName() + userLunch);
+        holder.updateWithUser(user, this.idCurrentUser, this.glide);
+//        if (user.getPhotoUrl() != null) {
+//            String imageUrl = user.getPhotoUrl();
+//            Glide.with(holder.itemView)
+//                    .load(imageUrl)
+//                    .into(holder.avatarView);
+//        }
+//
+//        holder.userText.setText(user.getUserName() + userLunch);
     }
 
     @NonNull
     @Override
-    public UsersListAdapter.UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(mContext);
+    public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        Context context = parent.getContext();
+        LayoutInflater inflater = LayoutInflater.from(context);
         userBinding = UsersListItemBinding.inflate(inflater, parent, false);
-        return new UsersListAdapter.UserViewHolder(userBinding);
+        return new UserViewHolder(userBinding);
     }
 
     public interface Listener {
         void onDataChanged();
-    }
-
-
-    /**
-     * Returns the total number of items in the data set held by the adapter.
-     *
-     * @return The total number of items in this adapter.
-     */
-    @Override
-    public int getItemCount() {
-        return mUsers.size();
     }
 
     public class UserViewHolder extends RecyclerView.ViewHolder {
@@ -96,6 +82,18 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
             super(userBinding.getRoot());
             avatarView = userBinding.avatarView;
             userText = userBinding.avatarTextView;
+        }
+
+        public void updateWithUser(User user, String idCurrentUser, RequestManager glide) {
+            // Check if current user is the sender
+            Boolean isCurrentUser = user.getUid().equals(idCurrentUser);
+            this.userText.setText(user.getUserName());
+            if (user.getPhotoUrl() != null) {
+                glide.load(user.getPhotoUrl())
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(avatarView);
+            }
+
         }
     }
 }

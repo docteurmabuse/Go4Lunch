@@ -4,13 +4,13 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class WorkmatesModel extends ViewModel {
+public class WorkmatesViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public WorkmatesModel() {
+    public WorkmatesViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is workmates fragment");
+        mText.setValue("There are no workmates yet");
     }
 
     public LiveData<String> getText() {

@@ -74,6 +74,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private List<User> mUsers;
     private UsersListAdapter usersListAdapter;
     private RecyclerView usersRecyclerView;
+    private RecyclerView.LayoutManager layoutManager;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -91,7 +92,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         contentLayoutBinding = placeDetailBinding.contentLayoutPlaceDetailActivity;
         View view = placeDetailBinding.getRoot();
         setContentView(view);
-        mUsers = new ArrayList<>();
+
 
         if (this.getCurrentUser() != null) {
             uid = this.getCurrentUser().getUid();
@@ -172,6 +173,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             getPlaceDetail();
             fabOnClickListener();
             configureRecyclerView(currentPlaceId);
+
         }
 
     }
@@ -294,7 +296,10 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         //Track current chat name
         this.currentPlaceId = placeId;
         //Configure Adapter & RecyclerView
-        this.usersListAdapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersLunchSpot(this.currentPlaceId)), Glide.with(this), this, this.getCurrentUser().getUid(), getApplicationContext());
+        List<User> users = new ArrayList<User>();
+        users.add(new User("122112", false, "Ben", "https://lh3.googleusercontent.com/a-/AOh14GgjDPW9btHlUI8CJCUHHodyZxrGaZt3BRZssJybow=s96-c", null, "ChIJP_-HCS9u5kcRsj9b1x7Pl8w"));
+        //mUsers.add(user1);)
+        this.usersListAdapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersLunchSpot(this.currentPlaceId)), Glide.with(this), this, this.getCurrentUser().getUid());
         usersListAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
@@ -322,4 +327,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     public void onDataChanged() {
         noWorkmates.setVisibility(this.usersListAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
     }
+
+
 }

@@ -1,16 +1,16 @@
-package com.tizzone.go4lunch.ui.notifications;
+package com.tizzone.go4lunch.ui.gallery;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class NotificationsViewModel extends ViewModel {
+public class GalleryModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public NotificationsViewModel() {
+    public GalleryModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is notifications fragment");
+        mText.setValue("This is workmates fragment");
     }
 
     public LiveData<String> getText() {
