@@ -90,15 +90,23 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
                 String joiningText = context.getResources().getString(R.string.joining_text, user.getUserName());
                 this.userText.setText(joiningText);
             } else {
-                RestaurantHelper.getRestaurants(user.getLunchSpot()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        restaurant = documentSnapshot.toObject(Restaurant.class);
-                        Resources resources = context.getResources();
-                        String lunchingText = String.format(resources.getString(R.string.lunching_text), user.getUserName(), restaurant.getName());
-                        userText.setText(lunchingText);
-                    }
-                });
+                if (user.getLunchSpot() != null) {
+                    RestaurantHelper.getRestaurants(user.getLunchSpot()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            restaurant = documentSnapshot.toObject(Restaurant.class);
+                            Resources resources = context.getResources();
+                            String lunchingText = String.format(resources.getString(R.string.lunching_text), user.getUserName(), restaurant.getName());
+                            userText.setText(lunchingText);
+                        }
+
+                    });
+                } else {
+                    Resources resources = context.getResources();
+                    String notDecidedYet = String.format(resources.getString(R.string.not_decided), user.getUserName());
+                    userText.setText(notDecidedYet);
+                }
+
             }
             if (user.getPhotoUrl() != null) {
                 glide.load(user.getPhotoUrl())
