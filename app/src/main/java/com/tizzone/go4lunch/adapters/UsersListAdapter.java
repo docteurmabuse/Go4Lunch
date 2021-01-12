@@ -1,6 +1,7 @@
 package com.tizzone.go4lunch.adapters;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -13,7 +14,12 @@ import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.tizzone.go4lunch.R;
+import com.tizzone.go4lunch.api.RestaurantHelper;
 import com.tizzone.go4lunch.databinding.UsersListItemBinding;
+import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
 
 public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAdapter.UserViewHolder> {
@@ -24,6 +30,7 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     private final RequestManager glide;
     private final String idCurrentUser;
     private final boolean isWorkmatesView;
+    private Context context;
     //FOR COMMUNICATION
     private final Listener callback;
 
@@ -55,7 +62,7 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     @NonNull
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Context context = parent.getContext();
+        context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         userBinding = UsersListItemBinding.inflate(inflater, parent, false);
         return new UserViewHolder(userBinding);
@@ -66,8 +73,9 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     }
 
     public class UserViewHolder extends RecyclerView.ViewHolder {
-        ImageView avatarView;
-        TextView userText;
+        private final ImageView avatarView;
+        private final TextView userText;
+        private Restaurant restaurant;
 
         public UserViewHolder(@NonNull UsersListItemBinding userBinding) {
             super(userBinding.getRoot());
@@ -79,10 +87,18 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
             // Check if current user is the sender
             Boolean isCurrentUser = user.getUid().equals(idCurrentUser);
             if (!isWorkmatesView) {
-                this.userText.setText(user.getUserName() + " is joining!");
+                String joiningText = context.getResources().getString(R.string.joining_text, user.getUserName());
+                this.userText.setText(joiningText);
             } else {
-
-                this.userText.setText(user.getUserName() + " is lunching at " + "restaurant");
+                RestaurantHelper.getRestaurants(user.getLunchSpot()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        restaurant = documentSnapshot.toObject(Restaurant.class);
+                        Resources resources = context.getResources();
+                        String lunchingText = String.format(resources.getString(R.string.lunching_text), user.getUserName(), restaurant.getName());
+                        userText.setText(lunchingText);
+                    }
+                });
             }
             if (user.getPhotoUrl() != null) {
                 glide.load(user.getPhotoUrl())
@@ -91,6 +107,6 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
             }
 
         }
-    }
 
+    }
 }

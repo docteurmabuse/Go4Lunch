@@ -4,6 +4,9 @@ public class Restaurant {
     private String uid;
     private String name;
 
+    public Restaurant() {
+    }
+
     public Restaurant(String uid, String name) {
         this.uid = uid;
         this.name = name;

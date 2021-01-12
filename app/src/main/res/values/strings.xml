@@ -26,4 +26,8 @@
     <string name="connection_succeed">Connnection Succeed</string>
     <string name="error_authentication_canceled">Authentication canceled</string>
     <string name="error_no_internet">No Internet</string>
+    <string name="joining_text">%1$s is joining!</string>
+    <string name="lunching_text">%1$s is lunching at %2$s</string>
+    <string name="name">Name: %1$s %2$s</string>
+
 </resources>

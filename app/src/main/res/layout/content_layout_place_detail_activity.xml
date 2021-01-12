@@ -76,7 +76,7 @@
                 android:color="@color/red_500"
                 app:layout_constraintBottom_toTopOf="@+id/textView"
                 app:layout_constraintStart_toStartOf="@+id/detail_title_layout"
-                app:layout_constraintTop_toTopOf="@+id/appCompatImageView" />
+                 />
 
             <TextView
                 android:id="@+id/textView"
@@ -134,8 +134,7 @@
                 android:color="@color/red_500"
                 app:layout_constraintBottom_toTopOf="@+id/textView3"
                 app:layout_constraintEnd_toEndOf="@+id/textView3"
-                app:layout_constraintStart_toStartOf="@+id/textView3"
-                app:layout_constraintTop_toTopOf="@+id/appCompatImageView" />
+                app:layout_constraintStart_toStartOf="@+id/textView3" />
 
             <TextView
                 android:id="@+id/textView3"
@@ -167,10 +166,11 @@
                 android:text="No workmates are lunching in this restaurant"
                 android:textAlignment="center"
                 app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textView3"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
 
-                app:layout_constraintTop_toTopOf="@+id/appCompatImageView" />
+                />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
