@@ -10,19 +10,22 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_height="match_parent"
             app:layout_anchor="@+id/app_bar"
             app:layout_anchorGravity="bottom|start">
 
             <LinearLayout
                 android:id="@+id/detail_title_layout"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:background="@color/red_500"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <LinearLayout
                     android:id="@+id/detail_title_rating_layout"
@@ -62,103 +65,114 @@
                     android:textSize="12sp" />
             </LinearLayout>
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/call_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="50dp"
+                android:layout_marginLeft="50dp"
+                android:background="@drawable/ic_baseline_call_24"
+                android:color="@color/red_500"
+                app:layout_constraintBottom_toTopOf="@+id/textView"
+                app:layout_constraintStart_toStartOf="@+id/detail_title_layout"
+                app:layout_constraintTop_toTopOf="@+id/appCompatImageView" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin">
+                android:layout_marginStart="3dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginBottom="1dp"
+                android:color="@color/red_500"
+                android:text="@string/call"
+                app:layout_constraintBottom_toTopOf="@+id/users_spot_list"
+                app:layout_constraintStart_toStartOf="@+id/call_button" />
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
 
-                    <LinearLayout
-                        android:id="@+id/call_layout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_marginStart="50dp"
-                        android:gravity="center"
-                        android:orientation="vertical">
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/star_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="87dp"
+                android:layout_marginLeft="87dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="87dp"
+                android:layout_marginRight="87dp"
+                android:layout_marginBottom="19dp"
+                android:background="@drawable/ic_baseline_star_24"
+                android:color="@color/red_500"
+                app:layout_constraintBottom_toBottomOf="@+id/textView2"
+                app:layout_constraintEnd_toStartOf="@+id/textView3"
+                app:layout_constraintStart_toEndOf="@+id/call_button"
+                app:layout_constraintTop_toBottomOf="@+id/detail_title_layout" />
 
-                        <androidx.appcompat.widget.AppCompatImageButton
-                            android:id="@+id/call_button"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/ic_baseline_call_24"
-                            android:color="@color/red_500" />
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_marginLeft="6dp"
+                android:layout_marginBottom="1dp"
+                android:color="@color/red_500"
+                android:text="@string/like"
+                app:layout_constraintBottom_toTopOf="@+id/users_spot_list"
+                app:layout_constraintStart_toStartOf="@+id/star_button"
+                app:layout_constraintTop_toBottomOf="@id/star_button" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:color="@color/red_500"
-                            android:text="@string/call" />
-                    </LinearLayout>
 
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_toStartOf="@+id/website_layout"
-                        android:layout_toEndOf="@+id/call_layout"
-                        android:gravity="center"
-                        android:orientation="vertical">
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/website_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="9dp"
+                android:layout_marginLeft="9dp"
+                android:layout_marginEnd="9dp"
+                android:layout_marginRight="9dp"
+                android:background="@drawable/ic_baseline_public_24"
+                android:color="@color/red_500"
+                app:layout_constraintBottom_toTopOf="@+id/textView3"
+                app:layout_constraintEnd_toEndOf="@+id/textView3"
+                app:layout_constraintStart_toStartOf="@+id/textView3"
+                app:layout_constraintTop_toTopOf="@+id/appCompatImageView" />
 
-                        <androidx.appcompat.widget.AppCompatImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/ic_baseline_star_24"
-                            android:color="@color/red_500" />
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="49dp"
+                android:layout_marginRight="49dp"
+                android:layout_marginBottom="1dp"
+                android:color="@color/red_500"
+                android:gravity="end"
+                android:text="@string/website"
+                app:layout_constraintBottom_toTopOf="@+id/users_spot_list"
+                app:layout_constraintEnd_toEndOf="@+id/users_spot_list" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:color="@color/red_500"
-                            android:text="@string/like" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/website_layout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_gravity="end"
-                        android:layout_marginEnd="50dp"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <androidx.appcompat.widget.AppCompatImageButton
-                            android:id="@+id/website_button"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/ic_baseline_public_24"
-                            android:color="@color/red_500" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:color="@color/red_500"
-                            android:gravity="end"
-                            android:text="@string/website" />
-                    </LinearLayout>
-                </RelativeLayout>
-            </com.google.android.material.card.MaterialCardView>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/users_spot_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/no_worlmates_text_view"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|center_vertical"
                 android:text="No workmates are lunching in this restaurant"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
 
-        </LinearLayout>
+                app:layout_constraintTop_toTopOf="@+id/appCompatImageView" />
 
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

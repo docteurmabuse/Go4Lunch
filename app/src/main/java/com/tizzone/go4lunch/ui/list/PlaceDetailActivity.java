@@ -32,6 +32,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.adapters.UsersListAdapter;
+import com.tizzone.go4lunch.api.RestaurantHelper;
 import com.tizzone.go4lunch.api.UserHelper;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityPlaceDetailBinding;
@@ -222,13 +223,13 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             @Override
             public void onClick(View view) {
                 if (!isLunchSpot) {
-                    addLunchSpotInFirebase(currentPlaceId, uid);
+                    addLunchSpotInFirebase(currentPlaceId, mDetailName, uid);
                     addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
                     isLunchSpot = true;
                     Snackbar.make(view, "You're going to " + mDetailName + " for lunch!", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 } else {
-                    addLunchSpotInFirebase(null, uid);
+                    addLunchSpotInFirebase(null, mDetailName, uid);
                     addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
                     isLunchSpot = false;
                     Snackbar.make(view, "You're not going anymore to " + mDetailName + " for lunch!", Snackbar.LENGTH_LONG)
@@ -259,8 +260,12 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     }
 
     //Add Lunch Spot
-    private void addLunchSpotInFirebase(String lunchSpot, String uid) {
-        UserHelper.updateLunchSpot(lunchSpot, uid).addOnFailureListener(this.onFailureListener());
+    private void addLunchSpotInFirebase(String idLunchSpot, String nameLunchSpot, String uid) {
+        //Add restaurant to user in Firebase
+        UserHelper.updateLunchSpot(idLunchSpot, uid).addOnFailureListener(this.onFailureListener());
+
+        //Add restaurant in firebase
+        RestaurantHelper.createRestaurant(idLunchSpot, nameLunchSpot).addOnFailureListener(this.onFailureListener());
     }
 
 
