@@ -22,8 +22,8 @@
 
             <ImageView
                 android:id="@+id/avatarView"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:scaleType="centerCrop"
                 tools:srcCompat="@tools:sample/avatars" />
         </androidx.cardview.widget.CardView>
@@ -33,6 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="5dp"
+            style="@style/TextAppearance.MaterialComponents.Caption"
             android:text="User is eating french (Le Zinc)"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/avatar_card_view"
