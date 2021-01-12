@@ -294,7 +294,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private void configureRecyclerView(String placeId) {
         //Track current chat name
         this.currentPlaceId = placeId;
-        this.usersListAdapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersLunchSpot(this.currentPlaceId)), Glide.with(this), this, this.getCurrentUser().getUid());
+        this.usersListAdapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersLunchSpot(this.currentPlaceId)), Glide.with(this), this, this.getCurrentUser().getUid(), false);
         usersListAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {

@@ -19,17 +19,21 @@ import com.tizzone.go4lunch.models.User;
 public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAdapter.UserViewHolder> {
     private UsersListItemBinding userBinding;
     private String userLunch;
+
     //FOR DATA
     private final RequestManager glide;
     private final String idCurrentUser;
+    private final boolean isWorkmatesView;
     //FOR COMMUNICATION
     private final Listener callback;
 
-    public UsersListAdapter(FirestoreRecyclerOptions<User> options, RequestManager glide, Listener callback, String idCurrentUser) {
+
+    public UsersListAdapter(FirestoreRecyclerOptions<User> options, RequestManager glide, Listener callback, String idCurrentUser, boolean isWorkmatesView) {
         super(options);
         this.glide = glide;
         this.idCurrentUser = idCurrentUser;
         this.callback = callback;
+        this.isWorkmatesView = isWorkmatesView;
     }
 
     @Override
@@ -45,20 +49,7 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
      */
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User user) {
-        //  User user= users.get(position);
-        //  User 2 = new User("122112",false,"Ben","https://lh3.googleusercontent.com/a-/AOh14GgjDPW9btHlUI8CJCUHHodyZxrGaZt3BRZssJybow=s96-c",null,"ChIJP_-HCS9u5kcRsj9b1x7Pl8w");
-        //mUsers.add(user1);
-        //display place thumbnail
-
-        holder.updateWithUser(user, this.idCurrentUser, this.glide);
-//        if (user.getPhotoUrl() != null) {
-//            String imageUrl = user.getPhotoUrl();
-//            Glide.with(holder.itemView)
-//                    .load(imageUrl)
-//                    .into(holder.avatarView);
-//        }
-//
-//        holder.userText.setText(user.getUserName() + userLunch);
+        holder.updateWithUser(user, this.idCurrentUser, this.glide, this.isWorkmatesView);
     }
 
     @NonNull
@@ -84,10 +75,15 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
             userText = userBinding.avatarTextView;
         }
 
-        public void updateWithUser(User user, String idCurrentUser, RequestManager glide) {
+        public void updateWithUser(User user, String idCurrentUser, RequestManager glide, boolean isWorkmatesView) {
             // Check if current user is the sender
             Boolean isCurrentUser = user.getUid().equals(idCurrentUser);
-            this.userText.setText(user.getUserName());
+            if (!isWorkmatesView) {
+                this.userText.setText(user.getUserName() + " is joining!");
+            } else {
+
+                this.userText.setText(user.getUserName() + " is lunching at " + "restaurant");
+            }
             if (user.getPhotoUrl() != null) {
                 glide.load(user.getPhotoUrl())
                         .apply(RequestOptions.circleCropTransform())

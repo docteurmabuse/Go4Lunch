@@ -42,7 +42,7 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
     }
 
     private void getWorkmatesList() {
-        adapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersCollection()), Glide.with(this), this, "hFwyQ2wqySd5qpFcUSe9FiCClyC2");
+        adapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersCollection()), Glide.with(this), this, "hFwyQ2wqySd5qpFcUSe9FiCClyC2", true);
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {

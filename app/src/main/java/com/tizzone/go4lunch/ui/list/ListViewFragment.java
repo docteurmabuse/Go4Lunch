@@ -22,7 +22,7 @@ import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListViewFragment extends Fragment implements PlacesListAdapter.Listener {
+public class ListViewFragment extends Fragment {
 
     private PlacesViewModel placesViewModel;
     private RecyclerView recyclerViewPlaces;
@@ -52,8 +52,8 @@ public class ListViewFragment extends Fragment implements PlacesListAdapter.List
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         key = getText(R.string.google_maps_key).toString();
-        double latitude ;
-        double longitude ;
+        double latitude;
+        double longitude;
         int radius = 1000;
         // placesListAdapter = new PlacesListAdapter();
     }
@@ -92,8 +92,4 @@ public class ListViewFragment extends Fragment implements PlacesListAdapter.List
         fragmentListBinding = null;
     }
 
-    @Override
-    public void onDataChanged() {
-
-    }
 }

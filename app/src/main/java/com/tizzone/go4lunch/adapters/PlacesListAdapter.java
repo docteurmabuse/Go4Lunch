@@ -46,25 +46,9 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mPlace = mPlaces.get(position);
         Result place = mPlaces.get(position);
-        UserHelper.getUsersLunchSpot(place.getPlaceId()).addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    Log.w(TAG, "Listener failed.", error);
-                    return;
-                }
-                List<String> users = new ArrayList<>();
-                for (QueryDocumentSnapshot doc : value) {
-                    if (doc.get("uid") != null) {
-                        users.add(doc.getString("uid"));
-                    }
-                }
-                int usersCount = users.size();
-                holder.workmatesCount.setText(String.valueOf(usersCount));
-            }
-        });
+        getUsersCountFromFirestore(place.getPlaceId(), holder);
+
         holder.textViewName.setText(place.getName());
         holder.textViewAddress.setText(place.getVicinity());
         Double ratingFiveStar = place.getRating();
@@ -107,32 +91,34 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
         });
     }
 
-
-    //    public PlacesListAdapter(List<Result> results, Context context, String key) {
-//        mPlaces = new ArrayList<>();
-//        mPlaces = results;
-//        mContext = context;
-//        mKey = key;
-//    }
-
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         binding = PlaceItemBinding.inflate(inflater, parent, false);
         return new ViewHolder(binding);
 
-//        View view = LayoutInflater.from(parent.getContext())
-//                .inflate(R.layout.place_item, parent, false);
-//        return new ViewHolder(view);
     }
 
-    private void getUsersCountFromFirestore(String placeId) {
-        //  UserHelper.getUsersLunchSpot(placeId).addSnapshotListener(new DocumentSnapshot().)
+    private void getUsersCountFromFirestore(String placeId, ViewHolder holder) {
+        UserHelper.getUsersLunchSpot(placeId).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.w(TAG, "Listener failed.", error);
+                    return;
+                }
+                List<String> users = new ArrayList<>();
+                for (QueryDocumentSnapshot doc : value) {
+                    if (doc.get("uid") != null) {
+                        users.add(doc.getString("uid"));
+                    }
+                }
+                int usersCount = users.size();
+                holder.workmatesCount.setText(String.valueOf(usersCount));
+            }
+        });
     }
 
-    public interface Listener {
-        void onDataChanged();
-    }
 
     public void setPlaces(List<Result> results, String key) {
         this.mPlaces = results;
