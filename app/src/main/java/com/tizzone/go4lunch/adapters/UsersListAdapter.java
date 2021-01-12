@@ -96,4 +96,5 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
 
         }
     }
+
 }

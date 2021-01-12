@@ -3,6 +3,7 @@ package com.tizzone.go4lunch.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +12,15 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.tizzone.go4lunch.api.UserHelper;
 import com.tizzone.go4lunch.databinding.PlaceItemBinding;
 import com.tizzone.go4lunch.models.places.Result;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
@@ -23,6 +30,7 @@ import java.util.List;
 
 public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.ViewHolder> {
 
+    private static final String TAG = "ERROR";
     private String mKey;
     private List<Result> mPlaces = new ArrayList<>();
     public static final String DETAIL_PLACE = "detailPlace";
@@ -36,28 +44,27 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
         notifyDataSetChanged();
     }
 
-//    public PlacesListAdapter(List<Result> results, Context context, String key) {
-//        mPlaces = new ArrayList<>();
-//        mPlaces = results;
-//        mContext = context;
-//        mKey = key;
-//    }
-
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(mContext);
-        binding = PlaceItemBinding.inflate(inflater, parent, false);
-        return new ViewHolder(binding);
-
-//        View view = LayoutInflater.from(parent.getContext())
-//                .inflate(R.layout.place_item, parent, false);
-//        return new ViewHolder(view);
-    }
-
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mPlace = mPlaces.get(position);
         Result place = mPlaces.get(position);
+        UserHelper.getUsersLunchSpot(place.getPlaceId()).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.w(TAG, "Listener failed.", error);
+                    return;
+                }
+                List<String> users = new ArrayList<>();
+                for (QueryDocumentSnapshot doc : value) {
+                    if (doc.get("uid") != null) {
+                        users.add(doc.getString("uid"));
+                    }
+                }
+                int usersCount = users.size();
+                holder.workmatesCount.setText(String.valueOf(usersCount));
+            }
+        });
         holder.textViewName.setText(place.getName());
         holder.textViewAddress.setText(place.getVicinity());
         Double ratingFiveStar = place.getRating();
@@ -100,6 +107,33 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
         });
     }
 
+
+    //    public PlacesListAdapter(List<Result> results, Context context, String key) {
+//        mPlaces = new ArrayList<>();
+//        mPlaces = results;
+//        mContext = context;
+//        mKey = key;
+//    }
+
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(mContext);
+        binding = PlaceItemBinding.inflate(inflater, parent, false);
+        return new ViewHolder(binding);
+
+//        View view = LayoutInflater.from(parent.getContext())
+//                .inflate(R.layout.place_item, parent, false);
+//        return new ViewHolder(view);
+    }
+
+    private void getUsersCountFromFirestore(String placeId) {
+        //  UserHelper.getUsersLunchSpot(placeId).addSnapshotListener(new DocumentSnapshot().)
+    }
+
+    public interface Listener {
+        void onDataChanged();
+    }
+
     public void setPlaces(List<Result> results, String key) {
         this.mPlaces = results;
         this.mKey = key;
@@ -112,6 +146,7 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+        public TextView workmatesCount;
         public TextView textViewName;
         public TextView textViewAddress;
         public TextView textViewOpeningHours;
@@ -131,7 +166,9 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
             imageViewPhoto = placeItemBinding.imageViewPhoto;
             ratingBar = placeItemBinding.rating;
             distance = placeItemBinding.distanceTextView;
+            workmatesCount = placeItemBinding.workmatesCount;
         }
     }
+
 }
 

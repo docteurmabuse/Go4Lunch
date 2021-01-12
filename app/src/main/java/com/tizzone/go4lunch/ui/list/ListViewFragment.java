@@ -22,7 +22,7 @@ import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListViewFragment extends Fragment {
+public class ListViewFragment extends Fragment implements PlacesListAdapter.Listener {
 
     private PlacesViewModel placesViewModel;
     private RecyclerView recyclerViewPlaces;
@@ -90,5 +90,10 @@ public class ListViewFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         fragmentListBinding = null;
+    }
+
+    @Override
+    public void onDataChanged() {
+
     }
 }

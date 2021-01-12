@@ -16,10 +16,9 @@ import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.Query;
 import com.tizzone.go4lunch.adapters.UsersListAdapter;
+import com.tizzone.go4lunch.api.UserHelper;
 import com.tizzone.go4lunch.databinding.FragmentWorkmatesBinding;
 import com.tizzone.go4lunch.models.User;
-
-import static com.tizzone.go4lunch.api.UserHelper.getUsersCollection;
 
 public class WorkmatesFragment extends Fragment implements UsersListAdapter.Listener {
 
@@ -27,6 +26,7 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
     private FragmentWorkmatesBinding workmatesBinding;
     private RecyclerView workmatesRecyclerView;
     private UsersListAdapter adapter;
+    private TextView textView;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -34,7 +34,7 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
                 new ViewModelProvider(this).get(WorkmatesViewModel.class);
         workmatesBinding = FragmentWorkmatesBinding.inflate(inflater, container, false);
         View root = workmatesBinding.getRoot();
-        final TextView textView = workmatesBinding.textNotifications;
+        textView = workmatesBinding.textNotifications;
         workmatesRecyclerView = workmatesBinding.workmatesRecyclerView;
         workmatesViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
         getWorkmatesList();
@@ -42,12 +42,7 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
     }
 
     private void getWorkmatesList() {
-        Query query = getUsersCollection();
-        FirestoreRecyclerOptions<User> workmates = new FirestoreRecyclerOptions.Builder<User>()
-                .setQuery(query, User.class)
-                .build();
-
-        adapter = new UsersListAdapter(generateOptionsForAdapter(query), Glide.with(this), this, "hFwyQ2wqySd5qpFcUSe9FiCClyC2");
+        adapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersCollection()), Glide.with(this), this, "hFwyQ2wqySd5qpFcUSe9FiCClyC2");
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
@@ -83,6 +78,13 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
 
     @Override
     public void onDataChanged() {
-        workmatesBinding.textNotifications.setVisibility(this.adapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
+        textView.setVisibility(this.adapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
+    }
+
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        workmatesBinding = null;
     }
 }

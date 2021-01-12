@@ -39,7 +39,6 @@ import com.tizzone.go4lunch.databinding.ContentLayoutPlaceDetailActivityBinding;
 import com.tizzone.go4lunch.databinding.FragmentListBinding;
 import com.tizzone.go4lunch.models.User;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -295,10 +294,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private void configureRecyclerView(String placeId) {
         //Track current chat name
         this.currentPlaceId = placeId;
-        //Configure Adapter & RecyclerView
-        List<User> users = new ArrayList<User>();
-        users.add(new User("122112", false, "Ben", "https://lh3.googleusercontent.com/a-/AOh14GgjDPW9btHlUI8CJCUHHodyZxrGaZt3BRZssJybow=s96-c", null, "ChIJP_-HCS9u5kcRsj9b1x7Pl8w"));
-        //mUsers.add(user1);)
         this.usersListAdapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersLunchSpot(this.currentPlaceId)), Glide.with(this), this, this.getCurrentUser().getUid());
         usersListAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
