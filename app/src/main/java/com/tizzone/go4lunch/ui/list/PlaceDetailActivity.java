@@ -169,8 +169,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                     .load(mDetailPhotoUrl)
                     .into(DetailImage);
 
-
-            getPlaceDetail();
             fabOnClickListener();
             configureRecyclerView(currentPlaceId);
 
@@ -239,11 +237,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         });
     }
 
-
-    private void getPlaceDetail() {
-
-    }
-
     public void dialPhoneNumber(String phoneNumber) {
         Intent intent = new Intent(Intent.ACTION_DIAL);
         intent.setData(Uri.parse("tel:" + phoneNumber));
@@ -264,8 +257,10 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         //Add restaurant to user in Firebase
         UserHelper.updateLunchSpot(idLunchSpot, uid).addOnFailureListener(this.onFailureListener());
 
-        //Add restaurant in firebase
-        RestaurantHelper.createRestaurant(idLunchSpot, nameLunchSpot).addOnFailureListener(this.onFailureListener());
+        if (idLunchSpot != null) {
+            //Add restaurant in firebase
+            RestaurantHelper.createRestaurant(idLunchSpot, nameLunchSpot).addOnFailureListener(this.onFailureListener());
+        }
     }
 
 
