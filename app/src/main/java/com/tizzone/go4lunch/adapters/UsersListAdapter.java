@@ -112,8 +112,11 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
                 glide.load(user.getPhotoUrl())
                         .apply(RequestOptions.circleCropTransform())
                         .into(avatarView);
+            } else {
+                glide.load(R.mipmap.ic_workmates)
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(avatarView);
             }
-
         }
 
     }

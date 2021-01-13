@@ -60,7 +60,7 @@ import static android.content.ContentValues.TAG;
 public class MapFragment extends Fragment {
 
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 546;
-    private static final float DEFAULT_ZOOM = 17;
+    private static final float DEFAULT_ZOOM = 16;
     private final int PROXIMITY_RADIUS = 1000;
     private GoogleMap mMap;
     private boolean mLocationPermissionGranted;
