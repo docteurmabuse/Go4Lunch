@@ -107,13 +107,14 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
                     Log.w(TAG, "Listener failed.", error);
                     return;
                 }
+                int usersCount = value.size();
                 List<String> users = new ArrayList<>();
                 for (QueryDocumentSnapshot doc : value) {
                     if (doc.get("uid") != null) {
                         users.add(doc.getString("uid"));
                     }
                 }
-                int usersCount = users.size();
+                //  int usersCount21 = users.size();
                 holder.workmatesCount.setText(String.valueOf(usersCount));
             }
         });

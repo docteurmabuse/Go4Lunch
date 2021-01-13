@@ -36,11 +36,23 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.tizzone.go4lunch.R;
+import com.tizzone.go4lunch.api.RestaurantHelper;
+import com.tizzone.go4lunch.api.UserHelper;
+import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.places.PlacesResults;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.ContentValues.TAG;
@@ -48,7 +60,7 @@ import static android.content.ContentValues.TAG;
 public class MapFragment extends Fragment {
 
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 546;
-    private static final float DEFAULT_ZOOM = 15;
+    private static final float DEFAULT_ZOOM = 17;
     private final int PROXIMITY_RADIUS = 1000;
     private GoogleMap mMap;
     private boolean mLocationPermissionGranted;
@@ -60,15 +72,20 @@ public class MapFragment extends Fragment {
     private String key;
     private PlacesViewModel placesViewModel;
 
-    private void setupMap() {
-        if (ActivityCompat.checkSelfPermission(getContext(), ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED){
-            mMap.setMyLocationEnabled(true);
-            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+    public static Bitmap getBitmapFromVectorDrawable(Context context, int drawableId) {
+        Drawable drawable = AppCompatResources.getDrawable(context, drawableId);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            drawable = (DrawableCompat.wrap(drawable)).mutate();
         }
-        else {
-            // Show rationale and request permission.
-        }
+
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
+                drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+        return bitmap;
     }
+
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
         private Location mLastLocation;
         private Marker mCurrLocationMarker;
@@ -146,53 +163,13 @@ public class MapFragment extends Fragment {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
     }
 
-    private void build_retrofit_and_get_response(double latitude, double longitude) {
-        placesViewModel.getNearByPlaces(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
-        placesViewModel.getPlacesResultsLiveData().observe(this, new Observer<PlacesResults>() {
-            @Override
-            public void onChanged(PlacesResults placesResults) {
-                if (placesResults != null) {
-                    try {
-                        // This loop will go through all the results and add marker on each location.
-                        for (int i = 0; i < placesResults.getResults().size(); i++) {
-                            Double lat = placesResults.getResults().get(i).getGeometry().getLocation().getLat();
-                            Double lng = placesResults.getResults().get(i).getGeometry().getLocation().getLng();
-                            String placeName = placesResults.getResults().get(i).getName();
-                            String vicinity = placesResults.getResults().get(i).getVicinity();
-                            MarkerOptions markerOptions = new MarkerOptions();
-                            LatLng latLng = new LatLng(lat, lng);
-                            // Position of Marker on Map
-                            //markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_baseline_restaurant_24));
-                           // markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher_foreground));
-                            markerOptions.position(latLng);
-                            // Adding Title to the Marker
-                            markerOptions.title(placeName + " : " + vicinity);
-                            Bitmap bitmap = getBitmapFromVectorDrawable(getContext(),R.drawable.ic_restaurant_pin);
-                            BitmapDescriptor mapIcon =BitmapDescriptorFactory.fromBitmap(bitmap);
-                            // Adding Marker to the Camera.
-                            mMap.addMarker(new MarkerOptions()
-                                    .position(latLng)
-                                    .title(placeName)
-                                    .snippet(vicinity)
-                                    .icon(mapIcon)
-
-                                    //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-
-                            );
-                            // Adding colour to the marker
-                            //markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-                            // move map camera
-                            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                            mMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM));
-                        }
-                    } catch (Exception e) {
-                        Log.d("onResponse", "There is an error");
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-
+    private void setupMap() {
+        if (ActivityCompat.checkSelfPermission(getContext(), ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
+            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        } else {
+            // Show rationale and request permission.
+        }
     }
 
 
@@ -292,17 +269,100 @@ public class MapFragment extends Fragment {
         updateLocationUI();
     }
 
-    public static Bitmap getBitmapFromVectorDrawable(Context context, int drawableId) {
-        Drawable drawable =  AppCompatResources.getDrawable(context, drawableId);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            drawable = (DrawableCompat.wrap(drawable)).mutate();
-        }
+    private void build_retrofit_and_get_response(double latitude, double longitude) {
+        placesViewModel.getNearByPlaces(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
+        placesViewModel.getPlacesResultsLiveData().observe(this, new Observer<PlacesResults>() {
+            @Override
+            public void onChanged(PlacesResults placesResults) {
+                if (placesResults != null) {
+                    try {
+                        // This loop will go through all the results and add marker on each location.
+                        for (int i = 0; i < placesResults.getResults().size(); i++) {
+                            Double lat = placesResults.getResults().get(i).getGeometry().getLocation().getLat();
+                            Double lng = placesResults.getResults().get(i).getGeometry().getLocation().getLng();
+                            String placeName = placesResults.getResults().get(i).getName();
+                            String vicinity = placesResults.getResults().get(i).getVicinity();
+                            String placeId = placesResults.getResults().get(i).getPlaceId();
+                            MarkerOptions markerOptions = new MarkerOptions();
+                            LatLng latLng = new LatLng(lat, lng);
+                            // Position of Marker on Map
+                            //markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_baseline_restaurant_24));
+                            // markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher_foreground));
+                            markerOptions.position(latLng);
+                            // Adding Title to the Marker
+                            markerOptions.title(placeName + " : " + vicinity);
+                            Bitmap bitmap = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_restaurant_pin_red);
+                            BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
+                            // Adding Marker to the Camera.
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(latLng)
+                                    .title(placeName)
+                                    .snippet(vicinity)
+                                    .icon(mapIcon));
 
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
-                drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-        return bitmap;
+
+                            UserHelper.getUsersLunchSpot(placeId).addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                @Override
+                                public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                                    if (error != null) {
+                                        Log.w(TAG, "Listener failed.", error);
+                                        return;
+                                    }
+                                    int usersCount = value.size();
+                                    List<String> users = new ArrayList<>();
+                                    for (QueryDocumentSnapshot doc : value) {
+                                        if (doc.get("uid") != null) {
+                                            users.add(doc.getString("uid"));
+                                        }
+                                    }
+                                    //  int usersCount21 = users.size();
+                                    if (usersCount > 0) {
+                                        Bitmap bitmap = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_restaurant_pin_green);
+                                        BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
+                                        // Adding Marker to the Camera.
+                                        mMap.addMarker(new MarkerOptions()
+                                                .position(latLng)
+                                                .title(placeName)
+                                                .snippet(vicinity)
+                                                .icon(mapIcon));
+                                    } else {
+                                        Bitmap bitmap = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_restaurant_pin_red);
+                                        BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
+                                        // Adding Marker to the Camera.
+                                        mMap.addMarker(new MarkerOptions()
+                                                .position(latLng)
+                                                .title(placeName)
+                                                .snippet(vicinity)
+                                                .icon(mapIcon));
+                                    }
+                                }
+                            });
+
+                            RestaurantHelper.getRestaurants(placeId).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
+
+                                }
+                            });
+
+
+                            //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+
+
+                            // Adding colour to the marker
+                            //markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                            // move map camera
+                            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                            mMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM));
+                        }
+                    } catch (Exception e) {
+                        Log.d("onResponse", "There is an error");
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
     }
 }
