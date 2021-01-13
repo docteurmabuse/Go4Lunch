@@ -22,7 +22,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -103,7 +102,6 @@ public class MainActivity extends BaseActivity implements OnNavigationItemSelect
             }
         });
         listViewPlaces = findViewById(R.id.listViewPlaces);
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         key = getText(R.string.google_maps_key).toString();
         View headerView = mBinding.drawerNavView.getHeaderView(0);
 

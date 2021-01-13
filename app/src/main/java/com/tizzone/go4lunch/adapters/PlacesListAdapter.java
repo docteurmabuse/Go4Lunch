@@ -2,6 +2,7 @@ package com.tizzone.go4lunch.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,10 +17,12 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.maps.android.SphericalUtil;
+import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.api.UserHelper;
 import com.tizzone.go4lunch.databinding.PlaceItemBinding;
 import com.tizzone.go4lunch.models.places.Result;
@@ -36,11 +39,15 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     public static final String DETAIL_PLACE = "detailPlace";
     private final Context mContext;
     private PlaceItemBinding binding;
+    private LatLng currentLocation;
+    private Context context;
 
-    public PlacesListAdapter(List<Result> mPlaces, String key, Context mContext) {
+
+    public PlacesListAdapter(List<Result> mPlaces, String key, Context mContext, LatLng currentLocation) {
         this.mPlaces = mPlaces;
         this.mContext = mContext;
         this.mKey = key;
+        this.currentLocation = currentLocation;
         notifyDataSetChanged();
     }
 
@@ -64,6 +71,11 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
                 holder.textViewOpeningHours.setText("Open Now");
             else holder.textViewOpeningHours.setText("Closed");
         }
+
+        LatLng placeLocation = new LatLng(place.getGeometry().getLocation().getLat(), place.getGeometry().getLocation().getLng());
+        int mDistance = (int) Math.floor(SphericalUtil.computeDistanceBetween(currentLocation, placeLocation));
+        Resources resources = context.getResources();
+        holder.distance.setText(resources.getString(R.string.distance, mDistance));
 
         String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
 
@@ -95,6 +107,7 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         binding = PlaceItemBinding.inflate(inflater, parent, false);
+        context = parent.getContext();
         return new ViewHolder(binding);
 
     }
@@ -108,22 +121,16 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
                     return;
                 }
                 int usersCount = value.size();
-                List<String> users = new ArrayList<>();
-                for (QueryDocumentSnapshot doc : value) {
-                    if (doc.get("uid") != null) {
-                        users.add(doc.getString("uid"));
-                    }
-                }
-                //  int usersCount21 = users.size();
-                holder.workmatesCount.setText(String.valueOf(usersCount));
+                holder.workmatesCount.setText("(" + usersCount + ")");
             }
         });
     }
 
 
-    public void setPlaces(List<Result> results, String key) {
+    public void setPlaces(List<Result> results, String key, LatLng currentLocation) {
         this.mPlaces = results;
         this.mKey = key;
+        this.currentLocation = currentLocation;
         notifyDataSetChanged();
     }
 

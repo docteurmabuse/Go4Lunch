@@ -29,5 +29,6 @@
     <string name="joining_text">%1$s is joining!</string>
     <string name="lunching_text">%1$s is lunching at %2$s</string>
     <string name="not_decided">%1$s hasn\'t decided yet</string>
+    <string name="distance">%1$d\m</string>
 
 </resources>

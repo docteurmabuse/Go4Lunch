@@ -58,8 +58,6 @@
 
         <LinearLayout
             android:id="@+id/rating_layout"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -68,6 +66,8 @@
 
             <TextView
                 android:id="@+id/distance_text_view"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
@@ -81,7 +81,7 @@
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:layout_width="match_parent"
+                    android:layout_width="18dp"
                     android:layout_height="match_parent"
                     android:layout_gravity="end"
                     android:background="#00FFFFFF"
@@ -90,8 +90,11 @@
 
                 <TextView
                     android:id="@+id/workmates_count"
+                    android:layout_marginEnd="5dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
                     android:text="(0)" />
             </LinearLayout>
 
