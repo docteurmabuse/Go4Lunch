@@ -1,6 +1,5 @@
 package com.tizzone.go4lunch.ui.map;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -25,7 +24,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,11 +32,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -65,10 +61,10 @@ public class MapFragment extends Fragment {
     private GoogleMap mMap;
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation;
-    private final LatLng mDefaultLocation = new LatLng(48.850559, 2.377078);
+    private final LatLng mDefaultLocation = new LatLng(65.850559, 2.377078);
     private FusedLocationProviderClient mFusedLocationProviderClient;
-    private final double latitude = 48.850167;
-    private final double longitude = 2.390770;
+    private final double latitude = 78.850559;
+    private final double longitude = 2.377078;
     private String key;
     private PlacesViewModel placesViewModel;
 
@@ -87,10 +83,6 @@ public class MapFragment extends Fragment {
     }
 
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
-        private Location mLastLocation;
-        private Marker mCurrLocationMarker;
-        private LocationRequest mLocationRequest;
-        private PlacesClient mPlaceDetectionClient;
 
         /**
          * Manipulates the map once available.
@@ -105,32 +97,15 @@ public class MapFragment extends Fragment {
         @Override
         public void onMapReady(GoogleMap googleMap) {
             mMap = googleMap;
+            // Prompt the user for permission.
+            getLocationPermission();
+            // [END_EXCLUDE]
 
-
-//                // Do other setup activities here too, as described elsewhere in this tutorial.@Override
-//                LatLng paris = new LatLng(48.850167, 2.390770);
-//                mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
-//
-//                CameraPosition cameraPosition = new CameraPosition.Builder()
-//                        .target(paris)      // Sets the center of the map to Mountain View
-//                        .zoom(17)                   // Sets the zoom
-//                        .bearing(90)                // Sets the orientation of the camera to east
-//                        .tilt(30)                   // Sets the tilt of the camera to 30 degrees
-//                        .build();                   // Creates a CameraPosition from the builder
-//                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             // Turn on the My Location layer and the related control on the map.
             updateLocationUI();
 
             // Get the current location of the device and set the position of the map.
             getDeviceLocation();
-            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(),
-                    Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mMap.setMyLocationEnabled(true);
-                mMap.getUiSettings().setMyLocationButtonEnabled(true);
-                mMap.getUiSettings().setZoomControlsEnabled(true);
-                mMap.clear();
-            }
         }
     };
 
@@ -161,15 +136,7 @@ public class MapFragment extends Fragment {
         key = getText(R.string.google_maps_key).toString();
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
-    }
 
-    private void setupMap() {
-        if (ActivityCompat.checkSelfPermission(getContext(), ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            mMap.setMyLocationEnabled(true);
-            mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        } else {
-            // Show rationale and request permission.
-        }
     }
 
 
@@ -209,14 +176,10 @@ public class MapFragment extends Fragment {
                                     new LatLng(mLastKnownLocation.getLatitude(),
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
                             build_retrofit_and_get_response(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
-                            mMap.setMyLocationEnabled(true);
-                            mMap.getUiSettings().setMyLocationButtonEnabled(true);
                         } else {
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(latitude, longitude), DEFAULT_ZOOM));
                             build_retrofit_and_get_response(latitude, longitude);
-                            mMap.setMyLocationEnabled(true);
-                            mMap.getUiSettings().setMyLocationButtonEnabled(true);
                         }
                     } else {
                         Log.d(TAG, "Current location is null. Using defaults.");
@@ -224,10 +187,10 @@ public class MapFragment extends Fragment {
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
                         mMap.getUiSettings().setMyLocationButtonEnabled(false);
                         build_retrofit_and_get_response(mDefaultLocation.latitude, mDefaultLocation.longitude);
-                        mMap.setMyLocationEnabled(true);
-                        mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
                     }
+                    mMap.setMyLocationEnabled(true);
+                    mMap.getUiSettings().setMyLocationButtonEnabled(true);
                 });
             }
         } catch (SecurityException e) {
@@ -245,6 +208,10 @@ public class MapFragment extends Fragment {
                 ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mLocationPermissionGranted = true;
+            mMap.setMyLocationEnabled(true);
+            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+            mMap.getUiSettings().setZoomControlsEnabled(true);
+            mMap.clear();
         } else {
             ActivityCompat.requestPermissions(requireActivity(),
                     new String[]{ACCESS_FINE_LOCATION},
@@ -271,7 +238,7 @@ public class MapFragment extends Fragment {
 
     private void build_retrofit_and_get_response(double latitude, double longitude) {
         placesViewModel.getNearByPlaces(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
-        placesViewModel.getPlacesResultsLiveData().observe(this, new Observer<PlacesResults>() {
+        placesViewModel.getPlacesResultsLiveData().observe(this.getActivity(), new Observer<PlacesResults>() {
             @Override
             public void onChanged(PlacesResults placesResults) {
                 if (placesResults != null) {
@@ -286,8 +253,6 @@ public class MapFragment extends Fragment {
                             MarkerOptions markerOptions = new MarkerOptions();
                             LatLng latLng = new LatLng(lat, lng);
                             // Position of Marker on Map
-                            //markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_baseline_restaurant_24));
-                            // markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher_foreground));
                             markerOptions.position(latLng);
                             // Adding Title to the Marker
                             markerOptions.title(placeName + " : " + vicinity);
@@ -315,7 +280,6 @@ public class MapFragment extends Fragment {
                                             users.add(doc.getString("uid"));
                                         }
                                     }
-                                    //  int usersCount21 = users.size();
                                     if (usersCount > 0) {
                                         Bitmap bitmap = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_restaurant_pin_green);
                                         BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
@@ -345,16 +309,6 @@ public class MapFragment extends Fragment {
 
                                 }
                             });
-
-
-                            //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-
-
-                            // Adding colour to the marker
-                            //markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-                            // move map camera
-                            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                            mMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM));
                         }
                     } catch (Exception e) {
                         Log.d("onResponse", "There is an error");
