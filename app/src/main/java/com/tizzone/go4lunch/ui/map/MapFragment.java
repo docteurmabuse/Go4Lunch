@@ -274,12 +274,6 @@ public class MapFragment extends Fragment {
                                         return;
                                     }
                                     int usersCount = value.size();
-                                    List<String> users = new ArrayList<>();
-                                    for (QueryDocumentSnapshot doc : value) {
-                                        if (doc.get("uid") != null) {
-                                            users.add(doc.getString("uid"));
-                                        }
-                                    }
                                     if (usersCount > 0) {
                                         Bitmap bitmap = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_restaurant_pin_green);
                                         BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
