@@ -1,6 +1,7 @@
 package com.tizzone.go4lunch.ui.map;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -32,23 +33,22 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.api.RestaurantHelper;
 import com.tizzone.go4lunch.api.UserHelper;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.places.PlacesResults;
+import com.tizzone.go4lunch.models.places.Result;
+import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.ContentValues.TAG;
@@ -67,6 +67,9 @@ public class MapFragment extends Fragment {
     private final double longitude = 2.377078;
     private String key;
     private PlacesViewModel placesViewModel;
+    private Marker workmatesRestaurant;
+    private Marker emptyRestaurant;
+
 
     public static Bitmap getBitmapFromVectorDrawable(Context context, int drawableId) {
         Drawable drawable = AppCompatResources.getDrawable(context, drawableId);
@@ -106,6 +109,14 @@ public class MapFragment extends Fragment {
 
             // Get the current location of the device and set the position of the map.
             getDeviceLocation();
+
+            // Set a listener for info window events.
+            mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                @Override
+                public void onInfoWindowClick(Marker marker) {
+                    viewRestaurantDetail((Result) marker.getTag());
+                }
+            });
         }
     };
 
@@ -245,11 +256,13 @@ public class MapFragment extends Fragment {
                     try {
                         // This loop will go through all the results and add marker on each location.
                         for (int i = 0; i < placesResults.getResults().size(); i++) {
-                            Double lat = placesResults.getResults().get(i).getGeometry().getLocation().getLat();
-                            Double lng = placesResults.getResults().get(i).getGeometry().getLocation().getLng();
-                            String placeName = placesResults.getResults().get(i).getName();
-                            String vicinity = placesResults.getResults().get(i).getVicinity();
-                            String placeId = placesResults.getResults().get(i).getPlaceId();
+                            Result restaurant = (Result) placesResults.getResults().get(i);
+
+                            Double lat = restaurant.getGeometry().getLocation().getLat();
+                            Double lng = restaurant.getGeometry().getLocation().getLng();
+                            String placeName = restaurant.getName();
+                            String vicinity = restaurant.getVicinity();
+                            String placeId = restaurant.getPlaceId();
                             MarkerOptions markerOptions = new MarkerOptions();
                             LatLng latLng = new LatLng(lat, lng);
                             // Position of Marker on Map
@@ -258,13 +271,6 @@ public class MapFragment extends Fragment {
                             markerOptions.title(placeName + " : " + vicinity);
                             Bitmap bitmap = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_restaurant_pin_red);
                             BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
-                            // Adding Marker to the Camera.
-                            mMap.addMarker(new MarkerOptions()
-                                    .position(latLng)
-                                    .title(placeName)
-                                    .snippet(vicinity)
-                                    .icon(mapIcon));
-
 
                             UserHelper.getUsersLunchSpot(placeId).addSnapshotListener(new EventListener<QuerySnapshot>() {
                                 @Override
@@ -277,21 +283,24 @@ public class MapFragment extends Fragment {
                                     if (usersCount > 0) {
                                         Bitmap bitmap = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_restaurant_pin_green);
                                         BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
-                                        // Adding Marker to the Camera.
-                                        mMap.addMarker(new MarkerOptions()
+                                        // Adding Workmates Restaurant's Marker to the Camera.
+
+                                        workmatesRestaurant = mMap.addMarker(new MarkerOptions()
                                                 .position(latLng)
                                                 .title(placeName)
                                                 .snippet(vicinity)
                                                 .icon(mapIcon));
+                                        workmatesRestaurant.setTag(restaurant);
                                     } else {
                                         Bitmap bitmap = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_restaurant_pin_red);
                                         BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
-                                        // Adding Marker to the Camera.
-                                        mMap.addMarker(new MarkerOptions()
+                                        // Adding No Workmates Restaurant Marker to the Camera.
+                                        emptyRestaurant = mMap.addMarker(new MarkerOptions()
                                                 .position(latLng)
                                                 .title(placeName)
                                                 .snippet(vicinity)
                                                 .icon(mapIcon));
+                                        emptyRestaurant.setTag(restaurant);
                                     }
                                 }
                             });
@@ -312,5 +321,17 @@ public class MapFragment extends Fragment {
             }
         });
 
+    }
+
+    private void viewRestaurantDetail(Result restaurant) {
+        final Context context = getContext();
+        Bundle arguments = new Bundle();
+        Intent intent = new Intent(context, PlaceDetailActivity.class);
+        intent.putExtra("placeId", restaurant.getPlaceId());
+        intent.putExtra("placeAddress", restaurant.getVicinity());
+        String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
+        String imageUrl = staticUrl + "maxwidth=400&photoreference=" + restaurant.getPhotos().get(0).getPhotoReference() + "&key=" + key;
+        intent.putExtra("placePhotoUrl", imageUrl);
+        context.startActivity(intent);
     }
 }
