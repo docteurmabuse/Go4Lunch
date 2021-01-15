@@ -120,6 +120,7 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
                     Log.w(TAG, "Listener failed.", error);
                     return;
                 }
+                assert value != null;
                 int usersCount = value.size();
                 holder.workmatesCount.setText("(" + usersCount + ")");
             }
@@ -128,6 +129,7 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
 
     public void setCurrentLocation(LatLng currentLocation) {
         this.currentLocation = currentLocation;
+        notifyDataSetChanged();
     }
 
     public void setPlaces(List<Result> results, String key) {
@@ -148,14 +150,10 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
         public TextView textViewOpeningHours;
         public TextView distance;
         public ImageView imageViewPhoto;
-        public Result mPlace;
         public RatingBar ratingBar;
-        private final PlaceItemBinding placeItemBinding;
-
 
         public ViewHolder(PlaceItemBinding placeItemBinding) {
             super(placeItemBinding.getRoot());
-            this.placeItemBinding = placeItemBinding;
             textViewName = placeItemBinding.textViewName;
             textViewAddress = placeItemBinding.textViewAddress;
             textViewOpeningHours = placeItemBinding.textViewOpeningHours;

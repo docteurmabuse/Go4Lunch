@@ -3,6 +3,7 @@ package com.tizzone.go4lunch.api;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.tizzone.go4lunch.models.Restaurant;
 
@@ -16,9 +17,13 @@ public class RestaurantHelper {
     }
 
     // --- CREATE ---
-    public static Task<Void> createRestaurant(String uid, String name) {
-        Restaurant restaurantToCreate = new Restaurant(uid, name);
+    public static Task<Void> createRestaurant(String uid, String name, int restaurantCounter) {
+        Restaurant restaurantToCreate = new Restaurant(uid, name, restaurantCounter);
         return RestaurantHelper.getRestaurantsCollection().document(uid).set(restaurantToCreate);
+    }
+
+    public static Task<Void> incrementCounter(String uid) {
+        return RestaurantHelper.getRestaurantsCollection().document(uid).update("restaurant_counter", FieldValue.increment(1));
     }
 
     // --- READ ---

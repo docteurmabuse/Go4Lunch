@@ -71,10 +71,23 @@ public class MapFragment extends Fragment {
     private LocationViewModel locationViewModel;
     private Marker workmatesRestaurant;
     private Marker emptyRestaurant;
+    private Context mContext;
 
 
-    public static Bitmap getBitmapFromVectorDrawable(Context context, int drawableId) {
-        Drawable drawable = AppCompatResources.getDrawable(context, drawableId);
+    /**
+     * Called when a fragment is first attached to its context.
+     * {@link #onCreate(Bundle)} will be called after this.
+     *
+     * @param context
+     */
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        this.mContext = context;
+    }
+
+    public Bitmap getBitmapFromVectorDrawable(int drawableId) {
+        Drawable drawable = AppCompatResources.getDrawable(mContext, drawableId);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             drawable = (DrawableCompat.wrap(drawable)).mutate();
         }
@@ -277,7 +290,7 @@ public class MapFragment extends Fragment {
                             markerOptions.position(latLng);
                             // Adding Title to the Marker
                             markerOptions.title(placeName + " : " + vicinity);
-                            Bitmap bitmap = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_restaurant_pin_red);
+                            Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_red);
                             BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
 
                             UserHelper.getUsersLunchSpot(placeId).addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -285,22 +298,7 @@ public class MapFragment extends Fragment {
                                 public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                                     if (error != null) {
                                         Log.w(TAG, "Listener failed.", error);
-                                        return;
-                                    }
-                                    int usersCount = value.size();
-                                    if (usersCount > 0) {
-                                        Bitmap bitmap = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_restaurant_pin_green);
-                                        BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
-                                        // Adding Workmates Restaurant's Marker to the Camera.
-
-                                        workmatesRestaurant = mMap.addMarker(new MarkerOptions()
-                                                .position(latLng)
-                                                .title(placeName)
-                                                .snippet(vicinity)
-                                                .icon(mapIcon));
-                                        workmatesRestaurant.setTag(restaurant);
-                                    } else {
-                                        Bitmap bitmap = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_restaurant_pin_red);
+                                        Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_red);
                                         BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
                                         // Adding No Workmates Restaurant Marker to the Camera.
                                         emptyRestaurant = mMap.addMarker(new MarkerOptions()
@@ -309,7 +307,32 @@ public class MapFragment extends Fragment {
                                                 .snippet(vicinity)
                                                 .icon(mapIcon));
                                         emptyRestaurant.setTag(restaurant);
+                                    } else {
+                                        int usersCount = value.size();
+                                        if (usersCount > 0) {
+                                            Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_green);
+                                            BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
+                                            // Adding Workmates Restaurant's Marker to the Camera.
+
+                                            workmatesRestaurant = mMap.addMarker(new MarkerOptions()
+                                                    .position(latLng)
+                                                    .title(placeName)
+                                                    .snippet(vicinity)
+                                                    .icon(mapIcon));
+                                            workmatesRestaurant.setTag(restaurant);
+                                        } else {
+                                            Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_red);
+                                            BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
+                                            // Adding No Workmates Restaurant Marker to the Camera.
+                                            emptyRestaurant = mMap.addMarker(new MarkerOptions()
+                                                    .position(latLng)
+                                                    .title(placeName)
+                                                    .snippet(vicinity)
+                                                    .icon(mapIcon));
+                                            emptyRestaurant.setTag(restaurant);
+                                        }
                                     }
+
                                 }
                             });
 

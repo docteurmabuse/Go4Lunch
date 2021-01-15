@@ -30,37 +30,21 @@ import java.util.List;
 public class ListViewFragment extends Fragment {
 
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 44;
-    private PlacesViewModel placesViewModel;
-    private RecyclerView recyclerViewPlaces;
     private PlacesListAdapter placesListAdapter;
-    private List<Result> places;
     private String key;
     private FragmentListBinding fragmentListBinding;
     private final int PERMISSION_ID = 44;
     private final LatLng mDefaultLocation = new LatLng(48.850559, 2.377078);
-    private FusedLocationProviderClient fusedLocationClient;
     private boolean mLocationPermissionGranted;
     // The geographical location where the device is currently located. That is, the last-known
     // location retrieved by the Fused Location Provider.
     private Location lastKnownLocation;
     private LatLng currentLocation;
-    private LocationViewModel locationViewModel;
 
     /**
      * Called to do initial creation of a fragment.  This is called after
      * and before
      * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
-     *
-     *
-     * <p>Note that this can be called while the fragment's activity is
-     * still in the process of being created.  As such, you can not rely
-     * on things like the activity's content view hierarchy being initialized
-     * at this point.  If you want to do work once the activity itself is
-     * created, see {@link #onActivityCreated(Bundle)}.
-     *
-     * <p>Any restored child fragments will be created before the base
-     * <code>Fragment.onCreate</code> method returns.</p>
-     *
      * @param savedInstanceState If the fragment is being re-created from
      *                           a previous saved state, this is the state.
      */
@@ -68,7 +52,7 @@ public class ListViewFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         key = getText(R.string.google_maps_key).toString();
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this.requireActivity());
+        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this.requireActivity());
     }
 
     /**
@@ -87,23 +71,24 @@ public class ListViewFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         fragmentListBinding = FragmentListBinding.inflate(inflater, container, false);
         View root = fragmentListBinding.getRoot();
-        places = new ArrayList<>();
+        List<Result> places = new ArrayList<>();
 
         placesListAdapter = new PlacesListAdapter(places, key, getContext(), currentLocation);
 
-        recyclerViewPlaces = root.findViewById(R.id.listViewPlaces);
+        RecyclerView recyclerViewPlaces = root.findViewById(R.id.listViewPlaces);
         recyclerViewPlaces.setHasFixedSize(true);
         recyclerViewPlaces.setLayoutManager(new LinearLayoutManager(root.getContext()));
 
         //Set current user position in adapter
-        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
+        LocationViewModel locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
         locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
-            placesListAdapter.setCurrentLocation(locationModel.getLocation());
+            if (locationModel != null) {
+                placesListAdapter.setCurrentLocation(locationModel.getLocation());
+            }
         });
 
         //Set retrofit place in adapter
-        placesViewModel =
-                new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+        PlacesViewModel placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         placesViewModel.getPlacesResultsLiveData().observe(getViewLifecycleOwner(), placesResults -> {
             placesListAdapter.setPlaces(placesResults.getResults(), key);
         });

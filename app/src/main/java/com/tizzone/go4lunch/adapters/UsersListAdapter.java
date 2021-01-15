@@ -56,7 +56,10 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
      */
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User user) {
+        Boolean isCurrentUser = user.getUid().equals(idCurrentUser);
+        // if (!isCurrentUser){
         holder.updateWithUser(user, this.idCurrentUser, this.glide, this.isWorkmatesView);
+        // }
     }
 
     @NonNull
@@ -85,7 +88,6 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
 
         public void updateWithUser(User user, String idCurrentUser, RequestManager glide, boolean isWorkmatesView) {
             // Check if current user is the sender
-            Boolean isCurrentUser = user.getUid().equals(idCurrentUser);
             if (!isWorkmatesView) {
                 String joiningText = context.getResources().getString(R.string.joining_text, user.getUserName());
                 this.userText.setText(joiningText);

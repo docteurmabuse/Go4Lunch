@@ -102,7 +102,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
         PlacesClient placesClient = Places.createClient(this);
 
-        //setContentView(R.layout.activity_place_detail);
         toolbar = placeDetailBinding.detailToolbar;
         collapsingToolbar = placeDetailBinding.toolbarLayout;
         appbar = placeDetailBinding.appBarDetail;
@@ -259,7 +258,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
         if (idLunchSpot != null) {
             //Add restaurant in firebase
-            RestaurantHelper.createRestaurant(idLunchSpot, nameLunchSpot).addOnFailureListener(this.onFailureListener());
+            RestaurantHelper.createRestaurant(idLunchSpot, nameLunchSpot, 1).addOnFailureListener(this.onFailureListener());
         }
     }
 
