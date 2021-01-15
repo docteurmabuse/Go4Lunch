@@ -126,11 +126,13 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
         });
     }
 
+    public void setCurrentLocation(LatLng currentLocation) {
+        this.currentLocation = currentLocation;
+    }
 
-    public void setPlaces(List<Result> results, String key, LatLng currentLocation) {
+    public void setPlaces(List<Result> results, String key) {
         this.mPlaces = results;
         this.mKey = key;
-        this.currentLocation = currentLocation;
         notifyDataSetChanged();
     }
 

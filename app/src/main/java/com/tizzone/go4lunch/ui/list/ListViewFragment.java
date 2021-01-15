@@ -1,18 +1,14 @@
 package com.tizzone.go4lunch.ui.list;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,18 +17,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.adapters.PlacesListAdapter;
 import com.tizzone.go4lunch.databinding.FragmentListBinding;
 import com.tizzone.go4lunch.models.places.Result;
+import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.content.ContentValues.TAG;
 
 public class ListViewFragment extends Fragment {
 
@@ -51,6 +44,7 @@ public class ListViewFragment extends Fragment {
     // location retrieved by the Fused Location Provider.
     private Location lastKnownLocation;
     private LatLng currentLocation;
+    private LocationViewModel locationViewModel;
 
     /**
      * Called to do initial creation of a fragment.  This is called after
@@ -74,21 +68,19 @@ public class ListViewFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         key = getText(R.string.google_maps_key).toString();
-        double latitude;
-        double longitude;
-        int radius = 1000;
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this.requireActivity());
+    }
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this.getActivity());
-        // Prompt the user for permission.
-        getLocationPermission();
-        // [END_EXCLUDE]
-
-        // Turn on the My Location layer and the related control on the map.
-        updateLocationUI();
-
-        // Get the current location of the device and set the position of the map.
-        getDeviceLocation();
-
+    /**
+     * Called when the hidden state (as returned by {@link #isHidden()} of
+     * the fragment has changed.  Fragments start out not hidden; this will
+     * be called whenever the fragment changes state from that.
+     *
+     * @param hidden True if the fragment is now hidden, false otherwise.
+     */
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -97,113 +89,29 @@ public class ListViewFragment extends Fragment {
         View root = fragmentListBinding.getRoot();
         places = new ArrayList<>();
 
-        //View root = inflater.inflate(R.layout.fragment_list, container, false);
         placesListAdapter = new PlacesListAdapter(places, key, getContext(), currentLocation);
 
-//        placesViewModel =
-//                new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
-//        placesViewModel.getPlacesResultsLiveData().observe(getViewLifecycleOwner(), placesResults -> {
-//            placesListAdapter.setPlaces(placesResults.getResults(), key, currentLocation);
-//        });
         recyclerViewPlaces = root.findViewById(R.id.listViewPlaces);
         recyclerViewPlaces.setHasFixedSize(true);
         recyclerViewPlaces.setLayoutManager(new LinearLayoutManager(root.getContext()));
+
+        //Set current user position in adapter
+        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
+        locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
+            placesListAdapter.setCurrentLocation(locationModel.getLocation());
+        });
+
+        //Set retrofit place in adapter
+        placesViewModel =
+                new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+        placesViewModel.getPlacesResultsLiveData().observe(getViewLifecycleOwner(), placesResults -> {
+            placesListAdapter.setPlaces(placesResults.getResults(), key);
+        });
 
         recyclerViewPlaces.setAdapter(placesListAdapter);
 
         Context context = root.getContext();
         return root;
-    }
-
-
-    private void getLocationPermission() {
-        /*
-         * Request location permission, so that we can get the location of the
-         * device. The result of the permission request is handled by a callback,
-         * onRequestPermissionsResult.
-         */
-        if (ContextCompat.checkSelfPermission(this.getContext(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            mLocationPermissionGranted = true;
-        } else {
-            ActivityCompat.requestPermissions(this.getActivity(),
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        mLocationPermissionGranted = false;
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mLocationPermissionGranted = true;
-                }
-            }
-        }
-        updateLocationUI();
-    }
-
-    private void updateLocationUI() {
-        try {
-            if (mLocationPermissionGranted) {
-
-            } else {
-
-                lastKnownLocation = null;
-                getLocationPermission();
-            }
-        } catch (SecurityException e) {
-            Log.e("Exception: %s", e.getMessage());
-        }
-    }
-
-    private void getDeviceLocation() {
-        /*
-         * Get the best and most recent location of the device, which may be null in rare
-         * cases when a location is not available.
-         */
-        try {
-            if (mLocationPermissionGranted) {
-                Task<Location> locationResult = fusedLocationClient.getLastLocation();
-                locationResult.addOnCompleteListener(this.getActivity(), new OnCompleteListener<Location>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Location> task) {
-                        if (task.isSuccessful()) {
-                            lastKnownLocation = task.getResult();
-                            if (lastKnownLocation != null) {
-                                currentLocation = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
-                                placesViewModel =
-                                        new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
-                                placesViewModel.getPlacesResultsLiveData().observe(getViewLifecycleOwner(), placesResults -> {
-                                    placesListAdapter.setPlaces(placesResults.getResults(), key, currentLocation);
-                                });
-                                recyclerViewPlaces.setAdapter(placesListAdapter);
-                            }
-                        } else {
-                            Log.d(TAG, "Current location is null. Using defaults.");
-                            Log.e(TAG, "Exception: %s", task.getException());
-                            currentLocation = mDefaultLocation;
-                            currentLocation = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
-                            placesViewModel =
-                                    new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
-                            placesViewModel.getPlacesResultsLiveData().observe(getViewLifecycleOwner(), placesResults -> {
-                                placesListAdapter.setPlaces(placesResults.getResults(), key, currentLocation);
-                            });
-                            recyclerViewPlaces.setAdapter(placesListAdapter);
-                        }
-                    }
-                });
-            }
-        } catch (SecurityException e) {
-            Log.e("Exception: %s", e.getMessage());
-        }
     }
 
     public void onResume() {

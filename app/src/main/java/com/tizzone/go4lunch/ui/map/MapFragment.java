@@ -48,6 +48,7 @@ import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.places.PlacesResults;
 import com.tizzone.go4lunch.models.places.Result;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
+import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -67,6 +68,7 @@ public class MapFragment extends Fragment {
     private final double longitude = 2.377078;
     private String key;
     private PlacesViewModel placesViewModel;
+    private LocationViewModel locationViewModel;
     private Marker workmatesRestaurant;
     private Marker emptyRestaurant;
 
@@ -132,6 +134,7 @@ public class MapFragment extends Fragment {
         placesViewModel =
                 new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         placesViewModel.init();
+        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
         return root;
     }
 
@@ -186,10 +189,14 @@ public class MapFragment extends Fragment {
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(mLastKnownLocation.getLatitude(),
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+                            locationViewModel.userLocation(mLastKnownLocation.getLatitude(),
+                                    mLastKnownLocation.getLongitude());
                             build_retrofit_and_get_response(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
                         } else {
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(latitude, longitude), DEFAULT_ZOOM));
+                            locationViewModel.userLocation(latitude,
+                                    longitude);
                             build_retrofit_and_get_response(latitude, longitude);
                         }
                     } else {
@@ -198,7 +205,8 @@ public class MapFragment extends Fragment {
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
                         mMap.getUiSettings().setMyLocationButtonEnabled(false);
                         build_retrofit_and_get_response(mDefaultLocation.latitude, mDefaultLocation.longitude);
-
+                        locationViewModel.userLocation(mDefaultLocation.latitude,
+                                mDefaultLocation.longitude);
                     }
                     mMap.setMyLocationEnabled(true);
                     mMap.getUiSettings().setMyLocationButtonEnabled(true);

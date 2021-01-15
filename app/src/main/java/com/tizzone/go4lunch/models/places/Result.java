@@ -48,6 +48,7 @@ public class Result implements Serializable {
     @Expose
     private Integer priceLevel;
 
+
     /**
      * @return The geometry
      */

@@ -15,6 +15,7 @@ public class User {
     @Nullable
     private String lunchSpot;
 
+
     public User() {
     }
 
