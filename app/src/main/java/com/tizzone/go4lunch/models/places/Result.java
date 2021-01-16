@@ -150,8 +150,15 @@ public class Result implements Serializable {
     /**
      * @return The rating
      */
-    public Double getRating() {
-        return rating;
+    public Float getRating() {
+        if (rating != null) {
+            float ratingFiveStarFloat = rating.floatValue();
+            return (ratingFiveStarFloat * 3) / 5;
+        } else {
+            rating = 1.5;
+            return rating.floatValue();
+        }
+
     }
 
     /**

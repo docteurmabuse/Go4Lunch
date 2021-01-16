@@ -69,6 +69,8 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private TextView placesDetailsAddress;
     private TextView noWorkmates;
     private RatingBar placeRatingBar;
+    private Double ratingFiveStar;
+
 
     private String uid;
     private List<User> mUsers;
@@ -136,7 +138,12 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 mDetailAddress = place.getAddress();
                 placeAddress.setText(mDetailAddress);
                 placeName.setText(mDetailName);
-                Double ratingFiveStar = place.getRating();
+
+                if (place.getRating() != null) {
+                    ratingFiveStar = place.getRating();
+                } else {
+                    ratingFiveStar = 1.5;
+                }
                 float ratingFiveStarFloat = ratingFiveStar.floatValue();
                 float ratingThreeStars = (ratingFiveStarFloat * 3) / 5;
                 placeRatingBar.setRating(ratingThreeStars);

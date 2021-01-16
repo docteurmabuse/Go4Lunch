@@ -30,5 +30,9 @@
     <string name="lunching_text">%1$s is lunching at %2$s</string>
     <string name="not_decided">%1$s hasn\'t decided yet</string>
     <string name="distance">%1$d\m</string>
+    <string name="place_name">Thios is place name example</string>
+    <string name="place_open">Open now</string>
+    <string name="place_close">Close</string>
+
 
 </resources>

@@ -58,18 +58,16 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
         getUsersCountFromFirestore(place.getPlaceId(), holder);
         //holder.textViewName.setText(place.getName());
         //holder.textViewAddress.setText(place.getVicinity());
-        Double ratingFiveStar = place.getRating();
+        Float ratingFiveStar = place.getRating();
         if (place.getRating() != null) {
-            float ratingFiveStarFloat = ratingFiveStar.floatValue();
-            float ratingThreeStars = (ratingFiveStarFloat * 3) / 5;
-            holder.ratingBar.setRating(ratingThreeStars);
+            holder.ratingBar.setRating(ratingFiveStar);
         }
 
         if (mPlaces.get(position).getOpeningHours() != null) {
             boolean isOpen = mPlaces.get(position).getOpeningHours().getOpenNow();
-            if (isOpen)
-                holder.textViewOpeningHours.setText("Open Now");
-            else holder.textViewOpeningHours.setText("Closed");
+            //   if (isOpen)
+            //   holder.textViewOpeningHours.setText("Open Now");
+            //  else holder.textViewOpeningHours.setText("Closed");
         }
 
         LatLng placeLocation = new LatLng(place.getGeometry().getLocation().getLat(), place.getGeometry().getLocation().getLng());
