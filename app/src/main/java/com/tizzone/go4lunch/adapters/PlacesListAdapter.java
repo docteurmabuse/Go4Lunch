@@ -54,10 +54,10 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         Result place = mPlaces.get(position);
+        binding.setResult(place);
         getUsersCountFromFirestore(place.getPlaceId(), holder);
-
-        holder.textViewName.setText(place.getName());
-        holder.textViewAddress.setText(place.getVicinity());
+        //holder.textViewName.setText(place.getName());
+        //holder.textViewAddress.setText(place.getVicinity());
         Double ratingFiveStar = place.getRating();
         if (place.getRating() != null) {
             float ratingFiveStarFloat = ratingFiveStar.floatValue();
@@ -92,12 +92,18 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
             public void onClick(View view) {
                 final Context context = holder.itemView.getContext();
                 Bundle arguments = new Bundle();
+                String imageUrl;
                 Intent intent = new Intent(context, PlaceDetailActivity.class);
                 intent.putExtra("placeName", place.getName());
                 intent.putExtra("placeId", place.getPlaceId());
                 intent.putExtra("placeAddress", place.getVicinity());
-                String placePhotoUrl = staticUrl + "maxwidth=400&photoreference=" + place.getPhotos().get(0).getPhotoReference() + "&key=" + mKey;
-                intent.putExtra("placePhotoUrl", placePhotoUrl);
+                if (place.getPhotos().size() > 0) {
+                    String photoReference = place.getPhotos().get(0).getPhotoReference();
+                    imageUrl = staticUrl + "maxwidth=400&photoreference=" + photoReference + "&key=" + mKey;
+                } else {
+                    imageUrl = null;
+                }
+                intent.putExtra("placePhotoUrl", imageUrl);
                 context.startActivity(intent);
             }
         });

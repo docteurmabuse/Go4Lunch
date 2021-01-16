@@ -51,6 +51,8 @@ import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
+import java.util.Objects;
+
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.ContentValues.TAG;
 
@@ -356,13 +358,19 @@ public class MapFragment extends Fragment {
 
     private void viewRestaurantDetail(Result restaurant) {
         final Context context = getContext();
+        String imageUrl;
         Bundle arguments = new Bundle();
         Intent intent = new Intent(context, PlaceDetailActivity.class);
         intent.putExtra("placeId", restaurant.getPlaceId());
         intent.putExtra("placeAddress", restaurant.getVicinity());
         String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
-        String imageUrl = staticUrl + "maxwidth=400&photoreference=" + restaurant.getPhotos().get(0).getPhotoReference() + "&key=" + key;
+        if (restaurant.getPhotos().size() > 0) {
+            String photoReference = restaurant.getPhotos().get(0).getPhotoReference();
+            imageUrl = staticUrl + "maxwidth=400&photoreference=" + photoReference + "&key=" + key;
+        } else {
+            imageUrl = null;
+        }
         intent.putExtra("placePhotoUrl", imageUrl);
-        context.startActivity(intent);
+        Objects.requireNonNull(context).startActivity(intent);
     }
 }

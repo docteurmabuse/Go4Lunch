@@ -151,10 +151,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 }
             });
 
-            // usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            //  usersRecyclerView.setHasFixedSize(true);
-
-            //  usersRecyclerView.setAdapter(usersListAdapter);
             addOnOffsetChangedListener();
 
             AppCompatImageButton call = findViewById(R.id.call_button);

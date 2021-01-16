@@ -1,123 +1,136 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="0dp"
-    android:layout_marginBottom="2dp"
-    app:cardElevation="2dp">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraint"
+    <data>
+
+        <variable
+            name="result"
+            type="com.tizzone.go4lunch.models.places.Result" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="0dp">
+        android:layout_height="wrap_content"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="2dp"
+        app:cardElevation="2dp">
 
-        <TextView
-            android:id="@+id/textViewName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginStart="5dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            app:layout_constrainedWidth="true"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="This is some temp text" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraint"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="0dp">
 
-        <TextView
-            android:id="@+id/textViewAddress"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-            android:textSize="12sp"
-            app:layout_constrainedWidth="true"
-            app:layout_constraintEnd_toStartOf="@+id/rating_layout"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewName"
-            tools:text="This is some temp tex" />
+            <TextView
+                android:id="@+id/textViewName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@{result.name}"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintEnd_toStartOf="@id/distance_text_view"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="This is some temp text" />
 
-        <TextView
-            android:id="@+id/textViewOpeningHours"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-            android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewAddress" />
+            <TextView
+                android:id="@+id/textViewAddress"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@{result.vicinity}"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:textSize="12sp"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintEnd_toStartOf="@+id/rating"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textViewName"
+                tools:text="This is some temp tex" />
 
-        <LinearLayout
-            android:id="@+id/rating_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toStartOf="@id/imageViewPhoto"
-            app:layout_constraintTop_toTopOf="parent">
+            <TextView
+                android:id="@+id/textViewOpeningHours"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textViewAddress" />
+
 
             <TextView
                 android:id="@+id/distance_text_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
                 android:layout_marginEnd="5dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
                 android:text="0m"
-                android:textAlignment="viewEnd" />
+                android:textAlignment="viewEnd"
+                app:layout_constraintEnd_toStartOf="@id/imageViewPhoto"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <LinearLayout
-                android:layout_width="wrap_content"
+
+            <ImageView
+                android:id="@+id/mini_avatar"
+                android:layout_width="18dp"
+                android:layout_height="match_parent"
+                android:background="#00FFFFFF"
+                app:layout_constraintEnd_toStartOf="@id/workmates_count"
+
+                app:layout_constraintTop_toBottomOf="@id/distance_text_view"
+                app:srcCompat="@drawable/fui_ic_anonymous_white_24dp"
+                app:tint="#000000" />
+
+            <TextView
+                android:id="@+id/workmates_count"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:orientation="horizontal">
+                android:layout_marginEnd="5dp"
+                android:text="(0)"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/rating"
+                app:layout_constraintEnd_toStartOf="@id/imageViewPhoto"
+                app:layout_constraintTop_toBottomOf="@id/distance_text_view" />
 
-                <ImageView
-                    android:id="@+id/mini_avatar"
-                    android:layout_width="18dp"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="end"
-                    android:background="#00FFFFFF"
-                    app:srcCompat="@drawable/fui_ic_anonymous_white_24dp"
-                    app:tint="#000000" />
-
-                <TextView
-                    android:id="@+id/workmates_count"
-                    android:layout_marginEnd="5dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:text="(0)" />
-            </LinearLayout>
 
             <RatingBar
                 android:id="@+id/rating"
-                android:theme="@style/RatingBar"
                 style="?android:attr/ratingBarStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:numStars="3"
                 android:scaleX="1"
-                android:scaleY="1" />
-        </LinearLayout>
-        <ImageView
-            android:id="@+id/imageViewPhoto"
-            android:layout_width="80dp"
-            android:layout_height="60dp"
-            android:contentDescription="@string/google_place_image"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_baseline_lunch_menu_24" />
+                android:scaleY="1"
+                android:theme="@style/RatingBar"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/imageViewPhoto"
+                app:layout_constraintTop_toBottomOf="@id/workmates_count" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</com.google.android.material.card.MaterialCardView>
+
+            <ImageView
+                android:id="@+id/imageViewPhoto"
+                android:layout_width="80dp"
+                android:layout_height="60dp"
+                android:contentDescription="@string/google_place_image"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_baseline_lunch_menu_24" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+</layout>
