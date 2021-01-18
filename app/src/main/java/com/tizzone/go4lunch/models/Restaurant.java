@@ -2,7 +2,6 @@ package com.tizzone.go4lunch.models;
 
 public class Restaurant {
     private String uid;
-
     private int restaurant_counter;
     private String name;
 

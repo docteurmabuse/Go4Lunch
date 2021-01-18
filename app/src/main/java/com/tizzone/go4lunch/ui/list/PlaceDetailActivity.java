@@ -1,6 +1,7 @@
 package com.tizzone.go4lunch.ui.list;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageButton;
@@ -30,6 +32,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
+import com.google.gson.Gson;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.adapters.UsersListAdapter;
 import com.tizzone.go4lunch.api.RestaurantHelper;
@@ -43,6 +46,7 @@ import com.tizzone.go4lunch.models.User;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
 
 public class PlaceDetailActivity extends BaseActivity implements UsersListAdapter.Listener {
     private static final String TAG = "1543";
@@ -70,6 +74,8 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private TextView noWorkmates;
     private RatingBar placeRatingBar;
     private Double ratingFiveStar;
+    private SharedPreferences sharedPreferences;
+    private List<String> favouritesArray;
 
 
     private String uid;
@@ -77,6 +83,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private UsersListAdapter usersListAdapter;
     private RecyclerView usersRecyclerView;
     private RecyclerView.LayoutManager layoutManager;
+
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -94,6 +101,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         contentLayoutBinding = placeDetailBinding.contentLayoutPlaceDetailActivity;
         View view = placeDetailBinding.getRoot();
         setContentView(view);
+        sharedPreferences = getSharedPreferences("USER", MODE_PRIVATE);
 
 
         if (this.getCurrentUser() != null) {
@@ -239,6 +247,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         });
     }
 
+    //Dial restaurant's phone number
     public void dialPhoneNumber(String phoneNumber) {
         Intent intent = new Intent(Intent.ACTION_DIAL);
         intent.setData(Uri.parse("tel:" + phoneNumber));
@@ -247,6 +256,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         }
     }
 
+    //Visit restaurant's website
     public void openWebPage(Uri url) {
         Intent intent = new Intent(Intent.ACTION_VIEW, url);
         if (intent.resolveActivity(getPackageManager()) != null) {
@@ -265,6 +275,17 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         }
     }
 
+    //Add Like to a restaurant
+    private void addFavoriteInSharedPreferences() {
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("Favourite", "");
+        if (json.isEmpty()) {
+            Toast.makeText(PlaceDetailActivity.this, "There is something error", Toast.LENGTH_LONG).show();
+        } else {
+            String[] restaurants = gson.fromJson(json, String[].class);
+            //Restaurant restaurants = new Gson().fromJson(json, Restaurant.class);
+        }
+    }
 
     private void getUserDataFromFirebase(String uid) {
         // 5 - Get additional data from Firestore
