@@ -43,6 +43,7 @@ import com.tizzone.go4lunch.databinding.ContentLayoutPlaceDetailActivityBinding;
 import com.tizzone.go4lunch.databinding.FragmentListBinding;
 import com.tizzone.go4lunch.models.User;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -76,6 +77,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private Double ratingFiveStar;
     private SharedPreferences sharedPreferences;
     private List<String> favouritesArray;
+    private AppCompatImageButton likeButton;
 
 
     private String uid;
@@ -83,6 +85,10 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private UsersListAdapter usersListAdapter;
     private RecyclerView usersRecyclerView;
     private RecyclerView.LayoutManager layoutManager;
+    private Gson gson;
+    private String json;
+    private String[] restaurants;
+    private List<String> restaurantsList;
 
 
     @Override
@@ -171,8 +177,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             AppCompatImageButton call = placeDetailBinding.contentLayoutPlaceDetailActivity.callButton;
             call.setOnClickListener(view1 -> dialPhoneNumber(placePhone));
 
-            AppCompatImageButton like = placeDetailBinding.contentLayoutPlaceDetailActivity.starButton;
-            call.setOnClickListener(view1 -> addFavoriteInSharedPreferences(currentPlaceId));
 
             AppCompatImageButton website = placeDetailBinding.contentLayoutPlaceDetailActivity.websiteButton;
             website.setOnClickListener(view12 -> openWebPage(placeWebsite));
@@ -184,10 +188,10 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
             fabOnClickListener();
             configureRecyclerView(currentPlaceId);
-
+            addFavorite();
         }
-
     }
+
 
     private void addOnOffsetChangedListener() {
 
@@ -279,19 +283,73 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     }
 
     //Add Like to a restaurant
-    private void addFavoriteInSharedPreferences(String currentPlaceId) {
-        Gson gson = new Gson();
-        String json = sharedPreferences.getString("Favourite", "");
+    private void addFavorite() {
+        likeButton = placeDetailBinding.contentLayoutPlaceDetailActivity.starButton;
+        gson = new Gson();
+        json = sharedPreferences.getString("Favourites", "");
+        restaurants = new String[]{};
+        restaurants = gson.fromJson(json, String[].class);
+        restaurantsList = new ArrayList<String>();
+        if (restaurants != null) {
+            restaurantsList.addAll(Arrays.asList(restaurants));
+        }
+        String[] finalRestaurants = restaurants;
+        likeButton.setOnClickListener(view1 -> addFavoriteInSharedPreferences());
+
         if (json.isEmpty()) {
-            Toast.makeText(PlaceDetailActivity.this, "You don't have any favourite", Toast.LENGTH_LONG).show();
+            likeButton.setImageResource(R.drawable.ic_baseline_star_outline_24);
         } else {
-            String[] restaurants = gson.fromJson(json, String[].class);
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                boolean contains = Arrays.asList(restaurants).contains(currentPlaceId);
+                boolean like = Arrays.asList(restaurants).contains(this.currentPlaceId);
+                if (!like) {
+                    likeButton.setImageResource(R.drawable.ic_baseline_star_outline_24);
+                } else {
+                    likeButton.setImageResource(R.drawable.ic_baseline_star_24);
+                }
+            } else {
+                Toast.makeText(PlaceDetailActivity.this, "You need to install Java 8!", Toast.LENGTH_LONG).show();
+
             }
-            //Restaurant restaurants = new Gson().fromJson(json, Restaurant.class);
+
         }
     }
+
+    private void addFavoriteInSharedPreferences() {
+        if (json.isEmpty()) {
+            restaurantsList.add(currentPlaceId);
+            String jsonText = gson.toJson(restaurantsList);
+            SharedPreferences.Editor prefsEditor = sharedPreferences.edit();
+            prefsEditor.putString("Favourites", jsonText);
+            prefsEditor.apply();
+            likeButton.setImageResource(R.drawable.ic_baseline_star_24);
+            Toast.makeText(PlaceDetailActivity.this, "You add this restaurant to your favourite", Toast.LENGTH_LONG).show();
+        } else {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                boolean like = Arrays.asList(restaurants).contains(this.currentPlaceId);
+                if (!like) {
+                    restaurantsList.add(currentPlaceId);
+                    String jsonText = gson.toJson(restaurantsList);
+                    SharedPreferences.Editor prefsEditor = sharedPreferences.edit();
+                    prefsEditor.putString("Favourites", jsonText);
+                    prefsEditor.apply();
+                    likeButton.setImageResource(R.drawable.ic_baseline_star_24);
+                    Toast.makeText(PlaceDetailActivity.this, "You add this restaurant to your favourite", Toast.LENGTH_LONG).show();
+                } else {
+                    restaurantsList.remove(currentPlaceId);
+                    String jsonText = gson.toJson(restaurantsList);
+                    SharedPreferences.Editor prefsEditor = sharedPreferences.edit();
+                    prefsEditor.putString("Favourites", jsonText);
+                    prefsEditor.apply();
+                    likeButton.setImageResource(R.drawable.ic_baseline_star_outline_24);
+                    Toast.makeText(PlaceDetailActivity.this, "You remove this restaurant to your favourite", Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Toast.makeText(PlaceDetailActivity.this, "You need to install Java 8!", Toast.LENGTH_LONG).show();
+            }
+        }
+        addFavorite();
+    }
+
 
     private void getUserDataFromFirebase(String uid) {
         // 5 - Get additional data from Firestore
