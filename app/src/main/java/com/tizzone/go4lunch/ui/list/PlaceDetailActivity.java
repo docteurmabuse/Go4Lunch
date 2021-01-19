@@ -168,10 +168,13 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
             addOnOffsetChangedListener();
 
-            AppCompatImageButton call = findViewById(R.id.call_button);
+            AppCompatImageButton call = placeDetailBinding.contentLayoutPlaceDetailActivity.callButton;
             call.setOnClickListener(view1 -> dialPhoneNumber(placePhone));
 
-            AppCompatImageButton website = findViewById(R.id.website_button);
+            AppCompatImageButton like = placeDetailBinding.contentLayoutPlaceDetailActivity.starButton;
+            call.setOnClickListener(view1 -> addFavoriteInSharedPreferences(currentPlaceId));
+
+            AppCompatImageButton website = placeDetailBinding.contentLayoutPlaceDetailActivity.websiteButton;
             website.setOnClickListener(view12 -> openWebPage(placeWebsite));
 
             String mDetailPhotoUrl = intent.getStringExtra("placePhotoUrl");
@@ -276,13 +279,16 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     }
 
     //Add Like to a restaurant
-    private void addFavoriteInSharedPreferences() {
+    private void addFavoriteInSharedPreferences(String currentPlaceId) {
         Gson gson = new Gson();
         String json = sharedPreferences.getString("Favourite", "");
         if (json.isEmpty()) {
-            Toast.makeText(PlaceDetailActivity.this, "There is something error", Toast.LENGTH_LONG).show();
+            Toast.makeText(PlaceDetailActivity.this, "You don't have any favourite", Toast.LENGTH_LONG).show();
         } else {
             String[] restaurants = gson.fromJson(json, String[].class);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                boolean contains = Arrays.asList(restaurants).contains(currentPlaceId);
+            }
             //Restaurant restaurants = new Gson().fromJson(json, Restaurant.class);
         }
     }
@@ -346,5 +352,9 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         noWorkmates.setVisibility(this.usersListAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        placeDetailBinding = null;
+    }
 }
