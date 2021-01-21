@@ -1,8 +1,11 @@
 package com.tizzone.go4lunch.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
+import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -21,6 +24,10 @@ import com.tizzone.go4lunch.api.RestaurantHelper;
 import com.tizzone.go4lunch.databinding.UsersListItemBinding;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
+import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAdapter.UserViewHolder> {
     private UsersListItemBinding userBinding;
@@ -33,6 +40,7 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     private Context context;
     //FOR COMMUNICATION
     private final Listener callback;
+    private Restaurant restaurant;
 
 
     public UsersListAdapter(FirestoreRecyclerOptions<User> options, RequestManager glide, Listener callback, String idCurrentUser, boolean isWorkmatesView) {
@@ -41,6 +49,8 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
         this.idCurrentUser = idCurrentUser;
         this.callback = callback;
         this.isWorkmatesView = isWorkmatesView;
+        List<Restaurant> restaurants = new ArrayList<>();
+
     }
 
     @Override
@@ -56,10 +66,48 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
      */
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User user) {
-        Boolean isCurrentUser = user.getUid().equals(idCurrentUser);
-        // if (!isCurrentUser){
-        holder.updateWithUser(user, this.idCurrentUser, this.glide, this.isWorkmatesView);
-        // }
+        if (user.getLunchSpot() != null) {
+            List<Restaurant> restaurants = new ArrayList<>();
+            RestaurantHelper.getRestaurants(user.getLunchSpot()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    restaurant = documentSnapshot.toObject(Restaurant.class);
+                    setHolder(holder, user, restaurant);
+                }
+            });
+        } else {
+            holder.updateWithUser(user, this.idCurrentUser, this.glide, this.isWorkmatesView, restaurant);
+        }
+        // ;
+
+
+    }
+
+    private void setHolder(UserViewHolder holder, User user, Restaurant restaurant) {
+        holder.updateWithUser(user, this.idCurrentUser, this.glide, this.isWorkmatesView, restaurant);
+
+        if (isWorkmatesView) {
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    final Context context = holder.itemView.getContext();
+                    Bundle arguments = new Bundle();
+                    String imageUrl;
+                    Intent intent = new Intent(context, PlaceDetailActivity.class);
+                    intent.putExtra("placeName", restaurant.getName());
+                    intent.putExtra("placeId", restaurant.getUid());
+//                if (place.getPhotos().size() > 0) {
+//                    String photoReference = place.getPhotos().get(0).getPhotoReference();
+//                    imageUrl = staticUrl + "maxwidth=400&photoreference=" + photoReference + "&key=" + mKey;
+//                } else {
+//                    imageUrl = null;
+//                }
+//                intent.putExtra("placePhotoUrl", imageUrl);
+                    context.startActivity(intent);
+                }
+            });
+        }
     }
 
     @NonNull
@@ -86,23 +134,16 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
             userText = userBinding.avatarTextView;
         }
 
-        public void updateWithUser(User user, String idCurrentUser, RequestManager glide, boolean isWorkmatesView) {
+        public void updateWithUser(User user, String idCurrentUser, RequestManager glide, boolean isWorkmatesView, Restaurant restaurant) {
             // Check if current user is the sender
             if (!isWorkmatesView) {
                 String joiningText = context.getResources().getString(R.string.joining_text, user.getUserName());
                 this.userText.setText(joiningText);
             } else {
                 if (user.getLunchSpot() != null) {
-                    RestaurantHelper.getRestaurants(user.getLunchSpot()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            restaurant = documentSnapshot.toObject(Restaurant.class);
-                            Resources resources = context.getResources();
-                            String lunchingText = String.format(resources.getString(R.string.lunching_text), user.getUserName(), restaurant.getName());
-                            userText.setText(lunchingText);
-                        }
-
-                    });
+                    Resources resources = context.getResources();
+                    String lunchingText = String.format(resources.getString(R.string.lunching_text), user.getUserName(), restaurant.getName());
+                    userText.setText(lunchingText);
                 } else {
                     Resources resources = context.getResources();
                     String notDecidedYet = String.format(resources.getString(R.string.not_decided), user.getUserName());

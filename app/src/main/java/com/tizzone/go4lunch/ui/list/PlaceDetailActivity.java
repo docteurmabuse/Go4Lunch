@@ -282,6 +282,12 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         }
     }
 
+    //Add favourite in Firebase
+    private void addFavouriteInFirebase(String idLunchSpot, String[] restaurants) {
+        //Add restaurant to user in Firebase
+        UserHelper.updateFavoriteRestaurants(restaurants, uid).addOnFailureListener(this.onFailureListener());
+    }
+
     //Add Like to a restaurant
     private void addFavorite() {
         likeButton = placeDetailBinding.contentLayoutPlaceDetailActivity.starButton;
@@ -379,9 +385,9 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     // --------------------
     // 5 - Configure RecyclerView with a Query
     private void configureRecyclerView(String placeId) {
-        //Track current chat name
+
         this.currentPlaceId = placeId;
-        this.usersListAdapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersLunchSpot(this.currentPlaceId)), Glide.with(this), this, this.getCurrentUser().getUid(), false);
+        this.usersListAdapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersLunchSpotWithoutCurrentUser(this.currentPlaceId, uid)), Glide.with(this), this, this.getCurrentUser().getUid(), false);
         usersListAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {

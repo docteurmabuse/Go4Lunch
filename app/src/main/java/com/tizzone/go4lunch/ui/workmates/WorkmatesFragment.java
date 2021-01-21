@@ -19,30 +19,36 @@ import com.tizzone.go4lunch.adapters.UsersListAdapter;
 import com.tizzone.go4lunch.api.UserHelper;
 import com.tizzone.go4lunch.databinding.FragmentWorkmatesBinding;
 import com.tizzone.go4lunch.models.User;
+import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
 public class WorkmatesFragment extends Fragment implements UsersListAdapter.Listener {
 
     private WorkmatesViewModel workmatesViewModel;
+    private UserViewModel userViewModel;
+
     private FragmentWorkmatesBinding workmatesBinding;
     private RecyclerView workmatesRecyclerView;
     private UsersListAdapter adapter;
     private TextView textView;
+    private String uid;
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        workmatesViewModel =
-                new ViewModelProvider(this).get(WorkmatesViewModel.class);
+
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+
         workmatesBinding = FragmentWorkmatesBinding.inflate(inflater, container, false);
         View root = workmatesBinding.getRoot();
         textView = workmatesBinding.textNotifications;
         workmatesRecyclerView = workmatesBinding.workmatesRecyclerView;
-        workmatesViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
-        getWorkmatesList();
+        getWorkmatesList(this.getArguments().getString("userId"));
         return root;
     }
 
-    private void getWorkmatesList() {
-        adapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersCollection()), Glide.with(this), this, "hFwyQ2wqySd5qpFcUSe9FiCClyC2", true);
+    private void getWorkmatesList(String uid) {
+        adapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getWorkmates(uid)), Glide.with(this), this, "hFwyQ2wqySd5qpFcUSe9FiCClyC2", true);
+
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
@@ -51,6 +57,12 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
         });
         workmatesRecyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
         workmatesRecyclerView.setAdapter(this.adapter);
+
+        if (adapter.getItemCount() == 0) {
+            workmatesViewModel =
+                    new ViewModelProvider(this).get(WorkmatesViewModel.class);
+            workmatesViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
+        }
     }
 
     private FirestoreRecyclerOptions<User> generateOptionsForAdapter(Query query) {
@@ -87,4 +99,5 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
         super.onDestroyView();
         workmatesBinding = null;
     }
+
 }

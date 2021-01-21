@@ -1,5 +1,7 @@
 package com.tizzone.go4lunch;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
@@ -9,10 +11,12 @@ import android.view.View;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.MutableLiveData;
+import androidx.navigation.NavArgument;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -43,7 +47,7 @@ import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
 import java.util.List;
 
-public class MainActivity extends BaseActivity implements OnNavigationItemSelectedListener{
+public class MainActivity extends BaseActivity {
     private static final int SIGN_OUT_TASK = 25;
     private ActivityMainBinding mBinding;
     private AppBarConfiguration mAppBarConfiguration;
@@ -69,27 +73,52 @@ public class MainActivity extends BaseActivity implements OnNavigationItemSelect
         // Declare a StorageReference and initialize it in the onCreate method
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
-      //  mBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
+        //  mBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
         mBinding.setNavigationItemSelectedListener(this);
 
         View view = mBinding.getRoot();
         setContentView(view);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = mBinding.toolbar;
         setSupportActionBar(toolbar);
         DrawerLayout drawer = mBinding.drawerLayout;
         NavigationView navigationView = mBinding.drawerNavView;
         BottomNavigationView bottomNavigationView = mBinding.bottomNavView;
+        String uid = this.getCurrentUser().getUid();
+
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-
+        // navController.getGraph().findNode(R.id.navigation_workmates).addArgument("userId", );
+        Bundle bundle = new Bundle();
+        bundle.putString("userId", uid);
         mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph())
                 .setOpenableLayout(drawer)
                 .build();
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
+        navController.setGraph(R.navigation.mobile_navigation, bundle);
+        // bottomNavigationView.setOnNavigationItemSelectedListener(this::onNavigationItemSelected);
+
+        //Navigation.findNavController(view).navigate(R.id.navigation_workmates, bundle);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int id = item.getItemId();
+                if (id == R.id.navigation_map) {
+                    navController.navigate(id);
+                } else if (id == R.id.navigation_list) {
+                    navController.navigate(id);
+                } else if (id == R.id.navigation_workmates) {
+                    NavArgument argument = new NavArgument.Builder().setDefaultValue(uid).build();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("userId", uid);
+                    navController.navigate(id, bundle);
+                }
+                return true;
+            }
+        });
         navigationView.setNavigationItemSelectedListener(new OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
@@ -97,17 +126,19 @@ public class MainActivity extends BaseActivity implements OnNavigationItemSelect
                 if (id == R.id.nav_logout) {
                     signOutUserFromFirebase();
                 }
+
                 drawer.closeDrawer(GravityCompat.START);
                 return true;
             }
         });
-        listViewPlaces = findViewById(R.id.listViewPlaces);
+        ///listViewPlaces = findViewById(R.id.listViewPlaces);
         key = getText(R.string.google_maps_key).toString();
         View headerView = mBinding.drawerNavView.getHeaderView(0);
 
         navHeaderMainBinding = NavHeaderMainBinding.bind(headerView);
         updateProfileWhenCreating();
     }
+
 
     private void updateProfileWhenCreating() {
         if (this.getCurrentUser() != null) {
@@ -122,19 +153,19 @@ public class MainActivity extends BaseActivity implements OnNavigationItemSelect
         }
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.search, menu);
+        getMenuInflater().inflate(R.menu.options_menu, menu);
 
         // Associate searchable configuration with the SearchView
-//        SearchManager searchManager =
-//                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-//        SearchView searchView =
-//                (SearchView) menu.findItem(R.id.search).getActionView();
-//        searchView.setSearchableInfo(
-//                searchManager.getSearchableInfo(getComponentName()));
-
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
         return true;
     }
 
@@ -161,17 +192,6 @@ public class MainActivity extends BaseActivity implements OnNavigationItemSelect
         startActivity(intent);
     }
 
-    /**
-     * Called when an item in the navigation menu is selected.
-     *
-     * @param item The selected item
-     * @return true to display the item as the selected item
-     */
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        return false;
-    }
-
     private void getUserInFirestore() {
 
         if (this.getCurrentUser() != null) {
@@ -181,10 +201,15 @@ public class MainActivity extends BaseActivity implements OnNavigationItemSelect
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     User currentUser = documentSnapshot.toObject(User.class);
-
                 }
             });
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mBinding = null;
     }
 
 

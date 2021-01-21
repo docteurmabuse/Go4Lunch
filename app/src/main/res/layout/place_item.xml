@@ -90,7 +90,6 @@
                 android:layout_height="match_parent"
                 android:background="#00FFFFFF"
                 app:layout_constraintEnd_toStartOf="@id/workmates_count"
-
                 app:layout_constraintTop_toBottomOf="@id/distance_text_view"
                 app:srcCompat="@drawable/fui_ic_anonymous_white_24dp"
                 app:tint="#000000" />
@@ -128,6 +127,7 @@
                 android:layout_width="80dp"
                 android:layout_height="60dp"
                 android:contentDescription="@string/google_place_image"
+                android:scaleType="centerCrop"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_baseline_lunch_menu_24" />

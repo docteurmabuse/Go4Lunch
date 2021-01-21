@@ -7,23 +7,24 @@ import androidx.lifecycle.ViewModel;
 import com.tizzone.go4lunch.models.User;
 
 public class UserViewModel extends ViewModel {
-    private UserRepository userRepository;
-    public final MutableLiveData<User> userLocation = new MutableLiveData<User>();
+    public MutableLiveData<User> userLiveData = new MutableLiveData<User>();
+    private User user;
 
-    public LiveData<User> getUserLiveData() {
+    public UserViewModel(User user) {
+        this.user = user;
+    }
+
+
+    public UserViewModel() {
+
+    }
+
+    public LiveData<User> getUser() {
         return userLiveData;
     }
 
-    public void setUserLiveData(User user) {
-        userLocation.setValue(user);
+    public void setUser(User user) {
+        userLiveData.setValue(user);
     }
 
-    LiveData<User> userLiveData;
-
-    public UserViewModel(LiveData<User> userLiveData) {
-        this.userLiveData = userLiveData;
-    }
-
-    public void userLocation(double latitude, double longitude) {
-    }
 }

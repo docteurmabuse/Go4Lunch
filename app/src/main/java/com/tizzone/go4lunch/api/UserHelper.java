@@ -29,8 +29,16 @@ public class UserHelper {
         return UserHelper.getUsersCollection().document(uid).get();
     }
 
+    public static Query getWorkmates(String uid) {
+        return getUsersCollection().whereNotEqualTo("uid", uid);
+    }
+
     public static Query getUsersLunchSpot(String lunchSpot) {
         return getUsersCollection().whereEqualTo("lunchSpot", lunchSpot);
+    }
+
+    public static Query getUsersLunchSpotWithoutCurrentUser(String lunchSpot, String uid) {
+        return getUsersCollection().whereNotEqualTo("uid", uid).whereEqualTo("lunchSpot", lunchSpot);
     }
 
     // --- UPDATE ---

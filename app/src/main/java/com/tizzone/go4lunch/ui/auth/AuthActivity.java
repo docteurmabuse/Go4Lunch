@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
@@ -17,6 +18,7 @@ import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.api.UserHelper;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityAuthBinding;
+import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +30,7 @@ public class AuthActivity extends BaseActivity {
     private List<AuthUI.IdpConfig> providers;
     private ActivityAuthBinding mBinding;
     private CoordinatorLayout coordinatorLayout;
+    private UserViewModel userViewModel;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -45,6 +48,8 @@ public class AuthActivity extends BaseActivity {
             getSupportActionBar().hide();
         }
         coordinatorLayout = mBinding.mainLayout;
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+
     }
 
 //    @Override
@@ -114,7 +119,6 @@ public class AuthActivity extends BaseActivity {
             String urlPicture = (this.getCurrentUser().getPhotoUrl() != null) ? this.getCurrentUser().getPhotoUrl().toString() : null;
             String username = this.getCurrentUser().getDisplayName();
             String uid = this.getCurrentUser().getUid();
-
             UserHelper.createUser(uid, true, username, urlPicture, null, null).addOnFailureListener(this.onFailureListener());
         }
     }

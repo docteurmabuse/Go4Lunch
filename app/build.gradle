@@ -115,4 +115,6 @@ dependencies {
 
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.jakewharton.butterknife'
+apply plugin: "androidx.navigation.safeargs"
+
 
