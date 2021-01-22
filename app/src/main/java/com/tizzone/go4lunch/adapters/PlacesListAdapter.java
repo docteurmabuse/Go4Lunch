@@ -3,7 +3,6 @@ package com.tizzone.go4lunch.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,8 +24,11 @@ import com.google.maps.android.SphericalUtil;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.api.UserHelper;
 import com.tizzone.go4lunch.databinding.PlaceItemBinding;
+import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.places.Result;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,35 +76,26 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
         String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
 
         //display place thumbnail
-        if (mPlaces.get(position).getPhotos().size() != 0) {
-            String imageUrl = staticUrl + "maxwidth=400&photoreference=" + mPlaces.get(position).getPhotos().get(0).getPhotoReference() + "&key=" + mKey;
 
-            Glide.with(holder.itemView)
-                    .load(imageUrl)
-                    .into(holder.imageViewPhoto);
-        }
+        String imageUrl = place.getPhotoUrl(resources);
+
+        Glide.with(holder.itemView)
+                .load(imageUrl)
+                .into(holder.imageViewPhoto);
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final Context context = holder.itemView.getContext();
-                Bundle arguments = new Bundle();
-                String imageUrl;
+                Restaurant restaurant = new Restaurant(place.getPlaceId(), place.getName(), place.getVicinity(), place.getPhotoUrl(resources), place.getRating(), 0);
                 Intent intent = new Intent(context, PlaceDetailActivity.class);
-                intent.putExtra("placeName", place.getName());
-                intent.putExtra("placeId", place.getPlaceId());
-                intent.putExtra("placeAddress", place.getVicinity());
-                if (place.getPhotos().size() > 0) {
-                    String photoReference = place.getPhotos().get(0).getPhotoReference();
-                    imageUrl = staticUrl + "maxwidth=400&photoreference=" + photoReference + "&key=" + mKey;
-                } else {
-                    imageUrl = null;
-                }
-                intent.putExtra("placePhotoUrl", imageUrl);
+                intent.putExtra("RESTAURANT", restaurant);
                 context.startActivity(intent);
             }
         });
     }
 
+    @NotNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mContext);

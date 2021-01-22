@@ -41,6 +41,7 @@ import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityPlaceDetailBinding;
 import com.tizzone.go4lunch.databinding.ContentLayoutPlaceDetailActivityBinding;
 import com.tizzone.go4lunch.databinding.FragmentListBinding;
+import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
 
 import java.util.ArrayList;
@@ -54,12 +55,21 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 5873;
     private String mDetailAddress;
     private String mDetailName;
+    private String placePhone;
+    private Uri placeWebsite;
     private int lunchSpot;
+    private String mDetailPhotoUrl;
+    private String uid;
+    private List<User> mUsers;
+    private String[] restaurants;
+    private List<String> restaurantsList;
+    private float ratingThreeStars;
+    private float ratingFiveStarFloat;
+
     private ActivityPlaceDetailBinding placeDetailBinding;
     private ContentLayoutPlaceDetailActivityBinding contentLayoutBinding;
     private FragmentListBinding listBinding;
-    private String placePhone;
-    private Uri placeWebsite;
+
     private FloatingActionButton addSpotLunch;
     private Toolbar toolbar;
     private CollapsingToolbarLayout collapsingToolbar;
@@ -80,15 +90,11 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private AppCompatImageButton likeButton;
 
 
-    private String uid;
-    private List<User> mUsers;
     private UsersListAdapter usersListAdapter;
     private RecyclerView usersRecyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private Gson gson;
     private String json;
-    private String[] restaurants;
-    private List<String> restaurantsList;
 
 
     @Override
@@ -113,7 +119,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         if (this.getCurrentUser() != null) {
             uid = this.getCurrentUser().getUid();
         }
-        // usersListAdapter = new UsersListAdapter(mUsers, this);
 
         Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
         PlacesClient placesClient = Places.createClient(this);
@@ -136,30 +141,37 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
         Intent intent = this.getIntent();
         if (intent != null) {
+
+            Restaurant restaurant = (Restaurant) intent.getSerializableExtra("RESTAURANT");
+
+            mDetailName = restaurant.getName();
+
+            mDetailAddress = restaurant.getAddress();
+
             // Specify the fields to return.
             final List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.TYPES, Place.Field.WEBSITE_URI, Place.Field.PHONE_NUMBER, Place.Field.RATING);
 
             // Construct a request object, passing the place ID and fields array.
-            currentPlaceId = intent.getStringExtra("placeId");
+            currentPlaceId = restaurant.getUid();
             getUserDataFromFirebase(this.getCurrentUser().getUid());
-            final FetchPlaceRequest request = FetchPlaceRequest.newInstance(currentPlaceId, placeFields);
+            final FetchPlaceRequest request = FetchPlaceRequest.newInstance(restaurant.getUid(), placeFields);
 
             placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
                 Place place = response.getPlace();
                 placePhone = place.getPhoneNumber();
                 placeWebsite = place.getWebsiteUri();
-                mDetailName = place.getName();
-                mDetailAddress = place.getAddress();
+
                 placeAddress.setText(mDetailAddress);
                 placeName.setText(mDetailName);
+
 
                 if (place.getRating() != null) {
                     ratingFiveStar = place.getRating();
                 } else {
                     ratingFiveStar = 1.5;
                 }
-                float ratingFiveStarFloat = ratingFiveStar.floatValue();
-                float ratingThreeStars = (ratingFiveStarFloat * 3) / 5;
+                ratingFiveStarFloat = ratingFiveStar.floatValue();
+                ratingThreeStars = (ratingFiveStarFloat * 3) / 5;
                 placeRatingBar.setRating(ratingThreeStars);
 
                 Log.i(TAG, "Place found: " + place.getName());
@@ -181,7 +193,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             AppCompatImageButton website = placeDetailBinding.contentLayoutPlaceDetailActivity.websiteButton;
             website.setOnClickListener(view12 -> openWebPage(placeWebsite));
 
-            String mDetailPhotoUrl = intent.getStringExtra("placePhotoUrl");
+            mDetailPhotoUrl = restaurant.getPhotoUrl();
             Glide.with(DetailImage.getContext())
                     .load(mDetailPhotoUrl)
                     .into(DetailImage);
@@ -238,13 +250,13 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             @Override
             public void onClick(View view) {
                 if (!isLunchSpot) {
-                    addLunchSpotInFirebase(currentPlaceId, mDetailName, uid);
+                    addLunchSpotInFirebase();
                     addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
                     isLunchSpot = true;
                     Snackbar.make(view, "You're going to " + mDetailName + " for lunch!", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 } else {
-                    addLunchSpotInFirebase(null, mDetailName, uid);
+                    addLunchSpotInFirebase();
                     addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
                     isLunchSpot = false;
                     Snackbar.make(view, "You're not going anymore to " + mDetailName + " for lunch!", Snackbar.LENGTH_LONG)
@@ -272,13 +284,13 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     }
 
     //Add Lunch Spot
-    private void addLunchSpotInFirebase(String idLunchSpot, String nameLunchSpot, String uid) {
+    private void addLunchSpotInFirebase() {
         //Add restaurant to user in Firebase
-        UserHelper.updateLunchSpot(idLunchSpot, uid).addOnFailureListener(this.onFailureListener());
+        UserHelper.updateLunchSpot(currentPlaceId, uid).addOnFailureListener(this.onFailureListener());
 
-        if (idLunchSpot != null) {
+        if (currentPlaceId != null) {
             //Add restaurant in firebase
-            RestaurantHelper.createRestaurant(idLunchSpot, nameLunchSpot, 1).addOnFailureListener(this.onFailureListener());
+            RestaurantHelper.createRestaurant(currentPlaceId, mDetailName, mDetailAddress, mDetailPhotoUrl, ratingFiveStarFloat, 1).addOnFailureListener(this.onFailureListener());
         }
     }
 
@@ -321,6 +333,8 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     }
 
     private void addFavoriteInSharedPreferences() {
+
+
         if (json.isEmpty()) {
             restaurantsList.add(currentPlaceId);
             String jsonText = gson.toJson(restaurantsList);

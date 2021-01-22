@@ -3,7 +3,6 @@ package com.tizzone.go4lunch.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,32 +77,17 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
         } else {
             holder.updateWithUser(user, this.idCurrentUser, this.glide, this.isWorkmatesView, restaurant);
         }
-        // ;
-
-
     }
 
     private void setHolder(UserViewHolder holder, User user, Restaurant restaurant) {
         holder.updateWithUser(user, this.idCurrentUser, this.glide, this.isWorkmatesView, restaurant);
-
         if (isWorkmatesView) {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
                     final Context context = holder.itemView.getContext();
-                    Bundle arguments = new Bundle();
-                    String imageUrl;
                     Intent intent = new Intent(context, PlaceDetailActivity.class);
-                    intent.putExtra("placeName", restaurant.getName());
-                    intent.putExtra("placeId", restaurant.getUid());
-//                if (place.getPhotos().size() > 0) {
-//                    String photoReference = place.getPhotos().get(0).getPhotoReference();
-//                    imageUrl = staticUrl + "maxwidth=400&photoreference=" + photoReference + "&key=" + mKey;
-//                } else {
-//                    imageUrl = null;
-//                }
-//                intent.putExtra("placePhotoUrl", imageUrl);
+                    intent.putExtra("RESTAURANT", restaurant);
                     context.startActivity(intent);
                 }
             });
@@ -140,7 +124,7 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
                 String joiningText = context.getResources().getString(R.string.joining_text, user.getUserName());
                 this.userText.setText(joiningText);
             } else {
-                if (user.getLunchSpot() != null) {
+                if (restaurant != null) {
                     Resources resources = context.getResources();
                     String lunchingText = String.format(resources.getString(R.string.lunching_text), user.getUserName(), restaurant.getName());
                     userText.setText(lunchingText);

@@ -1,7 +1,10 @@
 package com.tizzone.go4lunch.models.places;
 
+import android.content.res.Resources;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.tizzone.go4lunch.R;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,6 +29,7 @@ public class Result implements Serializable {
     @SerializedName("photos")
     @Expose
     private List<Photo> photos = new ArrayList<Photo>();
+
     @SerializedName("place_id")
     @Expose
     private String placeId;
@@ -47,6 +51,8 @@ public class Result implements Serializable {
     @SerializedName("price_level")
     @Expose
     private Integer priceLevel;
+
+    private String photoUrl;
 
 
     /**
@@ -109,6 +115,8 @@ public class Result implements Serializable {
      * @return The openingHours
      */
     public OpeningHours getOpeningHours() {
+
+
         return openingHours;
     }
 
@@ -124,6 +132,17 @@ public class Result implements Serializable {
      */
     public List<Photo> getPhotos() {
         return photos;
+    }
+
+    public String getPhotoUrl(Resources res) {
+        if (this.photos.get(0) != null) {
+            String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
+            String mKey = res.getString(R.string.google_maps_key);
+            photoUrl = staticUrl + "maxwidth=400&photoreference=" + getPhotos().get(0).getPhotoReference() + "&key=" + mKey;
+        } else {
+            photoUrl = String.valueOf(R.drawable.ic_logo_go4lunch);
+        }
+        return photoUrl;
     }
 
     /**

@@ -14,7 +14,7 @@ public class LocationViewModel extends ViewModel {
 
     public void userLocation(double latitude, double longitude) {
         userLocation = new MutableLiveData<LocationModel>();
-        userLocation.setValue(new LocationModel(new LatLng(latitude, longitude)));
+        userLocation.postValue(new LocationModel(new LatLng(latitude, longitude)));
     }
 
     public LiveData<String> getUserId() {
@@ -27,7 +27,7 @@ public class LocationViewModel extends ViewModel {
 
     public void setUserId(String uid) {
         userId = new MutableLiveData<String>();
-        userId.setValue(uid);
+        userId.postValue(uid);
     }
 
 }

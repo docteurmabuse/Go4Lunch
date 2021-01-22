@@ -3,6 +3,7 @@ package com.tizzone.go4lunch.ui.map;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
@@ -35,14 +36,11 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.tizzone.go4lunch.R;
-import com.tizzone.go4lunch.api.RestaurantHelper;
 import com.tizzone.go4lunch.api.UserHelper;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.places.PlacesResults;
@@ -131,7 +129,7 @@ public class MapFragment extends Fragment {
             mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                 @Override
                 public void onInfoWindowClick(Marker marker) {
-                    viewRestaurantDetail((Result) marker.getTag());
+                    viewRestaurantDetail((Restaurant) marker.getTag());
                 }
             });
         }
@@ -277,15 +275,19 @@ public class MapFragment extends Fragment {
             public void onChanged(PlacesResults placesResults) {
                 if (placesResults != null) {
                     try {
+                        Resources resources = mContext.getResources();
                         // This loop will go through all the results and add marker on each location.
                         for (int i = 0; i < placesResults.getResults().size(); i++) {
-                            Result restaurant = (Result) placesResults.getResults().get(i);
+                            Result result = (Result) placesResults.getResults().get(i);
 
-                            Double lat = restaurant.getGeometry().getLocation().getLat();
-                            Double lng = restaurant.getGeometry().getLocation().getLng();
-                            String placeName = restaurant.getName();
-                            String vicinity = restaurant.getVicinity();
-                            String placeId = restaurant.getPlaceId();
+                            Double lat = result.getGeometry().getLocation().getLat();
+                            Double lng = result.getGeometry().getLocation().getLng();
+                            String placeName = result.getName();
+                            String vicinity = result.getVicinity();
+                            String placeId = result.getPlaceId();
+
+                            Restaurant restaurant = new Restaurant(result.getPlaceId(), result.getName(), result.getVicinity(), result.getPhotoUrl(resources), result.getRating(), 0);
+
                             MarkerOptions markerOptions = new MarkerOptions();
                             LatLng latLng = new LatLng(lat, lng);
                             // Position of Marker on Map
@@ -338,13 +340,13 @@ public class MapFragment extends Fragment {
                                 }
                             });
 
-                            RestaurantHelper.getRestaurants(placeId).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                          /*  RestaurantHelper.getRestaurants(placeId).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                 @Override
                                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                                     Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
 
                                 }
-                            });
+                            });*/
                         }
                     } catch (Exception e) {
                         Log.d("onResponse", "There is an error");
@@ -356,21 +358,11 @@ public class MapFragment extends Fragment {
 
     }
 
-    private void viewRestaurantDetail(Result restaurant) {
+    private void viewRestaurantDetail(Restaurant restaurant) {
         final Context context = getContext();
-        String imageUrl;
-        Bundle arguments = new Bundle();
         Intent intent = new Intent(context, PlaceDetailActivity.class);
-        intent.putExtra("placeId", restaurant.getPlaceId());
-        intent.putExtra("placeAddress", restaurant.getVicinity());
-        String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
-        if (restaurant.getPhotos().size() > 0) {
-            String photoReference = restaurant.getPhotos().get(0).getPhotoReference();
-            imageUrl = staticUrl + "maxwidth=400&photoreference=" + photoReference + "&key=" + key;
-        } else {
-            imageUrl = null;
-        }
-        intent.putExtra("placePhotoUrl", imageUrl);
+        intent.putExtra("RESTAURANT", restaurant);
+        context.startActivity(intent);
         Objects.requireNonNull(context).startActivity(intent);
     }
 }
