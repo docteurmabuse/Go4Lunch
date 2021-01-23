@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
@@ -57,12 +56,12 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private String mDetailName;
     private String placePhone;
     private Uri placeWebsite;
-    private int lunchSpot;
+    private String lunchSpot;
     private String mDetailPhotoUrl;
     private String uid;
     private List<User> mUsers;
-    private String[] restaurants;
-    private List<String> restaurantsList;
+    private ArrayList restaurants;
+    private List<String> favouriteRestaurantsList;
     private float ratingThreeStars;
     private float ratingFiveStarFloat;
 
@@ -86,7 +85,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private RatingBar placeRatingBar;
     private Double ratingFiveStar;
     private SharedPreferences sharedPreferences;
-    private List<String> favouritesArray;
+    private ArrayList<String> favouritesArray;
     private AppCompatImageButton likeButton;
 
 
@@ -113,12 +112,12 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         contentLayoutBinding = placeDetailBinding.contentLayoutPlaceDetailActivity;
         View view = placeDetailBinding.getRoot();
         setContentView(view);
-        sharedPreferences = getSharedPreferences("USER", MODE_PRIVATE);
-
+        favouriteRestaurantsList = new ArrayList<String>();
 
         if (this.getCurrentUser() != null) {
             uid = this.getCurrentUser().getUid();
         }
+
 
         Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
         PlacesClient placesClient = Places.createClient(this);
@@ -153,7 +152,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
             // Construct a request object, passing the place ID and fields array.
             currentPlaceId = restaurant.getUid();
-            getUserDataFromFirebase(this.getCurrentUser().getUid());
+            getUserDataFromFirestore(this.getCurrentUser().getUid());
             final FetchPlaceRequest request = FetchPlaceRequest.newInstance(restaurant.getUid(), placeFields);
 
             placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
@@ -189,6 +188,8 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             AppCompatImageButton call = placeDetailBinding.contentLayoutPlaceDetailActivity.callButton;
             call.setOnClickListener(view1 -> dialPhoneNumber(placePhone));
 
+            likeButton = placeDetailBinding.contentLayoutPlaceDetailActivity.starButton;
+            likeButton.setOnClickListener(view1 -> addFavoriteInSharedPreferences());
 
             AppCompatImageButton website = placeDetailBinding.contentLayoutPlaceDetailActivity.websiteButton;
             website.setOnClickListener(view12 -> openWebPage(placeWebsite));
@@ -200,7 +201,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
             fabOnClickListener();
             configureRecyclerView(currentPlaceId);
-            addFavorite();
         }
     }
 
@@ -243,7 +243,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private void fabOnClickListener() {
         addSpotLunch = placeDetailBinding.addSpotLunchButton;
         if (uid != null) {
-            getUserDataFromFirebase(uid);
+            getUserDataFromFirestore(uid);
         }
 
         addSpotLunch.setOnClickListener(new View.OnClickListener() {
@@ -295,91 +295,67 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     }
 
     //Add favourite in Firebase
-    private void addFavouriteInFirebase(String idLunchSpot, String[] restaurants) {
+    private void addFavouriteInFirebase(List<String> restaurants, String idLunchSpot) {
         //Add restaurant to user in Firebase
         UserHelper.updateFavoriteRestaurants(restaurants, uid).addOnFailureListener(this.onFailureListener());
     }
 
     //Add Like to a restaurant
-    private void addFavorite() {
-        likeButton = placeDetailBinding.contentLayoutPlaceDetailActivity.starButton;
-        gson = new Gson();
-        json = sharedPreferences.getString("Favourites", "");
-        restaurants = new String[]{};
-        restaurants = gson.fromJson(json, String[].class);
-        restaurantsList = new ArrayList<String>();
-        if (restaurants != null) {
-            restaurantsList.addAll(Arrays.asList(restaurants));
-        }
-        String[] finalRestaurants = restaurants;
-        likeButton.setOnClickListener(view1 -> addFavoriteInSharedPreferences());
-
-        if (json.isEmpty()) {
+    private void addFavorite(List<String> favouriteRestaurantsList) {
+        if (favouriteRestaurantsList.size() == 0) {
             likeButton.setImageResource(R.drawable.ic_baseline_star_outline_24);
         } else {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                boolean like = Arrays.asList(restaurants).contains(this.currentPlaceId);
+            {
+                boolean like = favouriteRestaurantsList.contains(currentPlaceId);
                 if (!like) {
                     likeButton.setImageResource(R.drawable.ic_baseline_star_outline_24);
                 } else {
                     likeButton.setImageResource(R.drawable.ic_baseline_star_24);
                 }
-            } else {
-                Toast.makeText(PlaceDetailActivity.this, "You need to install Java 8!", Toast.LENGTH_LONG).show();
-
             }
-
         }
     }
 
     private void addFavoriteInSharedPreferences() {
-
-
-        if (json.isEmpty()) {
-            restaurantsList.add(currentPlaceId);
-            String jsonText = gson.toJson(restaurantsList);
-            SharedPreferences.Editor prefsEditor = sharedPreferences.edit();
-            prefsEditor.putString("Favourites", jsonText);
-            prefsEditor.apply();
+        if (favouriteRestaurantsList.size() == 0) {
+            favouriteRestaurantsList.add(currentPlaceId);
             likeButton.setImageResource(R.drawable.ic_baseline_star_24);
+            addFavouriteInFirebase(favouriteRestaurantsList, uid);
             Toast.makeText(PlaceDetailActivity.this, "You add this restaurant to your favourite", Toast.LENGTH_LONG).show();
         } else {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                boolean like = Arrays.asList(restaurants).contains(this.currentPlaceId);
-                if (!like) {
-                    restaurantsList.add(currentPlaceId);
-                    String jsonText = gson.toJson(restaurantsList);
-                    SharedPreferences.Editor prefsEditor = sharedPreferences.edit();
-                    prefsEditor.putString("Favourites", jsonText);
-                    prefsEditor.apply();
-                    likeButton.setImageResource(R.drawable.ic_baseline_star_24);
-                    Toast.makeText(PlaceDetailActivity.this, "You add this restaurant to your favourite", Toast.LENGTH_LONG).show();
-                } else {
-                    restaurantsList.remove(currentPlaceId);
-                    String jsonText = gson.toJson(restaurantsList);
-                    SharedPreferences.Editor prefsEditor = sharedPreferences.edit();
-                    prefsEditor.putString("Favourites", jsonText);
-                    prefsEditor.apply();
-                    likeButton.setImageResource(R.drawable.ic_baseline_star_outline_24);
-                    Toast.makeText(PlaceDetailActivity.this, "You remove this restaurant to your favourite", Toast.LENGTH_LONG).show();
-                }
+            boolean like = favouriteRestaurantsList.contains(currentPlaceId);
+            if (!like) {
+                favouriteRestaurantsList.add(currentPlaceId);
+                addFavouriteInFirebase(favouriteRestaurantsList, uid);
+                likeButton.setImageResource(R.drawable.ic_baseline_star_24);
+                Toast.makeText(PlaceDetailActivity.this, "You add this restaurant to your favourite", Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(PlaceDetailActivity.this, "You need to install Java 8!", Toast.LENGTH_LONG).show();
+                favouriteRestaurantsList.remove(currentPlaceId);
+                addFavouriteInFirebase(favouriteRestaurantsList, uid);
+                likeButton.setImageResource(R.drawable.ic_baseline_star_outline_24);
+                Toast.makeText(PlaceDetailActivity.this, "You remove this restaurant to your favourite", Toast.LENGTH_LONG).show();
             }
         }
-        addFavorite();
+
     }
 
 
-    private void getUserDataFromFirebase(String uid) {
+    private void getUserDataFromFirestore(String uid) {
         // 5 - Get additional data from Firestore
-        UserHelper.getUser(uid).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                User currentUser = documentSnapshot.toObject(User.class);
-                if (currentUser != null) {
-                    if (currentUser.getLunchSpot() != null) {
-                        isLunchSpot = currentUser.getLunchSpot().equals(currentPlaceId);
+
+        UserHelper.getUser(this.getCurrentUser().getUid()).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot documentSnapshot = task.getResult();
+                lunchSpot = documentSnapshot.toObject(User.class).getLunchSpot();
+                favouriteRestaurantsList = documentSnapshot.toObject(User.class).getFavoriteRestaurants();
+                if (favouriteRestaurantsList != null) {
+                    addFavorite(favouriteRestaurantsList);
+
+//                    if (currentUser.getFavoriteRestaurants() != null) {
+//                        favouriteRestaurantsList = currentUser.getFavoriteRestaurants();
+//                    }
+                    if (lunchSpot != null) {
+                        isLunchSpot = lunchSpot.equals(currentPlaceId);
                         if (!isLunchSpot) {
                             addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
                         } else {

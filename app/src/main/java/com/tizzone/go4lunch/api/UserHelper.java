@@ -7,6 +7,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.tizzone.go4lunch.models.User;
 
+import java.util.List;
+
 public class UserHelper {
     private static final String COLLECTION_NAME = "users";
 
@@ -18,8 +20,8 @@ public class UserHelper {
 
     // --- CREATE ---
 
-    public static Task<Void> createUser(String uid, boolean isAuthenticated, String userName, String photoUrl, String[] favoriteRestaurants, String lunchSpot) {
-        User userToCreate = new User(uid, isAuthenticated, userName, photoUrl, favoriteRestaurants, lunchSpot);
+    public static Task<Void> createUser(String uid, boolean isAuthenticated, String userName, String photoUrl, List<String> favouriteRestaurants, String lunchSpot) {
+        User userToCreate = new User(uid, isAuthenticated, userName, photoUrl, favouriteRestaurants, lunchSpot);
         return UserHelper.getUsersCollection().document(uid).set(userToCreate);
     }
 
@@ -29,6 +31,10 @@ public class UserHelper {
         return UserHelper.getUsersCollection().document(uid).get();
     }
 
+    public static Query getUserFavouriteRestaurants(String userId) {
+        return getUsersCollection().document(userId).collection("favouriteRestaurants");
+    }
+
     public static Query getWorkmates(String uid) {
         return getUsersCollection().whereNotEqualTo("uid", uid);
     }
@@ -36,6 +42,7 @@ public class UserHelper {
     public static Query getUsersLunchSpot(String lunchSpot) {
         return getUsersCollection().whereEqualTo("lunchSpot", lunchSpot);
     }
+
 
     public static Query getUsersLunchSpotWithoutCurrentUser(String lunchSpot, String uid) {
         return getUsersCollection().whereNotEqualTo("uid", uid).whereEqualTo("lunchSpot", lunchSpot);
@@ -50,7 +57,7 @@ public class UserHelper {
         return UserHelper.getUsersCollection().document(uid).update("photoUrl", photoUrl);
     }
 
-    public static Task<Void> updateFavoriteRestaurants(String[] favoriteRestaurants, String uid) {
+    public static Task<Void> updateFavoriteRestaurants(List<String> favoriteRestaurants, String uid) {
         return UserHelper.getUsersCollection().document(uid).update("favoriteRestaurants", favoriteRestaurants);
     }
 

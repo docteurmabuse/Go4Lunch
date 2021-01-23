@@ -3,6 +3,8 @@ package com.tizzone.go4lunch.models;
 
 import androidx.annotation.Nullable;
 
+import java.util.List;
+
 public class User {
 
     public String uid;
@@ -11,7 +13,7 @@ public class User {
     @Nullable
     private String photoUrl;
     @Nullable
-    private String[] favoriteRestaurants;
+    private List favoriteRestaurants;
     @Nullable
     private String lunchSpot;
 
@@ -19,7 +21,7 @@ public class User {
     public User() {
     }
 
-    public User(String uid, boolean isAuthenticated, String userName, String photoUrl, String[] favoriteRestaurants, String lunchSpot) {
+    public User(String uid, boolean isAuthenticated, String userName, String photoUrl, List<String> favoriteRestaurants, String lunchSpot) {
         this.uid = uid;
         this.isAuthenticated = isAuthenticated;
         this.userName = userName;
@@ -53,11 +55,11 @@ public class User {
         this.photoUrl = photoUrl;
     }
 
-    public String[] getFavoriteRestaurants() {
+    public List<String> getFavoriteRestaurants() {
         return favoriteRestaurants;
     }
 
-    public void setFavoriteRestaurants(String[] favoriteRestaurants) {
+    public void setFavoriteRestaurants(List<String> favoriteRestaurants) {
         this.favoriteRestaurants = favoriteRestaurants;
     }
 

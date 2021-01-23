@@ -49,8 +49,6 @@ import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
-import java.util.Objects;
-
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.ContentValues.TAG;
 
@@ -363,6 +361,5 @@ public class MapFragment extends Fragment {
         Intent intent = new Intent(context, PlaceDetailActivity.class);
         intent.putExtra("RESTAURANT", restaurant);
         context.startActivity(intent);
-        Objects.requireNonNull(context).startActivity(intent);
     }
 }
