@@ -25,7 +25,6 @@ import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.api.UserHelper;
 import com.tizzone.go4lunch.databinding.PlaceItemBinding;
 import com.tizzone.go4lunch.models.Restaurant;
-import com.tizzone.go4lunch.models.places.Result;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +36,7 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
 
     private static final String TAG = "ERROR";
     private String mKey;
-    private List<Result> mPlaces = new ArrayList<>();
+    private List<Restaurant> mPlaces = new ArrayList<>();
     public static final String DETAIL_PLACE = "detailPlace";
     private final Context mContext;
     private PlaceItemBinding binding;
@@ -45,7 +44,7 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     private Context context;
 
 
-    public PlacesListAdapter(List<Result> mPlaces, String key, Context mContext, LatLng currentLocation) {
+    public PlacesListAdapter(List<Restaurant> mPlaces, String key, Context mContext, LatLng currentLocation) {
         this.mPlaces = mPlaces;
         this.mContext = mContext;
         this.mKey = key;
@@ -55,29 +54,27 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        Result place = mPlaces.get(position);
-        binding.setResult(place);
-        getUsersCountFromFirestore(place.getPlaceId(), holder);
-        Float ratingFiveStar = place.getRating();
-
-        if (place.getRating() != null) {
-            holder.ratingBar.setRating(ratingFiveStar);
-        }
-
-        if (mPlaces.get(position).getOpeningHours() != null) {
-            boolean isOpen = mPlaces.get(position).getOpeningHours().getOpenNow();
-        }
-
-        LatLng placeLocation = new LatLng(place.getGeometry().getLocation().getLat(), place.getGeometry().getLocation().getLng());
-        int mDistance = (int) Math.floor(SphericalUtil.computeDistanceBetween(currentLocation, placeLocation));
+        Restaurant place = mPlaces.get(position);
         Resources resources = context.getResources();
+        binding.setRestaurant(place);
+        getUsersCountFromFirestore(place.getUid(), holder);
+        Float rating = place.getRating();
+
+        if (rating != null) {
+            holder.ratingBar.setRating(rating);
+        }
+
+        if (place.isOpen_now()) {
+            boolean isOpen = place.isOpen_now();
+        }
+
+        int mDistance = (int) Math.floor(SphericalUtil.computeDistanceBetween(currentLocation, place.getLocation()));
+
+
         holder.distance.setText(resources.getString(R.string.distance, mDistance));
 
-        String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
 
-        //display place thumbnail
-
-        String imageUrl = place.getPhotoUrl(resources);
+        String imageUrl = place.getPhotoUrl();
 
         Glide.with(holder.itemView)
                 .load(imageUrl)
@@ -87,9 +84,8 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
             @Override
             public void onClick(View view) {
                 final Context context = holder.itemView.getContext();
-                Restaurant restaurant = new Restaurant(place.getPlaceId(), place.getName(), place.getVicinity(), place.getPhotoUrl(resources), place.getRating(), 0);
                 Intent intent = new Intent(context, PlaceDetailActivity.class);
-                intent.putExtra("RESTAURANT", restaurant);
+                intent.putExtra("RESTAURANT", place);
                 context.startActivity(intent);
             }
         });
@@ -125,8 +121,8 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
         notifyDataSetChanged();
     }
 
-    public void setPlaces(List<Result> results, String key) {
-        this.mPlaces = results;
+    public void setPlaces(ArrayList<Restaurant> restaurants, String key) {
+        this.mPlaces = restaurants;
         this.mKey = key;
         notifyDataSetChanged();
     }

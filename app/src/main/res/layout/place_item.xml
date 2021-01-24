@@ -6,8 +6,8 @@
     <data>
 
         <variable
-            name="result"
-            type="com.tizzone.go4lunch.models.places.Result" />
+            name="restaurant"
+            type="com.tizzone.go4lunch.models.Restaurant" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -32,7 +32,7 @@
                 android:layout_marginEnd="5dp"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="@{result.name}"
+                android:text="@{restaurant.name}"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -50,7 +50,7 @@
                 android:layout_marginEnd="5dp"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="@{result.vicinity}"
+                android:text="@{restaurant.address"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
                 android:textSize="12sp"
                 app:layout_constrainedWidth="true"
@@ -66,7 +66,7 @@
                 android:layout_marginStart="5dp"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
                 android:textSize="12sp"
-                android:text="@{result.openingHours.openNow ? @string/place_open : @string/place_close}"
+                android:text="@{restaurant.open_now ? @string/place_open : @string/place_close}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textViewAddress" />

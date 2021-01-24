@@ -1,5 +1,6 @@
 package com.tizzone.go4lunch.api;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -17,8 +18,8 @@ public class RestaurantHelper {
     }
 
     // --- CREATE ---
-    public static Task<Void> createRestaurant(String uid, String name, String address, String photoUrl, float rating, int restaurant_counter) {
-        Restaurant restaurantToCreate = new Restaurant(uid, name, address, photoUrl, rating, restaurant_counter);
+    public static Task<Void> createRestaurant(String uid, String name, String address, String photoUrl, float rating, int restaurant_counter, boolean openNow, LatLng location) {
+        Restaurant restaurantToCreate = new Restaurant(uid, name, address, photoUrl, rating, restaurant_counter, openNow, location);
         return RestaurantHelper.getRestaurantsCollection().document(uid).set(restaurantToCreate);
     }
 

@@ -1,5 +1,7 @@
 package com.tizzone.go4lunch.models;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.io.Serializable;
 
 public class Restaurant implements Serializable {
@@ -10,14 +12,34 @@ public class Restaurant implements Serializable {
     private String photoUrl;
     private float rating;
 
+    private LatLng location;
+    private boolean open_now;
 
-    public Restaurant(String uid, String name, String address, String photoUrl, float rating, int restaurant_counter) {
+    public Restaurant(String uid, String name, String address, String photoUrl, float rating, int restaurant_counter, boolean open_now, LatLng location) {
         this.uid = uid;
         this.restaurant_counter = restaurant_counter;
         this.name = name;
         this.address = address;
         this.photoUrl = photoUrl;
         this.rating = rating;
+        this.open_now = open_now;
+        this.location = location;
+    }
+
+    public LatLng getLocation() {
+        return location;
+    }
+
+    public void setLocation(LatLng location) {
+        this.location = location;
+    }
+
+    public boolean isOpen_now() {
+        return open_now;
+    }
+
+    public void setOpen_now(boolean open_now) {
+        this.open_now = open_now;
     }
 
     public Restaurant() {

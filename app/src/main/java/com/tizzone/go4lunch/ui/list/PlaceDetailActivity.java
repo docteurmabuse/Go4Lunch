@@ -94,6 +94,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private RecyclerView.LayoutManager layoutManager;
     private Gson gson;
     private String json;
+    private Restaurant restaurant;
 
 
     @Override
@@ -141,7 +142,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         Intent intent = this.getIntent();
         if (intent != null) {
 
-            Restaurant restaurant = (Restaurant) intent.getSerializableExtra("RESTAURANT");
+            restaurant = (Restaurant) intent.getSerializableExtra("RESTAURANT");
 
             mDetailName = restaurant.getName();
 
@@ -290,7 +291,8 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
         if (currentPlaceId != null) {
             //Add restaurant in firebase
-            RestaurantHelper.createRestaurant(currentPlaceId, mDetailName, mDetailAddress, mDetailPhotoUrl, ratingFiveStarFloat, 1).addOnFailureListener(this.onFailureListener());
+            RestaurantHelper.createRestaurant(currentPlaceId, mDetailName, mDetailAddress, mDetailPhotoUrl, ratingFiveStarFloat, 1,
+                    restaurant.isOpen_now(), restaurant.getLocation()).addOnFailureListener(this.onFailureListener());
         }
     }
 

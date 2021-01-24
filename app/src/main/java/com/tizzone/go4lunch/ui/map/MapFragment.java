@@ -276,15 +276,20 @@ public class MapFragment extends Fragment {
                         Resources resources = mContext.getResources();
                         // This loop will go through all the results and add marker on each location.
                         for (int i = 0; i < placesResults.getResults().size(); i++) {
-                            Result result = (Result) placesResults.getResults().get(i);
+                            Result result = placesResults.getResults().get(i);
 
                             Double lat = result.getGeometry().getLocation().getLat();
                             Double lng = result.getGeometry().getLocation().getLng();
                             String placeName = result.getName();
                             String vicinity = result.getVicinity();
                             String placeId = result.getPlaceId();
+                            //boolean isOpen = false;
+                            if (result.getOpeningHours() != null) {
+                                boolean isOpen = result.getOpeningHours().getOpenNow();
+                            }
 
-                            Restaurant restaurant = new Restaurant(result.getPlaceId(), result.getName(), result.getVicinity(), result.getPhotoUrl(resources), result.getRating(), 0);
+                            Restaurant restaurant = new Restaurant(result.getPlaceId(), result.getName(), result.getVicinity(), result.getPhotoUrl(resources), result.getRating(), 0,
+                                    isOpen, new LatLng(result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng()));
 
                             MarkerOptions markerOptions = new MarkerOptions();
                             LatLng latLng = new LatLng(lat, lng);
