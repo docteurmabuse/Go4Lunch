@@ -6,17 +6,15 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
-public interface GoogleMapAPI {
-
+public interface GoogleMapDetailApi {
     /*
      * Retrofit get annotation with our URL
      * And our method that will return us details of student.
      */
-    @GET("place/nearbysearch/json")
-    Call<PlacesResults> getNearByPlaces(
-            @Query("location") String location,
-            @Query("radius") int radius,
-            @Query("type") String type,
+    @GET("place/details/json?")
+    Call<PlacesResults> getDetailByPlaceId(
+            @Query("place_id") String placeId,
+            @Query("fields") String fields,
             @Query("key") String key
     );
 

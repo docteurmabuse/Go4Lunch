@@ -5,18 +5,16 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.tizzone.go4lunch.models.places.PlacesResults;
-import com.tizzone.go4lunch.models.places.Result;
 import com.tizzone.go4lunch.repositories.PlacesRepository;
 
 public class PlacesViewModel extends ViewModel {
     private PlacesRepository placesRepository;
     private MutableLiveData<PlacesResults> mutableLiveDataPlaces;
-    private MutableLiveData<Result> mutableLiveDataUserLocation;
+    private MutableLiveData<PlacesResults> mutableLiveDataSearchPlaces;
 
 
     public void init() {
         placesRepository = new PlacesRepository();
-
     }
 
     public void getNearByPlaces(String location, int radius, String type, String key) {
@@ -28,6 +26,15 @@ public class PlacesViewModel extends ViewModel {
         });
     }
 
+    public void getDetailByPlaceId(String placeId, String fields, String key) {
+        placesRepository.getDetailByPlaceId(placeId, fields, key, new PlacesRepository.PlacesResultsInterface() {
+            @Override
+            public void onResponse(PlacesResults placesResults) {
+                mutableLiveDataSearchPlaces.setValue(placesResults);
+            }
+        });
+    }
+
     public LiveData<PlacesResults> getPlacesResultsLiveData() {
         if (mutableLiveDataPlaces == null) {
             mutableLiveDataPlaces = new MutableLiveData<PlacesResults>();
@@ -35,11 +42,12 @@ public class PlacesViewModel extends ViewModel {
         return mutableLiveDataPlaces;
     }
 
-    public LiveData<Result> getUserLocation() {
-        if (mutableLiveDataUserLocation == null) {
-            mutableLiveDataUserLocation = new MutableLiveData<Result>();
+
+    public LiveData<PlacesResults> getPlacesResultsSearchPlaces() {
+        if (mutableLiveDataSearchPlaces == null) {
+            mutableLiveDataSearchPlaces = new MutableLiveData<PlacesResults>();
         }
-        return mutableLiveDataUserLocation;
+        return mutableLiveDataSearchPlaces;
     }
 
 }

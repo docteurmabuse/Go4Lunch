@@ -142,7 +142,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         Intent intent = this.getIntent();
         if (intent != null) {
 
-            restaurant = (Restaurant) intent.getSerializableExtra("RESTAURANT");
+            restaurant = intent.getParcelableExtra("RESTAURANT");
 
             mDetailName = restaurant.getName();
 

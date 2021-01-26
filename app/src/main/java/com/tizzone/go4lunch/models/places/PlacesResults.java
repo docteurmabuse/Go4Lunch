@@ -55,6 +55,7 @@ public class PlacesResults {
         return results;
     }
 
+
     /**
      * @param results The results
      */

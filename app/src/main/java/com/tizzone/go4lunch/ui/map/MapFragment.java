@@ -200,13 +200,13 @@ public class MapFragment extends Fragment {
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(mLastKnownLocation.getLatitude(),
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-                            locationViewModel.userLocation(mLastKnownLocation.getLatitude(),
+                            locationViewModel.setUserLocation(mLastKnownLocation.getLatitude(),
                                     mLastKnownLocation.getLongitude());
                             build_retrofit_and_get_response(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
                         } else {
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(latitude, longitude), DEFAULT_ZOOM));
-                            locationViewModel.userLocation(latitude,
+                            locationViewModel.setUserLocation(latitude,
                                     longitude);
                             build_retrofit_and_get_response(latitude, longitude);
                         }
@@ -216,7 +216,7 @@ public class MapFragment extends Fragment {
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
                         mMap.getUiSettings().setMyLocationButtonEnabled(false);
                         build_retrofit_and_get_response(mDefaultLocation.latitude, mDefaultLocation.longitude);
-                        locationViewModel.userLocation(mDefaultLocation.latitude,
+                        locationViewModel.setUserLocation(mDefaultLocation.latitude,
                                 mDefaultLocation.longitude);
                     }
                     mMap.setMyLocationEnabled(true);
@@ -283,11 +283,10 @@ public class MapFragment extends Fragment {
                             String placeName = result.getName();
                             String vicinity = result.getVicinity();
                             String placeId = result.getPlaceId();
-                            //boolean isOpen = false;
+                            Boolean isOpen = null;
                             if (result.getOpeningHours() != null) {
-                                boolean isOpen = result.getOpeningHours().getOpenNow();
+                                isOpen = result.getOpeningHours().getOpenNow();
                             }
-
                             Restaurant restaurant = new Restaurant(result.getPlaceId(), result.getName(), result.getVicinity(), result.getPhotoUrl(resources), result.getRating(), 0,
                                     isOpen, new LatLng(result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng()));
 
