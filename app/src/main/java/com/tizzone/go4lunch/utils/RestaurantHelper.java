@@ -1,4 +1,4 @@
-package com.tizzone.go4lunch.api;
+package com.tizzone.go4lunch.utils;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Task;

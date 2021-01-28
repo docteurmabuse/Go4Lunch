@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.tizzone.go4lunch.api.GoogleMapDetailApi;
-import com.tizzone.go4lunch.api.GoogleNearByApi;
 import com.tizzone.go4lunch.api.PlacesApi;
+import com.tizzone.go4lunch.api.PlacesService;
 import com.tizzone.go4lunch.models.places.PlacesResults;
 
 import okhttp3.OkHttpClient;
@@ -20,7 +20,7 @@ public class PlacesRepository {
     //Error sur le base url
     private static final String PLACE_SEARCH_SERVICE_BASE_URL = "https://maps.googleapis.com/maps/api/";
     private static PlacesRepository placesRepository;
-    private final GoogleNearByApi googleNearByApi;
+    private final PlacesService placesService;
     private final GoogleMapDetailApi googleMapDetailApi;
 
     private final MutableLiveData<PlacesResults> placesResultsLiveData;
@@ -33,12 +33,12 @@ public class PlacesRepository {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
-        googleNearByApi = new Retrofit.Builder()
+        placesService = new Retrofit.Builder()
                 .baseUrl(PLACE_SEARCH_SERVICE_BASE_URL)
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
-                .create(GoogleNearByApi.class);
+                .create(PlacesService.class);
         googleMapDetailApi = new Retrofit.Builder()
                 .baseUrl(PLACE_SEARCH_SERVICE_BASE_URL)
                 .client(client)
@@ -70,7 +70,7 @@ public class PlacesRepository {
     }
 
     public void getNearByPlaces(String location, int radius, String type, String key, PlacesResultsInterface mPlacesResultsInterface) {
-        googleNearByApi.getNearByPlaces(location, radius, type, key)
+        placesService.getNearByPlaces(location, radius, type, key)
                 .enqueue(new Callback<PlacesResults>() {
                     @Override
                     public void onResponse(Call<PlacesResults> call, Response<PlacesResults> response) {

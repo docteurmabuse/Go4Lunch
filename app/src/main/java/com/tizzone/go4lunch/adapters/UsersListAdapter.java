@@ -19,11 +19,11 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.tizzone.go4lunch.R;
-import com.tizzone.go4lunch.api.RestaurantHelper;
 import com.tizzone.go4lunch.databinding.UsersListItemBinding;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
+import com.tizzone.go4lunch.utils.RestaurantHelper;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -16,15 +16,13 @@ import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.Query;
 import com.tizzone.go4lunch.adapters.UsersListAdapter;
-import com.tizzone.go4lunch.api.UserHelper;
 import com.tizzone.go4lunch.databinding.FragmentWorkmatesBinding;
 import com.tizzone.go4lunch.models.User;
-import com.tizzone.go4lunch.viewmodels.UserViewModel;
+import com.tizzone.go4lunch.utils.UserHelper;
 
 public class WorkmatesFragment extends Fragment implements UsersListAdapter.Listener {
 
     private WorkmatesViewModel workmatesViewModel;
-    private UserViewModel userViewModel;
 
     private FragmentWorkmatesBinding workmatesBinding;
     private RecyclerView workmatesRecyclerView;
@@ -35,8 +33,6 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-
-        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         workmatesBinding = FragmentWorkmatesBinding.inflate(inflater, container, false);
         View root = workmatesBinding.getRoot();

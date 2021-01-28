@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -34,14 +35,14 @@ import com.google.firebase.firestore.Query;
 import com.google.gson.Gson;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.adapters.UsersListAdapter;
-import com.tizzone.go4lunch.api.RestaurantHelper;
-import com.tizzone.go4lunch.api.UserHelper;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityPlaceDetailBinding;
 import com.tizzone.go4lunch.databinding.ContentLayoutPlaceDetailActivityBinding;
 import com.tizzone.go4lunch.databinding.FragmentListBinding;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
+import com.tizzone.go4lunch.utils.RestaurantHelper;
+import com.tizzone.go4lunch.utils.UserHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -291,8 +292,10 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
         if (currentPlaceId != null) {
             //Add restaurant in firebase
+            @Nullable boolean isOpen = restaurant.isOpen_now();
+
             RestaurantHelper.createRestaurant(currentPlaceId, mDetailName, mDetailAddress, mDetailPhotoUrl, ratingFiveStarFloat, 1,
-                    restaurant.isOpen_now(), restaurant.getLocation()).addOnFailureListener(this.onFailureListener());
+                    isOpen, restaurant.getLocation()).addOnFailureListener(this.onFailureListener());
         }
     }
 

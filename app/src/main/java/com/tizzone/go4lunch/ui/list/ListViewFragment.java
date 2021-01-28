@@ -43,6 +43,7 @@ import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.places.Result;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
+import com.tizzone.go4lunch.viewmodels.RestaurantViewModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,10 +69,13 @@ public class ListViewFragment extends Fragment {
     private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
     private EditText queryText;
     private LocationViewModel locationViewModel;
+    private RestaurantViewModel restaurantViewModel;
+
     private SearchView.SearchAutoComplete searchAutoComplete;
     private PlacesClient placesClient;
     private ArrayList<Restaurant> restaurants;
     private PlacesViewModel placesViewModel;
+    private SearchView searchView;
 
 
     public static LatLng getCoordinate(double lat0, double lng0, long dy, long dx) {
@@ -80,23 +84,25 @@ public class ListViewFragment extends Fragment {
         return new LatLng(lat, lng);
     }
 
-    private void setBounds(LatLng location, int mDistanceInMeters) {
-        double latRadian = Math.toRadians(location.latitude);
-
-        double degLatKm = 110.574235;
-        double degLongKm = 110.572833 * Math.cos(latRadian);
-        double deltaLat = mDistanceInMeters / 1000.0 / degLatKm;
-        double deltaLong = mDistanceInMeters / 1000.0 / degLongKm;
-
-        double minLat = location.latitude - deltaLat;
-        double minLong = location.longitude - deltaLong;
-        double maxLat = location.latitude + deltaLat;
-        double maxLong = location.longitude + deltaLong;
-
-        Log.d(TAG, "Min: " + minLat + "," + minLong);
-        Log.d(TAG, "Max: " + maxLat + "," + maxLong);
-
-    }
+    //
+//    private void setBounds(LatLng location, int mDistanceInMeters) {
+//        double latRadian = Math.toRadians(location.latitude);
+//
+//        double degLatKm = 110.574235;
+//        double degLongKm = 110.572833 * Math.cos(latRadian);
+//        double deltaLat = mDistanceInMeters / 1000.0 / degLatKm;
+//        double deltaLong = mDistanceInMeters / 1000.0 / degLongKm;
+//
+//        double minLat = location.latitude - deltaLat;
+//        double minLong = location.longitude - deltaLong;
+//        double maxLat = location.latitude + deltaLat;
+//        double maxLong = location.longitude + deltaLong;
+//
+//        Log.d(TAG, "Min: " + minLat + "," + minLong);
+//        Log.d(TAG, "Max: " + maxLat + "," + maxLong);
+//
+//    }
+    private List<Restaurant> newRestaurantsList;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -106,91 +112,84 @@ public class ListViewFragment extends Fragment {
 //        initAutocomplete();
         //Set current user position in adapter
         locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
+        restaurantViewModel = new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
+
         setHasOptionsMenu(true);
         Places.initialize(this.getContext().getApplicationContext(), key);
         placesClient = Places.createClient(this.getContext());
-
-
     }
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.options_menu, menu);
-
         super.onCreateOptionsMenu(menu, inflater);
-//        //MenuItem menuItem =
 //        // Associate searchable configuration with the SearchView
         SearchManager searchManager =
-                (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+                (SearchManager) getContext().getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView =
                 (SearchView) menu.findItem(R.id.search).getActionView();
         //searchView.setBackgroundColor(Color.WHITE);
 
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getActivity().getComponentName()));
+        searchView.setIconifiedByDefault(true);
+        searchView.setIconified(false);
+
         //searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
         // searchView.setBackgroundColor(Color.WHITE);
-        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                setRetrofitInAdapter();
-                Toast.makeText(getActivity(), "You close the search", Toast.LENGTH_LONG).show();
-                return true;
-            }
-        });
+        searchView.findViewById(R.id.search_close_btn)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.d("called", "this is called.");
+
+                        searchView.setIconified(true);
+                        initRestaurants();
+                        Toast.makeText(getActivity(), "You close the search", Toast.LENGTH_LONG).show();
+
+                    }
+                });
 
         //  getActivity().setContentView(R.layout.search);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-
-            /**
-             * Called when the user submits the query. This could be due to a key press on the
-             * keyboard or due to pressing a submit button.
-             * The listener can override the standard behavior by returning true
-             * to indicate that it has handled the submit request. Otherwise return false to
-             * let the SearchView handle the submission by launching any associated intent.
-             *
-             * @param query the query text that is to be submitted
-             * @return true if the query has been handled by the listener, false to let the
-             * SearchView perform the default action.
-             */
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if (query.length() > 2) {
                     initAutocomplete(query);
+                    searchView.setFocusable(false);
+                    return false;
                 }
-                return true;
+                return false;
             }
 
-            /**
-             * Called when the query text is changed by the user.
-             *
-             * @param newText the new content of the query text field.
-             * @return false if the SearchView should perform the default action of showing any
-             * suggestions if available, true if the action was handled by the listener.
-             */
             @Override
             public boolean onQueryTextChange(String newText) {
                 if (newText.length() > 2) {
                     initAutocomplete(newText);
+                    searchView.setFocusable(false);
+                    return true;
                 }
-                return true;
+                return false;
             }
         });
+    }
 
-        // Get the intent, verify the action and get the query
+
+    // Get the intent, verify the action and get the query
 //        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 //            String query = intent.getStringExtra(SearchManager.QUERY);
 //            initAutocomplete(query);
 //        }
 
-        // Get SearchView autocomplete object.
+    private void initRestaurants() {
+        setRetrofitInAdapter();
+    }
+
+    // Get SearchView autocomplete object.
 //        final SearchView.SearchAutoComplete searchAutoComplete = (SearchView.SearchAutoComplete)searchView.findViewById(androidx.appcompat.R.id.search_src_text);
 //        searchAutoComplete.setBackgroundColor(Color.WHITE);
 //        searchAutoComplete.setTextColor(Color.BLACK);
 //        searchAutoComplete.setDropDownBackgroundResource(android.R.color.white);
-
-    }
-
     private void initAutocomplete(String query) {
         // Set the fields to specify which types of place data to
         // return after the user has made a selection.
@@ -199,8 +198,8 @@ public class ListViewFragment extends Fragment {
         AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
         // Create a RectangularBounds object.
         RectangularBounds bounds = RectangularBounds.newInstance(
-                getCoordinate(currentLocation.latitude, currentLocation.longitude, -1000, -1000),
-                getCoordinate(currentLocation.latitude, currentLocation.longitude, 1000, 1000));
+                getCoordinate(currentLocation.latitude, currentLocation.longitude, -100, -100),
+                getCoordinate(currentLocation.latitude, currentLocation.longitude, 100, 100));
         // Use the builder to create a FindAutocompletePredictionsRequest.
         FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest.builder()
                 // Call either setLocationBias() OR setLocationRestriction().
@@ -213,12 +212,13 @@ public class ListViewFragment extends Fragment {
                 .setQuery(query)
                 .build();
         placesClient.findAutocompletePredictions(request).addOnSuccessListener((response) -> {
-            List<String> placesPrediction = new ArrayList<>();
+            // List<String> placesPrediction = new ArrayList<>();
+            List<Restaurant> filteredRestaurants = new ArrayList<>();
 
             for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
-                Log.i(TAG, prediction.getPlaceId());
-                Log.i(TAG, prediction.getPrimaryText(null).toString());
-                placesPrediction.add(prediction.getPlaceId());
+                //  Log.i(TAG, prediction.getPlaceId());
+                // Log.i(TAG, prediction.getPrimaryText(null).toString());
+                //placesPrediction.add(prediction.getPlaceId());
                 //   placesViewModel.getDetailByPlaceId(prediction.getPlaceId(), "name,geometry,vicinity,photos,rating,formatted_phone_number", key);
                 // addRestaurant(prediction.getPlaceId());
 //                for (Result place :prediction.getPlaceId()) {
@@ -229,8 +229,24 @@ public class ListViewFragment extends Fragment {
 //                            isOpen, new LatLng(place.getGeometry().getLocation().getLat(), place.getGeometry().getLocation().getLat()));
 //                    restaurants.add(restaurant);
 //                }
+                for (Restaurant restaurant : restaurants) {
+                    Log.i(TAG, prediction.getPrimaryText(null).toString() + ":" +
+                            restaurant.getName());
+                    Log.i(TAG, prediction.getPlaceId() + ":" +
+                            restaurant.getUid());
+                    if (restaurant.getUid().contains(prediction.getPlaceId())) {
+                        filteredRestaurants.add(restaurant);
+
+
+                    }
+                }
+
             }
-            addRestaurant(placesPrediction);
+            restaurantViewModel.setRestaurants(filteredRestaurants);
+            // addRestaurant(placesPrediction);
+            //  placesListAdapter.setFilter(placesPrediction);
+            //placesListAdapter.setPlaces(filteredRestaurants,currentLocation);
+            //restaurantViewModel.setRestaurants(filteredRestaurants);
             //restaurants = new ArrayList<>();
             //placesListAdapter.setPlaces(restaurants,currentLocation);
             // setRetrofitDetailInAdapter(placesPrediction);
@@ -243,10 +259,10 @@ public class ListViewFragment extends Fragment {
         });
     }
 
-
     private void addRestaurant(List<String> placesId) {
+
         // Specify the fields to return.
-        ArrayList<Restaurant> newRestaurantsList = new ArrayList<>();
+        newRestaurantsList = new ArrayList<>();
         List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.TYPES, Place.Field.PHOTO_METADATAS,
                 Place.Field.WEBSITE_URI, Place.Field.PHONE_NUMBER, Place.Field.RATING, Place.Field.TYPES, Place.Field.LAT_LNG, Place.Field.OPENING_HOURS);
         //restaurants = new ArrayList<>();
@@ -254,46 +270,45 @@ public class ListViewFragment extends Fragment {
             // Construct a request object, passing the place ID and fields array.
             FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeId, placeFields);
             placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+
                 Place place = response.getPlace();
-                List<Place.Type> types = place.getTypes();
-                for (int i = 0; i < place.getTypes().size(); i++) {
-                    if (types.get(i).name().contains("RESTAURANT")) {
-                        final List<PhotoMetadata> metadata = place.getPhotoMetadatas();
-                        // Create a FetchPhotoRequest.
-                        if (metadata != null) {
-                            String photoMetadata = metadata.get(0).toString();
-                            photoMetadata = photoMetadata.substring(1, photoMetadata.length() - 1);
-                            String[] photoArray = photoMetadata.split(",");
-                            Map<String, String> hashMapPhoto = new HashMap<>();
-
-                            for (String val : photoArray) {
-                                String[] name = val.split("=");
-                                hashMapPhoto.put(name[0].trim(), name[1].trim());
-                            }
-                            String photoReference = hashMapPhoto.get("photoReference");
-                            String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
-                            String mKey = getString(R.string.google_maps_key);
-                            String photoUrl = staticUrl + "maxwidth=400&photoreference=" + photoReference + "&key=" + mKey;
-                            Restaurant restaurant = new Restaurant(place.getId(), place.getName(), place.getAddress(), photoUrl, place.getRating().floatValue(), 0,
-                                    place.isOpen(), place.getLatLng());
-                            newRestaurantsList.add(restaurant);
-                        }
-                    }
-                }
-
-                Log.i(TAG, "Place found: " + place.getName());
-            }).addOnFailureListener((exception) -> {
-                if (exception instanceof ApiException) {
-                    final ApiException apiException = (ApiException) exception;
-                    Log.e(TAG, "Place not found: " + exception.getMessage());
-                    final int statusCode = apiException.getStatusCode();
-                    // TODO: Handle error with given status code.
-                }
+                createList(response.getPlace());
             });
         }
-        placesListAdapter.setPlaces(newRestaurantsList, currentLocation);
-
+        restaurantViewModel.setRestaurants(newRestaurantsList);
     }
+
+    private void createList(Place place) {
+        List<Place.Type> types = place.getTypes();
+        for (int i = 0; i < place.getTypes().size(); i++) {
+            if (types.get(i).name().contains("RESTAURANT")) {
+                final List<PhotoMetadata> metadata = place.getPhotoMetadatas();
+                // Create a FetchPhotoRequest.
+                if (metadata != null) {
+                    String photoMetadata = metadata.get(0).toString();
+                    photoMetadata = photoMetadata.substring(1, photoMetadata.length() - 1);
+                    String[] photoArray = photoMetadata.split(",");
+                    Map<String, String> hashMapPhoto = new HashMap<>();
+
+                    for (String val : photoArray) {
+                        String[] name = val.split("=");
+                        hashMapPhoto.put(name[0].trim(), name[1].trim());
+                    }
+                    String photoReference = hashMapPhoto.get("photoReference");
+                    String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
+                    String mKey = getString(R.string.google_maps_key);
+                    String photoUrl = staticUrl + "maxwidth=400&photoreference=" + photoReference + "&key=" + mKey;
+                    Restaurant restaurant = new Restaurant(place.getId(), place.getName(), place.getAddress(), photoUrl, place.getRating().floatValue(), 0,
+                            place.isOpen(), place.getLatLng());
+                    newRestaurantsList.add(restaurant);
+                }
+
+            }
+
+            Log.i(TAG, "Place found: " + place.getName());
+        }
+    }
+
 
     /**
      * Called when the hidden state (as returned by {@link #isHidden()} of
@@ -314,8 +329,21 @@ public class ListViewFragment extends Fragment {
         List<Restaurant> places = new ArrayList<>();
         placesViewModel =
                 new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+        container.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View view) {
 
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(View view) {
+                // Manage this event.
+                setRetrofitInAdapter();
+                Toast.makeText(getActivity(), "You close the search", Toast.LENGTH_LONG).show();
+            }
+        });
         placesViewModel.init();
+
 
         placesListAdapter = new PlacesListAdapter(places, key, getContext(), currentLocation);
 
@@ -325,7 +353,7 @@ public class ListViewFragment extends Fragment {
 
         //Set current user position in adapter
         LocationViewModel locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
-        locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
+        locationViewModel.getUserLocation().observe(this.getActivity(), locationModel -> {
             if (locationModel != null) {
                 placesListAdapter.setCurrentLocation(locationModel.getLocation());
                 this.currentLocation = locationModel.getLocation();
@@ -333,6 +361,8 @@ public class ListViewFragment extends Fragment {
         });
         setRetrofitInAdapter();
         recyclerViewPlaces.setAdapter(placesListAdapter);
+
+        restaurantViewModel.getRestaurants().observe(this.getActivity(), this::onChanged);
         return root;
     }
 
@@ -352,7 +382,7 @@ public class ListViewFragment extends Fragment {
                 restaurants.add(restaurant);
             }
         });
-        placesListAdapter.setPlaces(restaurants, currentLocation);
+        onChanged(restaurants);
     }
 
     private void setRetrofitInAdapter() {
@@ -370,8 +400,8 @@ public class ListViewFragment extends Fragment {
                         isOpen, new LatLng(place.getGeometry().getLocation().getLat(), place.getGeometry().getLocation().getLng()));
                 restaurants.add(restaurant);
             }
-
-            placesListAdapter.setPlaces(restaurants, currentLocation);
+            restaurantViewModel.setRestaurants(restaurants);
+            // placesListAdapter.setPlaces(restaurants, currentLocation);
         });
 
     }
@@ -392,5 +422,10 @@ public class ListViewFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         fragmentListBinding = null;
+    }
+
+
+    private void onChanged(List<Restaurant> restaurants) {
+        placesListAdapter.setPlaces(restaurants, currentLocation);
     }
 }
