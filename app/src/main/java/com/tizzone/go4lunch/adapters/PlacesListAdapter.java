@@ -49,7 +49,7 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     private List<Restaurant> filteredList;
 
 
-    public PlacesListAdapter(List<Restaurant> mPlaces, String key, Context mContext, LatLng currentLocation) {
+    public PlacesListAdapter(List<Restaurant> mPlaces, LatLng currentLocation, Context mContext) {
         this.mPlaces = mPlaces;
         this.mContext = mContext;
         this.currentLocation = currentLocation;

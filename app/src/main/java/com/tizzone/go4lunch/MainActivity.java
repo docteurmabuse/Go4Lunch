@@ -43,6 +43,9 @@ import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class MainActivity extends BaseActivity {
     private static final int SIGN_OUT_TASK = 25;
     private ActivityMainBinding mBinding;

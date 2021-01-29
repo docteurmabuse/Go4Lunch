@@ -18,9 +18,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -40,6 +40,7 @@ import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.adapters.PlacesListAdapter;
 import com.tizzone.go4lunch.databinding.FragmentListBinding;
 import com.tizzone.go4lunch.models.Restaurant;
+import com.tizzone.go4lunch.models.places.PlacesResults;
 import com.tizzone.go4lunch.models.places.Result;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
@@ -51,8 +52,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import dagger.hilt.android.AndroidEntryPoint;
+import io.reactivex.rxjava3.disposables.Disposable;
+
 import static android.content.ContentValues.TAG;
 
+@AndroidEntryPoint
 public class ListViewFragment extends Fragment {
 
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 44;
@@ -60,6 +65,7 @@ public class ListViewFragment extends Fragment {
     private String key;
     private FragmentListBinding fragmentListBinding;
     private final int PERMISSION_ID = 44;
+
     private final LatLng mDefaultLocation = new LatLng(48.850559, 2.377078);
     private boolean mLocationPermissionGranted;
     // The geographical location where the device is currently located. That is, the last-known
@@ -70,13 +76,18 @@ public class ListViewFragment extends Fragment {
     private EditText queryText;
     private LocationViewModel locationViewModel;
     private RestaurantViewModel restaurantViewModel;
+    private PlacesViewModel placesViewModel;
 
     private SearchView.SearchAutoComplete searchAutoComplete;
     private PlacesClient placesClient;
     private ArrayList<Restaurant> restaurants;
-    private PlacesViewModel placesViewModel;
     private SearchView searchView;
 
+    //FOR DATA
+    private Disposable disposable;
+
+
+    private List<Restaurant> newRestaurantsList;
 
     public static LatLng getCoordinate(double lat0, double lng0, long dy, long dx) {
         double lat = lat0 + (180 / Math.PI) * (dy / 6378137);
@@ -84,39 +95,137 @@ public class ListViewFragment extends Fragment {
         return new LatLng(lat, lng);
     }
 
-    //
-//    private void setBounds(LatLng location, int mDistanceInMeters) {
-//        double latRadian = Math.toRadians(location.latitude);
-//
-//        double degLatKm = 110.574235;
-//        double degLongKm = 110.572833 * Math.cos(latRadian);
-//        double deltaLat = mDistanceInMeters / 1000.0 / degLatKm;
-//        double deltaLong = mDistanceInMeters / 1000.0 / degLongKm;
-//
-//        double minLat = location.latitude - deltaLat;
-//        double minLong = location.longitude - deltaLong;
-//        double maxLat = location.latitude + deltaLat;
-//        double maxLong = location.longitude + deltaLong;
-//
-//        Log.d(TAG, "Min: " + minLat + "," + minLong);
-//        Log.d(TAG, "Max: " + maxLat + "," + maxLong);
-//
-//    }
-    private List<Restaurant> newRestaurantsList;
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         key = getText(R.string.google_maps_key).toString();
         FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this.requireActivity());
-//        initAutocomplete();
-        //Set current user position in adapter
-        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
-        restaurantViewModel = new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
+
 
         setHasOptionsMenu(true);
         Places.initialize(this.getContext().getApplicationContext(), key);
         placesClient = Places.createClient(this.getContext());
+    }
+
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+        fragmentListBinding = FragmentListBinding.inflate(inflater, container, false);
+        View root = fragmentListBinding.getRoot();
+//        List<Restaurant> places = new ArrayList<>();
+//        placesViewModel =
+//                new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+//        container.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+//            @Override
+//            public void onViewAttachedToWindow(View view) {
+//
+//            }
+//
+//            @Override
+//            public void onViewDetachedFromWindow(View view) {
+//                // Manage this event.
+//                setRetrofitInAdapter();
+//                Toast.makeText(getActivity(), "You close the search", Toast.LENGTH_LONG).show();
+//            }
+//        });
+//        placesViewModel.init();
+//
+//
+//        placesListAdapter = new PlacesListAdapter(places, currentLocation, getContext());
+//
+//        RecyclerView recyclerViewPlaces = root.findViewById(R.id.listViewPlaces);
+//        recyclerViewPlaces.setHasFixedSize(true);
+//        recyclerViewPlaces.setLayoutManager(new LinearLayoutManager(root.getContext()));
+//
+//
+//        setRetrofitInAdapter();
+//        recyclerViewPlaces.setAdapter(placesListAdapter);
+//
+//        restaurantViewModel.getRestaurants().observe(this.getActivity(), this::onChanged);
+        return root;
+    }
+
+    /**
+     * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * has returned, but before any saved state has been restored in to the view.
+     * This gives subclasses a chance to initialize themselves once
+     * they know their view hierarchy has been completely created.  The fragment's
+     * view hierarchy is not however attached to its parent at this point.
+     *
+     * @param view               The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     */
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        //Init ViewModels
+        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
+        restaurantViewModel = new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
+
+        locationViewModel.getUserLocation().observe(requireActivity(), locationModel -> {
+            if (locationModel != null) {
+                placesListAdapter.setCurrentLocation(locationModel.getLocation());
+                this.currentLocation = locationModel.getLocation();
+            }
+        });
+
+        initRecycleView();
+        observeData();
+        placesViewModel.getRestaurantsList();
+    }
+
+    private void observeData() {
+        placesViewModel.getRestaurantsList().observe(getViewLifecycleOwner(), new Observer<ArrayList<Restaurant>>() {
+            @Override
+            public void onChanged(ArrayList<Restaurant> restaurants) {
+                Log.e(TAG, "onChanged: " + restaurants.size());
+                placesListAdapter.setPlaces(restaurants, currentLocation);
+            }
+        });
+    }
+
+    private void initRecycleView() {
+        fragmentListBinding.listViewPlaces.setLayoutManager(new LinearLayoutManager(getContext()));
+        placesListAdapter = new PlacesListAdapter(restaurants, currentLocation, getContext());
+        fragmentListBinding.listViewPlaces.setAdapter(placesListAdapter);
+    }
+
+    /**
+     * Called when the fragment is no longer in use.  This is called
+     * after {@link #onStop()} and before {@link #onDetach()}.
+     */
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.disposeWhenDestroy();
+    }
+
+    private void disposeWhenDestroy() {
+        if (this.disposable != null && this.disposable.isDisposed()) this.disposable.dispose();
+    }
+
+    public void onResume() {
+        super.onResume();
+        //Set current user position in adapter
+        //LocationViewModel locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
+        locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
+            if (locationModel != null) {
+                placesListAdapter.setCurrentLocation(locationModel.getLocation());
+                this.currentLocation = locationModel.getLocation();
+            }
+        });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        fragmentListBinding = null;
+    }
+
+    // Update UI
+
+    private void updateUIWithListOfRestaurant(PlacesResults placesResults) {
+
     }
 
     @Override
@@ -322,48 +431,8 @@ public class ListViewFragment extends Fragment {
         super.onHiddenChanged(hidden);
     }
 
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        fragmentListBinding = FragmentListBinding.inflate(inflater, container, false);
-        View root = fragmentListBinding.getRoot();
-        List<Restaurant> places = new ArrayList<>();
-        placesViewModel =
-                new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
-        container.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-            @Override
-            public void onViewAttachedToWindow(View view) {
-
-            }
-
-            @Override
-            public void onViewDetachedFromWindow(View view) {
-                // Manage this event.
-                setRetrofitInAdapter();
-                Toast.makeText(getActivity(), "You close the search", Toast.LENGTH_LONG).show();
-            }
-        });
-        placesViewModel.init();
-
-
-        placesListAdapter = new PlacesListAdapter(places, key, getContext(), currentLocation);
-
-        RecyclerView recyclerViewPlaces = root.findViewById(R.id.listViewPlaces);
-        recyclerViewPlaces.setHasFixedSize(true);
-        recyclerViewPlaces.setLayoutManager(new LinearLayoutManager(root.getContext()));
-
-        //Set current user position in adapter
-        LocationViewModel locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
-        locationViewModel.getUserLocation().observe(this.getActivity(), locationModel -> {
-            if (locationModel != null) {
-                placesListAdapter.setCurrentLocation(locationModel.getLocation());
-                this.currentLocation = locationModel.getLocation();
-            }
-        });
-        setRetrofitInAdapter();
-        recyclerViewPlaces.setAdapter(placesListAdapter);
-
-        restaurantViewModel.getRestaurants().observe(this.getActivity(), this::onChanged);
-        return root;
+    private void onChanged(List<Restaurant> restaurants) {
+        placesListAdapter.setPlaces(restaurants, currentLocation);
     }
 
     private void setRetrofitDetailInAdapter(List<String> placesPrediction) {
@@ -377,7 +446,9 @@ public class ListViewFragment extends Fragment {
                 Boolean isOpen = null;
                 if (place.getOpeningHours() != null)
                     isOpen = place.getOpeningHours().getOpenNow();
-                Restaurant restaurant = new Restaurant(place.getPlaceId(), place.getName(), place.getVicinity(), place.getPhotoUrl(resources), place.getRating(), 0,
+                String mKey = getString(R.string.google_maps_key);
+                Restaurant restaurant = new Restaurant(place.getPlaceId(), place.getName(), place.getVicinity()
+                        , place.getPhotoUrl() + "&key=" + mKey, place.getRating(), 0,
                         isOpen, new LatLng(place.getGeometry().getLocation().getLat(), place.getGeometry().getLocation().getLng()));
                 restaurants.add(restaurant);
             }
@@ -388,15 +459,14 @@ public class ListViewFragment extends Fragment {
     private void setRetrofitInAdapter() {
 
         //Set retrofit place in adapter
-        PlacesViewModel placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         placesViewModel.getPlacesResultsLiveData().observe(getViewLifecycleOwner(), placesResults -> {
             restaurants = new ArrayList<>();
-            Resources resources = this.getResources();
             for (Result place : placesResults.getResults()) {
                 Boolean isOpen = null;
                 if (place.getOpeningHours() != null) isOpen = place.getOpeningHours().getOpenNow();
-
-                Restaurant restaurant = new Restaurant(place.getPlaceId(), place.getName(), place.getVicinity(), place.getPhotoUrl(resources), place.getRating(), 0,
+                String mKey = getString(R.string.google_maps_key);
+                Restaurant restaurant = new Restaurant(place.getPlaceId(), place.getName(), place.getVicinity()
+                        , place.getPhotoUrl() + "&key=" + mKey, place.getRating(), 0,
                         isOpen, new LatLng(place.getGeometry().getLocation().getLat(), place.getGeometry().getLocation().getLng()));
                 restaurants.add(restaurant);
             }
@@ -404,28 +474,5 @@ public class ListViewFragment extends Fragment {
             // placesListAdapter.setPlaces(restaurants, currentLocation);
         });
 
-    }
-
-    public void onResume() {
-        super.onResume();
-        //Set current user position in adapter
-        //LocationViewModel locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
-        locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
-            if (locationModel != null) {
-                placesListAdapter.setCurrentLocation(locationModel.getLocation());
-                this.currentLocation = locationModel.getLocation();
-            }
-        });
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        fragmentListBinding = null;
-    }
-
-
-    private void onChanged(List<Restaurant> restaurants) {
-        placesListAdapter.setPlaces(restaurants, currentLocation);
     }
 }

@@ -4,7 +4,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
@@ -57,9 +56,8 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.tizzone.go4lunch.R;
+import com.tizzone.go4lunch.databinding.FragmentMapBinding;
 import com.tizzone.go4lunch.models.Restaurant;
-import com.tizzone.go4lunch.models.places.PlacesResults;
-import com.tizzone.go4lunch.models.places.Result;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.utils.UserHelper;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
@@ -72,9 +70,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.ContentValues.TAG;
 
+@AndroidEntryPoint
 public class MapFragment extends Fragment {
 
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 546;
@@ -97,6 +98,7 @@ public class MapFragment extends Fragment {
     private LatLng currentLocation;
     private RestaurantViewModel restaurantViewModel;
     private List<Restaurant> newRestaurantsList;
+    private FragmentMapBinding mapBinding;
 
 
     /**
@@ -110,6 +112,48 @@ public class MapFragment extends Fragment {
         super.onAttach(context);
         this.mContext = context;
     }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        mapBinding = FragmentMapBinding.inflate(inflater, container, false);
+        View root = mapBinding.getRoot();
+
+
+        return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Init  ViewModels
+        placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
+        locationViewModel = new ViewModelProvider(this).get(LocationViewModel.class);
+        restaurantViewModel = new ViewModelProvider(this).get(RestaurantViewModel.class);
+
+        SupportMapFragment mapFragment =
+                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(callback);
+        }
+
+        key = getText(R.string.google_maps_key).toString();
+        // Construct a FusedLocationProviderClient.
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+        Places.initialize(this.getContext().getApplicationContext(), key);
+        placesClient = Places.createClient(this.getContext());
+    }
+
 
     public Bitmap getBitmapFromVectorDrawable(int drawableId) {
         Drawable drawable = AppCompatResources.getDrawable(mContext, drawableId);
@@ -332,25 +376,6 @@ public class MapFragment extends Fragment {
         }
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-
-        View root = inflater.inflate(R.layout.fragment_map, container, false);
-
-        placesViewModel =
-                new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
-        placesViewModel.init();
-        restaurantViewModel = new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
-
-        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
-        setHasOptionsMenu(true);
-
-
-        return root;
-    }
 
     private void setMarkers(List<Restaurant> restaurants) {
         for (Restaurant restaurant : restaurants) {
@@ -407,22 +432,6 @@ public class MapFragment extends Fragment {
 
         }
 
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        SupportMapFragment mapFragment =
-                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(callback);
-        }
-
-        key = getText(R.string.google_maps_key).toString();
-        // Construct a FusedLocationProviderClient.
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
-        Places.initialize(this.getContext().getApplicationContext(), key);
-        placesClient = Places.createClient(this.getContext());
     }
 
 
@@ -529,52 +538,53 @@ public class MapFragment extends Fragment {
 
     private void build_retrofit_and_get_response(double latitude, double longitude) {
         newRestaurantsList = new ArrayList<>();
-        placesViewModel.getNearByPlaces(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
-        placesViewModel.getPlacesResultsLiveData().observe(this.getActivity(), new Observer<PlacesResults>() {
-            @Override
-            public void onChanged(PlacesResults placesResults) {
-                if (placesResults != null) {
-                    try {
-                        Resources resources = mContext.getResources();
-                        // This loop will go through all the results and add marker on each location.
-                        for (int i = 0; i < placesResults.getResults().size(); i++) {
-                            Result result = placesResults.getResults().get(i);
-
-                            Double lat = result.getGeometry().getLocation().getLat();
-                            Double lng = result.getGeometry().getLocation().getLng();
-                            String placeName = result.getName();
-                            String vicinity = result.getVicinity();
-                            String placeId = result.getPlaceId();
-                            Boolean isOpen = null;
-                            if (result.getOpeningHours() != null) {
-                                isOpen = result.getOpeningHours().getOpenNow();
-                            }
-                            Restaurant restaurant = new Restaurant(result.getPlaceId(), result.getName(), result.getVicinity(), result.getPhotoUrl(resources), result.getRating(), 0,
-                                    isOpen, new LatLng(result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng()));
-                            newRestaurantsList.add(restaurant);
-
-
-                            restaurantViewModel.setRestaurants(newRestaurantsList);
-                            locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
-                                if (locationModel != null) {
-                                    currentLocation = locationModel.getLocation();
-                                }
-                            });
-                          /*  RestaurantHelper.getRestaurants(placeId).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                @Override
-                                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                    Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
-
-                                }
-                            });*/
-                        }
-                    } catch (Exception e) {
-                        Log.d("onResponse", "There is an error");
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
+        placesViewModel.getRestaurants(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
+//        placesViewModel.getNearByPlaces(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
+//        placesViewModel.getPlacesResultsLiveData().observe(this.getActivity(), new Observer<PlacesResults>() {
+//            @Override
+//            public void onChanged(PlacesResults placesResults) {
+//                if (placesResults != null) {
+//                    try {
+//                        Resources resources = mContext.getResources();
+//                        // This loop will go through all the results and add marker on each location.
+//                        for (int i = 0; i < placesResults.getResults().size(); i++) {
+//                            Result result = placesResults.getResults().get(i);
+//
+//                            Double lat = result.getGeometry().getLocation().getLat();
+//                            Double lng = result.getGeometry().getLocation().getLng();
+//                            String placeName = result.getName();
+//                            String vicinity = result.getVicinity();
+//                            String placeId = result.getPlaceId();
+//                            Boolean isOpen = null;
+//                            if (result.getOpeningHours() != null) {
+//                                isOpen = result.getOpeningHours().getOpenNow();
+//                            }
+//                            Restaurant restaurant = new Restaurant(result.getPlaceId(), result.getName(), result.getVicinity(), result.getPhotoUrl(), result.getRating(), 0,
+//                                    isOpen, new LatLng(result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng()));
+//                            newRestaurantsList.add(restaurant);
+//
+//
+//                            restaurantViewModel.setRestaurants(newRestaurantsList);
+//                            locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
+//                                if (locationModel != null) {
+//                                    currentLocation = locationModel.getLocation();
+//                                }
+//                            });
+//                          /*  RestaurantHelper.getRestaurants(placeId).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                                @Override
+//                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                                    Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
+//
+//                                }
+//                            });*/
+//                        }
+//                    } catch (Exception e) {
+//                        Log.d("onResponse", "There is an error");
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        });
 
     }
 
