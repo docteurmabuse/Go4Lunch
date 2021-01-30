@@ -2,7 +2,6 @@ package com.tizzone.go4lunch.ui.list;
 
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.res.Resources;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,7 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -41,7 +39,6 @@ import com.tizzone.go4lunch.adapters.PlacesListAdapter;
 import com.tizzone.go4lunch.databinding.FragmentListBinding;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.places.PlacesResults;
-import com.tizzone.go4lunch.models.places.Result;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import com.tizzone.go4lunch.viewmodels.RestaurantViewModel;
@@ -158,29 +155,28 @@ public class ListViewFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //Init ViewModels
-        placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
         locationViewModel = new ViewModelProvider(this).get(LocationViewModel.class);
+        placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
         restaurantViewModel = new ViewModelProvider(this).get(RestaurantViewModel.class);
 
-        locationViewModel.getUserLocation().observe(requireActivity(), locationModel -> {
+
+
+        initRecycleView();
+        observeData();
+        // placesViewModel.getRestaurantsList();
+    }
+
+    private void observeData() {
+        locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
             if (locationModel != null) {
                 placesListAdapter.setCurrentLocation(locationModel.getLocation());
                 this.currentLocation = locationModel.getLocation();
             }
         });
 
-        initRecycleView();
-        observeData();
-        placesViewModel.getRestaurantsList();
-    }
-
-    private void observeData() {
-        placesViewModel.getRestaurantsList().observe(getViewLifecycleOwner(), new Observer<ArrayList<Restaurant>>() {
-            @Override
-            public void onChanged(ArrayList<Restaurant> restaurants) {
-                Log.e(TAG, "onChanged: " + restaurants.size());
-                placesListAdapter.setPlaces(restaurants, currentLocation);
-            }
+        placesViewModel.getRestaurantsList().observe(getViewLifecycleOwner(), restaurants -> {
+            Log.e(TAG, "onChanged: " + restaurants.size());
+            placesListAdapter.setPlaces(restaurants, currentLocation);
         });
     }
 
@@ -253,7 +249,7 @@ public class ListViewFragment extends Fragment {
                         Log.d("called", "this is called.");
 
                         searchView.setIconified(true);
-                        initRestaurants();
+                        //initRestaurants();
                         Toast.makeText(getActivity(), "You close the search", Toast.LENGTH_LONG).show();
 
                     }
@@ -290,9 +286,6 @@ public class ListViewFragment extends Fragment {
 //            initAutocomplete(query);
 //        }
 
-    private void initRestaurants() {
-        setRetrofitInAdapter();
-    }
 
     // Get SearchView autocomplete object.
 //        final SearchView.SearchAutoComplete searchAutoComplete = (SearchView.SearchAutoComplete)searchView.findViewById(androidx.appcompat.R.id.search_src_text);
@@ -435,44 +428,5 @@ public class ListViewFragment extends Fragment {
         placesListAdapter.setPlaces(restaurants, currentLocation);
     }
 
-    private void setRetrofitDetailInAdapter(List<String> placesPrediction) {
-        for (String placeId : placesPrediction) {
-            placesViewModel.getDetailByPlaceId(placeId, "name,geometry,vicinity,photos,rating,formatted_phone_number", key);
-            //Set retrofit place in adapter
-        }
-        placesViewModel.getPlacesResultsSearchPlaces().observe(getViewLifecycleOwner(), placesResults -> {
-            Resources resources = this.getResources();
-            for (Result place : placesResults.getResults()) {
-                Boolean isOpen = null;
-                if (place.getOpeningHours() != null)
-                    isOpen = place.getOpeningHours().getOpenNow();
-                String mKey = getString(R.string.google_maps_key);
-                Restaurant restaurant = new Restaurant(place.getPlaceId(), place.getName(), place.getVicinity()
-                        , place.getPhotoUrl() + "&key=" + mKey, place.getRating(), 0,
-                        isOpen, new LatLng(place.getGeometry().getLocation().getLat(), place.getGeometry().getLocation().getLng()));
-                restaurants.add(restaurant);
-            }
-        });
-        onChanged(restaurants);
-    }
 
-    private void setRetrofitInAdapter() {
-
-        //Set retrofit place in adapter
-        placesViewModel.getPlacesResultsLiveData().observe(getViewLifecycleOwner(), placesResults -> {
-            restaurants = new ArrayList<>();
-            for (Result place : placesResults.getResults()) {
-                Boolean isOpen = null;
-                if (place.getOpeningHours() != null) isOpen = place.getOpeningHours().getOpenNow();
-                String mKey = getString(R.string.google_maps_key);
-                Restaurant restaurant = new Restaurant(place.getPlaceId(), place.getName(), place.getVicinity()
-                        , place.getPhotoUrl() + "&key=" + mKey, place.getRating(), 0,
-                        isOpen, new LatLng(place.getGeometry().getLocation().getLat(), place.getGeometry().getLocation().getLng()));
-                restaurants.add(restaurant);
-            }
-            restaurantViewModel.setRestaurants(restaurants);
-            // placesListAdapter.setPlaces(restaurants, currentLocation);
-        });
-
-    }
 }

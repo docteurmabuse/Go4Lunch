@@ -135,7 +135,7 @@ public class Result implements Serializable {
     public String getPhotoUrl() {
         if (this.photos.size() > 0) {
             String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
-            photoUrl = staticUrl + "maxwidth=400&photoreference=" + getPhotos().get(0).getPhotoReference();
+            photoUrl = staticUrl + "maxwidth=400&photoreference=" + getPhotos().get(0).getPhotoReference() + "&key=";
         } else {
             photoUrl = String.valueOf(R.drawable.ic_logo_go4lunch);
         }

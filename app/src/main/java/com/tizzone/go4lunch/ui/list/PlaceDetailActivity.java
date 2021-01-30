@@ -65,6 +65,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private List<String> favouriteRestaurantsList;
     private float ratingThreeStars;
     private float ratingFiveStarFloat;
+    private String key;
 
     private ActivityPlaceDetailBinding placeDetailBinding;
     private ContentLayoutPlaceDetailActivityBinding contentLayoutBinding;
@@ -119,9 +120,10 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         if (this.getCurrentUser() != null) {
             uid = this.getCurrentUser().getUid();
         }
+        key = getText(R.string.google_maps_key).toString();
 
 
-        Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
+        Places.initialize(getApplicationContext(), key);
         PlacesClient placesClient = Places.createClient(this);
 
         toolbar = placeDetailBinding.detailToolbar;
@@ -196,7 +198,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             AppCompatImageButton website = placeDetailBinding.contentLayoutPlaceDetailActivity.websiteButton;
             website.setOnClickListener(view12 -> openWebPage(placeWebsite));
 
-            mDetailPhotoUrl = restaurant.getPhotoUrl();
+            mDetailPhotoUrl = restaurant.getPhotoUrl() + key;
             Glide.with(DetailImage.getContext())
                     .load(mDetailPhotoUrl)
                     .into(DetailImage);

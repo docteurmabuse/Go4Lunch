@@ -7,8 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -32,10 +30,9 @@ import com.tizzone.go4lunch.utils.UserHelper;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.ViewHolder> implements Filterable {
+public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.ViewHolder> {
 
     private static final String TAG = "ERROR";
     private String mKey;
@@ -45,15 +42,12 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     private PlaceItemBinding binding;
     private LatLng currentLocation;
     private Context context;
-    private List<Restaurant> restaurantListFiltered;
-    private List<Restaurant> filteredList;
 
 
     public PlacesListAdapter(List<Restaurant> mPlaces, LatLng currentLocation, Context mContext) {
         this.mPlaces = mPlaces;
         this.mContext = mContext;
         this.currentLocation = currentLocation;
-        this.restaurantListFiltered = mPlaces;
         notifyDataSetChanged();
     }
 
@@ -69,7 +63,7 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        Restaurant place = restaurantListFiltered.get(position);
+        Restaurant place = mPlaces.get(position);
         Resources resources = context.getResources();
         holder.placeItemBinding.setRestaurant(place);
         getUsersCountFromFirestore(place.getUid(), holder);
@@ -106,7 +100,6 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     }
 
 
-
     private void getUsersCountFromFirestore(String placeId, ViewHolder holder) {
         UserHelper.getUsersLunchSpot(placeId).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -130,65 +123,16 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     public void setPlaces(List<Restaurant> restaurants, LatLng currentLocation) {
         this.mPlaces.clear();
         this.mPlaces = restaurants;
-        this.restaurantListFiltered = restaurants;
         this.currentLocation = currentLocation;
         notifyDataSetChanged();
-    }
-
-    @Override
-    public Filter getFilter() {
-
-        return new Filter() {
-            @Override
-            protected FilterResults performFiltering(CharSequence charSequence) {
-                String chartString = charSequence.toString();
-                if (chartString.isEmpty()) {
-                    restaurantListFiltered = mPlaces;
-                } else {
-                    List<Restaurant> filteredList = new ArrayList<>();
-                    for (Restaurant restaurant : mPlaces) {
-                        if (restaurant.getUid().contains(chartString)) {
-                            filteredList.add(restaurant);
-                        }
-                    }
-                    restaurantListFiltered = filteredList;
-                }
-                FilterResults filterResults = new FilterResults();
-                filterResults.values = restaurantListFiltered;
-                return filterResults;
-            }
-
-            @Override
-            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                restaurantListFiltered = (ArrayList<Restaurant>) filterResults.values;
-
-                //refresh the list with filtered data
-                notifyDataSetChanged();
-            }
-        };
     }
 
 
     @Override
     public int getItemCount() {
-        return mPlaces.size();
+        return mPlaces == null ? 0 : mPlaces.size();
     }
 
-    public void setFilter(List<String> placesId) {
-        restaurantListFiltered = new ArrayList<>();
-        for (String placeId : placesId) {
-            getFilter().filter((CharSequence) placeId);
-//            for (Restaurant restaurant : this.mPlaces){
-//                if (restaurant.getUid().contains(placeId)){
-//                    filteredList.add(restaurant);
-//                }
-//            }
-
-        }
-//        this.mPlaces.clear();
-//        this.mPlaces.addAll(filteredList);
-        //notifyDataSetChanged();
-    }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView workmatesCount;

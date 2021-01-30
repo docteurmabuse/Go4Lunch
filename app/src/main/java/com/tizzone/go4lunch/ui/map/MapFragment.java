@@ -45,11 +45,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
-import com.google.android.libraries.places.api.model.PhotoMetadata;
-import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
-import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.firestore.EventListener;
@@ -65,10 +62,7 @@ import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import com.tizzone.go4lunch.viewmodels.RestaurantViewModel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -137,8 +131,8 @@ public class MapFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Init  ViewModels
-        placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
-        locationViewModel = new ViewModelProvider(this).get(LocationViewModel.class);
+        placesViewModel = new ViewModelProvider(getActivity()).get(PlacesViewModel.class);
+        locationViewModel = new ViewModelProvider(getActivity()).get(LocationViewModel.class);
         restaurantViewModel = new ViewModelProvider(this).get(RestaurantViewModel.class);
 
         SupportMapFragment mapFragment =
@@ -152,6 +146,8 @@ public class MapFragment extends Fragment {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         Places.initialize(this.getContext().getApplicationContext(), key);
         placesClient = Places.createClient(this.getContext());
+        observeData();
+
     }
 
 
@@ -171,16 +167,6 @@ public class MapFragment extends Fragment {
 
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
 
-        /**
-         * Manipulates the map once available.
-         * This callback is triggered when the map is ready to be used.
-         * This is where we can add markers or lines, add listeners or move the camera.
-         * In this case, we just add a marker near Sydney, Australia.
-         * If Google Play services is not installed on the device, the user will be prompted to
-         * install it inside the SupportMapFragment. This method will only be triggered once the
-         * user has installed Google Play services and returned to the app.
-         */
-
         @Override
         public void onMapReady(GoogleMap googleMap) {
             mMap = googleMap;
@@ -195,14 +181,6 @@ public class MapFragment extends Fragment {
             // Get the current location of the device and set the position of the map.
             getDeviceLocation();
             placesViewModel.getRestaurantsList();
-            observeData();
-//            restaurantViewModel.getRestaurants().observe(getActivity(), new Observer<List<Restaurant>>() {
-//                @Override
-//                public void onChanged(List<Restaurant> restaurants) {
-//                    setMarkers(restaurants);
-//                }
-//            });
-
 
             // Set a listener for info window events.
             mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
@@ -215,12 +193,13 @@ public class MapFragment extends Fragment {
 
     };
 
-    private void observeData() {
-        placesViewModel.getRestaurantsList().observe(getViewLifecycleOwner(), new Observer<ArrayList<Restaurant>>() {
-            @Override
-            public void onChanged(ArrayList<Restaurant> restaurants) {
-                setMarkers(restaurants);
 
+    private void observeData() {
+        placesViewModel.getRestaurantsList().observe(getViewLifecycleOwner(), new Observer<List<Restaurant>>() {
+            @Override
+            public void onChanged(List<Restaurant> restaurants) {
+                setMarkers(restaurants);
+                restaurantViewModel.setRestaurants(restaurants);
             }
         });
     }
@@ -258,7 +237,6 @@ public class MapFragment extends Fragment {
                         searchView.setIconified(true);
                         //initRestaurants();
                         Toast.makeText(getActivity(), "You close the search", Toast.LENGTH_LONG).show();
-
                     }
                 });
 
@@ -302,26 +280,8 @@ public class MapFragment extends Fragment {
                             Log.i(TAG, prediction.getPlaceId());
                             Log.i(TAG, prediction.getPrimaryText(null).toString());
                             placesPrediction.add(prediction.getPlaceId());
-                            //   placesViewModel.getDetailByPlaceId(prediction.getPlaceId(), "name,geometry,vicinity,photos,rating,formatted_phone_number", key);
-                            // addRestaurant(prediction.getPlaceId());
-//                for (Result place :prediction.getPlaceId()) {
-//                    Boolean isOpen = null;
-//                    if (place.getOpeningHours() != null)
-//                        isOpen = place.getOpeningHours().getOpenNow();
-//                    Restaurant restaurant = new Restaurant(place.getPlaceId(), place.getName(), place.getVicinity(), place.getPhotoUrl(resources), place.getRating(), 0,
-//                            isOpen, new LatLng(place.getGeometry().getLocation().getLat(), place.getGeometry().getLocation().getLat()));
-//                    restaurants.add(restaurant);
-//                }
-
 
                         }
-                        addRestaurant(placesPrediction);
-                        //  placesListAdapter.setFilter(placesPrediction);
-                        //placesListAdapter.setPlaces(filteredRestaurants,currentLocation);
-                        //restaurantViewModel.setRestaurants(filteredRestaurants);
-                        //restaurants = new ArrayList<>();
-                        //placesListAdapter.setPlaces(restaurants,currentLocation);
-                        // setRetrofitDetailInAdapter(placesPrediction);
 
                     }).addOnFailureListener((exception) -> {
                         if (exception instanceof ApiException) {
@@ -337,55 +297,7 @@ public class MapFragment extends Fragment {
         });
     }
 
-    private void addRestaurant(List<String> placesId) {
 
-        // Specify the fields to return.
-        newRestaurantsList = new ArrayList<>();
-        List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.TYPES, Place.Field.PHOTO_METADATAS,
-                Place.Field.WEBSITE_URI, Place.Field.PHONE_NUMBER, Place.Field.RATING, Place.Field.TYPES, Place.Field.LAT_LNG, Place.Field.OPENING_HOURS);
-        //restaurants = new ArrayList<>();
-        for (String placeId : placesId) {
-            // Construct a request object, passing the place ID and fields array.
-            FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeId, placeFields);
-            placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
-
-                Place place = response.getPlace();
-                createList(response.getPlace());
-            });
-        }
-        restaurantViewModel.setRestaurants(newRestaurantsList);
-    }
-
-    private void createList(Place place) {
-        List<Place.Type> types = place.getTypes();
-        for (int i = 0; i < place.getTypes().size(); i++) {
-            if (types.get(i).name().contains("RESTAURANT")) {
-                final List<PhotoMetadata> metadata = place.getPhotoMetadatas();
-                // Create a FetchPhotoRequest.
-                if (metadata != null) {
-                    String photoMetadata = metadata.get(0).toString();
-                    photoMetadata = photoMetadata.substring(1, photoMetadata.length() - 1);
-                    String[] photoArray = photoMetadata.split(",");
-                    Map<String, String> hashMapPhoto = new HashMap<>();
-
-                    for (String val : photoArray) {
-                        String[] name = val.split("=");
-                        hashMapPhoto.put(name[0].trim(), name[1].trim());
-                    }
-                    String photoReference = hashMapPhoto.get("photoReference");
-                    String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
-                    String mKey = getString(R.string.google_maps_key);
-                    String photoUrl = staticUrl + "maxwidth=400&photoreference=" + photoReference + "&key=" + mKey;
-                    Restaurant restaurant = new Restaurant(place.getId(), place.getName(), place.getAddress(), photoUrl, place.getRating().floatValue(), 0,
-                            place.isOpen(), place.getLatLng());
-                    newRestaurantsList.add(restaurant);
-                }
-
-            }
-
-            Log.i(TAG, "Place found: " + place.getName());
-        }
-    }
 
 
     private void setMarkers(List<Restaurant> restaurants) {
@@ -550,53 +462,6 @@ public class MapFragment extends Fragment {
     private void build_retrofit_and_get_response(double latitude, double longitude) {
         newRestaurantsList = new ArrayList<>();
         placesViewModel.getRestaurants(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
-//        placesViewModel.getNearByPlaces(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
-//        placesViewModel.getPlacesResultsLiveData().observe(this.getActivity(), new Observer<PlacesResults>() {
-//            @Override
-//            public void onChanged(PlacesResults placesResults) {
-//                if (placesResults != null) {
-//                    try {
-//                        Resources resources = mContext.getResources();
-//                        // This loop will go through all the results and add marker on each location.
-//                        for (int i = 0; i < placesResults.getResults().size(); i++) {
-//                            Result result = placesResults.getResults().get(i);
-//
-//                            Double lat = result.getGeometry().getLocation().getLat();
-//                            Double lng = result.getGeometry().getLocation().getLng();
-//                            String placeName = result.getName();
-//                            String vicinity = result.getVicinity();
-//                            String placeId = result.getPlaceId();
-//                            Boolean isOpen = null;
-//                            if (result.getOpeningHours() != null) {
-//                                isOpen = result.getOpeningHours().getOpenNow();
-//                            }
-//                            Restaurant restaurant = new Restaurant(result.getPlaceId(), result.getName(), result.getVicinity(), result.getPhotoUrl(), result.getRating(), 0,
-//                                    isOpen, new LatLng(result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng()));
-//                            newRestaurantsList.add(restaurant);
-//
-//
-//                            restaurantViewModel.setRestaurants(newRestaurantsList);
-//                            locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
-//                                if (locationModel != null) {
-//                                    currentLocation = locationModel.getLocation();
-//                                }
-//                            });
-//                          /*  RestaurantHelper.getRestaurants(placeId).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//                                @Override
-//                                public void onSuccess(DocumentSnapshot documentSnapshot) {
-//                                    Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
-//
-//                                }
-//                            });*/
-//                        }
-//                    } catch (Exception e) {
-//                        Log.d("onResponse", "There is an error");
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//        });
-
     }
 
     private void viewRestaurantDetail(Restaurant restaurant) {
