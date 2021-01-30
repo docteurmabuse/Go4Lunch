@@ -1,8 +1,6 @@
 package com.tizzone.go4lunch.viewmodels;
 
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -65,7 +63,7 @@ public class PlacesViewModel extends ViewModel {
                                     isOpen, new LatLng(result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng()));
                             restaurants.add(restaurant);
                         }
-                        Log.e(TAG, "apply: " + placesResultsList.get(0).getName());
+                        // Log.e(TAG, "apply: " + placesResultsList.get(0).getName());
 
                         return restaurants;
                     }
@@ -73,8 +71,9 @@ public class PlacesViewModel extends ViewModel {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((result) -> {
                             restaurantsList.setValue(result);
-                        },
-                        error -> Log.e(TAG, "getRestaurants:" + error.getMessage()));
+                        }
+                        //   error -> Log.e(TAG, "getRestaurants:" + error.getMessage())
+                );
     }
 
 

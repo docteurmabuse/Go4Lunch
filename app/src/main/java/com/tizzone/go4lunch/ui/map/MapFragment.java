@@ -194,13 +194,14 @@ public class MapFragment extends Fragment {
 
             // Get the current location of the device and set the position of the map.
             getDeviceLocation();
-
-            restaurantViewModel.getRestaurants().observe(getActivity(), new Observer<List<Restaurant>>() {
-                @Override
-                public void onChanged(List<Restaurant> restaurants) {
-                    setMarkers(restaurants);
-                }
-            });
+            placesViewModel.getRestaurantsList();
+            observeData();
+//            restaurantViewModel.getRestaurants().observe(getActivity(), new Observer<List<Restaurant>>() {
+//                @Override
+//                public void onChanged(List<Restaurant> restaurants) {
+//                    setMarkers(restaurants);
+//                }
+//            });
 
 
             // Set a listener for info window events.
@@ -213,6 +214,16 @@ public class MapFragment extends Fragment {
         }
 
     };
+
+    private void observeData() {
+        placesViewModel.getRestaurantsList().observe(getViewLifecycleOwner(), new Observer<ArrayList<Restaurant>>() {
+            @Override
+            public void onChanged(ArrayList<Restaurant> restaurants) {
+                setMarkers(restaurants);
+
+            }
+        });
+    }
 
     public static LatLng getCoordinate(double lat0, double lng0, long dy, long dx) {
         double lat = lat0 + (180 / Math.PI) * (dy / 6378137);

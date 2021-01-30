@@ -158,9 +158,9 @@ public class ListViewFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //Init ViewModels
-        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
-        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
-        restaurantViewModel = new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
+        placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
+        locationViewModel = new ViewModelProvider(this).get(LocationViewModel.class);
+        restaurantViewModel = new ViewModelProvider(this).get(RestaurantViewModel.class);
 
         locationViewModel.getUserLocation().observe(requireActivity(), locationModel -> {
             if (locationModel != null) {
