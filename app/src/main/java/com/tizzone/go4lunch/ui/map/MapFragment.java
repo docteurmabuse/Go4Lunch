@@ -54,7 +54,6 @@ import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import com.tizzone.go4lunch.viewmodels.RestaurantViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -68,6 +67,7 @@ public class MapFragment extends Fragment {
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 546;
     private static final float DEFAULT_ZOOM = 16;
     private final int PROXIMITY_RADIUS = 1000;
+    private final int SESSION_TOKEN = 54784;
     private GoogleMap mMap;
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation;
@@ -84,7 +84,7 @@ public class MapFragment extends Fragment {
     private PlacesClient placesClient;
     private LatLng currentLocation;
     private RestaurantViewModel restaurantViewModel;
-    private List<Restaurant> newRestaurantsList;
+    private List<Restaurant> restaurantsList;
     private FragmentMapBinding mapBinding;
 
 
@@ -132,7 +132,6 @@ public class MapFragment extends Fragment {
 
             // Get the current location of the device and set the position of the map.
             getDeviceLocation();
-            placesViewModel.getRestaurantsList();
             observeData();
 
             // Set a listener for info window events.
@@ -143,7 +142,6 @@ public class MapFragment extends Fragment {
                 }
             });
         }
-
     };
 
     @Override
@@ -164,7 +162,6 @@ public class MapFragment extends Fragment {
         key = getText(R.string.google_maps_key).toString();
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
-
     }
 
     public Bitmap getBitmapFromVectorDrawable(int drawableId) {
@@ -181,19 +178,7 @@ public class MapFragment extends Fragment {
         return bitmap;
     }
 
-    /**
-     * Called when the fragment's activity has been created and this
-     * fragment's view hierarchy instantiated.  It can be used to do final
-     * initialization once these pieces are in place, such as retrieving
-     * views or restoring state.  It is also useful for fragments that use
-     * {@link #setRetainInstance(boolean)} to retain their instance,
-     * as this callback tells the fragment when it is fully associated with
-     * the new activity instance.  This is called after {@link #onCreateView}
-     * and before {@link #onViewStateRestored(Bundle)}.
-     *
-     * @param savedInstanceState If the fragment is being re-created from
-     *                           a previous saved state, this is the state.
-     */
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -203,17 +188,25 @@ public class MapFragment extends Fragment {
         placesViewModel.getRestaurantsList().observe(getActivity(), new Observer<List<Restaurant>>() {
             @Override
             public void onChanged(List<Restaurant> restaurants) {
+                restaurantsList.addAll(restaurants);
                 setMarkers(restaurants);
-                restaurantViewModel.setRestaurants(restaurants);
+            }
+        });
+        locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
+            if (locationModel != null) {
+                this.currentLocation = locationModel.getLocation();
+            }
+        });
+
+        placesViewModel.getFilteredRestaurantsList().observe(getViewLifecycleOwner(), new Observer<List<Restaurant>>() {
+            @Override
+            public void onChanged(List<Restaurant> restaurants) {
+                mMap.clear();
+                setMarkers(restaurants);
             }
         });
     }
 
-    public static LatLng getCoordinate(double lat0, double lng0, long dy, long dx) {
-        double lat = lat0 + (180 / Math.PI) * (dy / 6378137);
-        double lng = lng0 + (180 / Math.PI) * (dx / 6378137) / Math.cos(lat0);
-        return new LatLng(lat, lng);
-    }
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
@@ -235,7 +228,7 @@ public class MapFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         Log.d("called", "this is called.");
-
+                        setMarkers(restaurantsList);
                         searchView.setIconified(true);
                         //initRestaurants();
                         Toast.makeText(getActivity(), "You close the search", Toast.LENGTH_LONG).show();
@@ -257,16 +250,13 @@ public class MapFragment extends Fragment {
             public boolean onQueryTextChange(String newText) {
                 if (newText.length() > 2) {
                     searchView.setFocusable(false);
+                    placesViewModel.setPredictions(newText, currentLocation.latitude + "," + currentLocation.longitude, PROXIMITY_RADIUS, SESSION_TOKEN, key);
                     return true;
                 }
                 return false;
             }
-
         });
     }
-
-
-
 
     private void setMarkers(List<Restaurant> restaurants) {
         for (Restaurant restaurant : restaurants) {
@@ -320,9 +310,7 @@ public class MapFragment extends Fragment {
 
                 }
             });
-
         }
-
     }
 
 
@@ -428,7 +416,6 @@ public class MapFragment extends Fragment {
     }
 
     private void build_retrofit_and_get_response(double latitude, double longitude) {
-        newRestaurantsList = new ArrayList<>();
         placesViewModel.setRestaurants(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
         locationViewModel.setUserLocation(latitude, longitude);
     }

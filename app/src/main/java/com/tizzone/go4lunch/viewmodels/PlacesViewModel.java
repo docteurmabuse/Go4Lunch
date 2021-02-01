@@ -11,6 +11,7 @@ import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.places.PlacesResults;
 import com.tizzone.go4lunch.models.places.Result;
 import com.tizzone.go4lunch.models.prediction.Prediction;
+import com.tizzone.go4lunch.models.prediction.Predictions;
 import com.tizzone.go4lunch.repositories.PlacesRepository;
 import com.tizzone.go4lunch.repositories.Repository;
 
@@ -55,6 +56,9 @@ public class PlacesViewModel extends ViewModel {
         return restaurantsList;
     }
 
+    public MutableLiveData<List<Restaurant>> getFilteredRestaurantsList() {
+        return filteredRestaurants;
+    }
 
     public MutableLiveData<List<Restaurant>> setRestaurants(String location, int radius, String type, String key) {
         repository.getNearByPlacesApi(location, radius, type, key)
@@ -74,7 +78,7 @@ public class PlacesViewModel extends ViewModel {
                                     isOpen, new LatLng(result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng()));
                             restaurants.add(restaurant);
                         }
-                        // Log.e(TAG, "apply: " + placesResultsList.get(0).getName());
+                        Log.e(TAG, "apply: " + placesResultsList.get(0).getName());
 
                         return restaurants;
                     }
@@ -92,16 +96,38 @@ public class PlacesViewModel extends ViewModel {
     public void setPredictions(String input, String location, int radius, int sessiontoken, String key) {
         repository.getPredictionsApi(input, location, radius, sessiontoken, key)
                 .subscribeOn(Schedulers.io())
-                .map(new Function<Prediction, List<Prediction>>() {
+                .map(new Function<Predictions, List<Prediction>>() {
                     @Override
-                    public List<Prediction> apply(Prediction prediction) throws Throwable {
-                        return null;
+                    public List<Prediction> apply(Predictions apiPredictions) throws Throwable {
+                        Log.e(TAG, "apply: " + apiPredictions.getPredictions().get(0).getPlaceId());
+                        return apiPredictions.getPredictions();
+                    }
+                })
+                .map(new Function<List<Prediction>, List<Restaurant>>() {
+                    @Override
+                    public List<Restaurant> apply(List<Prediction> predictions) throws Throwable {
+                        List<Restaurant> filtered = new ArrayList<>();
+                        List<Restaurant> restaurants = new ArrayList<>(restaurantsList.getValue());
+                        if (predictions.size() > 0) {
+
+                            for (Prediction prediction : predictions) {
+                                String idPrediction = prediction.getPlaceId();
+                                for (Restaurant restaurant : restaurants) {
+                                    String idRestaurant = restaurant.getUid();
+                                    if (idPrediction.matches(idRestaurant)) {
+                                        filtered.add(restaurant);
+                                    }
+                                }
+                            }
+                        } else {
+                            filtered.addAll(restaurants);
+                        }
+
+                        return filtered;
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe((result) -> {
-
-                        },
+                .subscribe(filteredRestaurants::setValue,
                         error -> Log.e(TAG, "setPredictions:" + error.getMessage())
                 );
     }

@@ -1,7 +1,7 @@
 package com.tizzone.go4lunch.repositories;
 
 import com.tizzone.go4lunch.models.places.PlacesResults;
-import com.tizzone.go4lunch.models.prediction.Prediction;
+import com.tizzone.go4lunch.models.prediction.Predictions;
 import com.tizzone.go4lunch.network.PlacesApiService;
 
 import javax.inject.Inject;
@@ -25,7 +25,7 @@ public class Repository {
         return placesApiService.getNearByPlacesApi(location, radius, type, key);
     }
 
-    public Flowable<Prediction> getPredictionsApi(String input, String location, int radius, int sessiontoken, String key) {
+    public Flowable<Predictions> getPredictionsApi(String input, String location, int radius, int sessiontoken, String key) {
         return placesApiService.getPredictionsApi(input, location, radius, sessiontoken, key);
     }
 }
