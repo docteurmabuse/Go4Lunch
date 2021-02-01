@@ -12,7 +12,6 @@ import com.tizzone.go4lunch.models.places.PlacesResults;
 import com.tizzone.go4lunch.models.places.Result;
 import com.tizzone.go4lunch.models.prediction.Prediction;
 import com.tizzone.go4lunch.models.prediction.Predictions;
-import com.tizzone.go4lunch.repositories.PlacesRepository;
 import com.tizzone.go4lunch.repositories.Repository;
 
 import java.util.ArrayList;
@@ -29,9 +28,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 @HiltViewModel
 public class PlacesViewModel extends ViewModel {
     private static final String TAG = "RestaurantViewModel";
-    private PlacesRepository placesRepository;
-    private MutableLiveData<PlacesResults> mutableLiveDataPlaces;
-    private MutableLiveData<PlacesResults> mutableLiveDataSearchPlaces;
 
     private final Repository repository;
     public String location;

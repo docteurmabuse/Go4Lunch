@@ -11,6 +11,8 @@ public class User {
     public boolean isAuthenticated;
     private String userName;
     @Nullable
+    private String userEmail;
+    @Nullable
     private String photoUrl;
     @Nullable
     private List favoriteRestaurants;
@@ -21,10 +23,10 @@ public class User {
     public User() {
     }
 
-    public User(String uid, boolean isAuthenticated, String userName, String photoUrl, List<String> favoriteRestaurants, String lunchSpot) {
+    public User(String uid, String userName, String userEmail, String photoUrl, List<String> favoriteRestaurants, String lunchSpot) {
         this.uid = uid;
-        this.isAuthenticated = isAuthenticated;
         this.userName = userName;
+        this.userEmail = userEmail;
         this.photoUrl = photoUrl;
         this.favoriteRestaurants = favoriteRestaurants;
         this.lunchSpot = lunchSpot;
@@ -45,6 +47,16 @@ public class User {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    @Nullable
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public User setUserEmail(@Nullable String userEmail) {
+        this.userEmail = userEmail;
+        return this;
     }
 
     public String getPhotoUrl() {

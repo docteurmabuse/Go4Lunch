@@ -48,11 +48,6 @@ public class AuthActivity extends BaseActivity {
 
     }
 
-//    @Override
-//    public int getFragmentLayout() {
-//        return R.layout.activity_auth;
-//    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -115,7 +110,8 @@ public class AuthActivity extends BaseActivity {
             String urlPicture = (this.getCurrentUser().getPhotoUrl() != null) ? this.getCurrentUser().getPhotoUrl().toString() : null;
             String username = this.getCurrentUser().getDisplayName();
             String uid = this.getCurrentUser().getUid();
-            UserHelper.createUser(uid, true, username, urlPicture, null, null).addOnFailureListener(this.onFailureListener());
+            String userEmail = this.getCurrentUser().getEmail();
+            UserHelper.createUser(uid, userEmail, username, urlPicture, null, null).addOnFailureListener(this.onFailureListener());
         }
     }
 

@@ -4,14 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="restaurant"
             type="com.tizzone.go4lunch.models.Restaurant" />
-
-        <variable
-            name="restaurantViewModel"
-            type="com.tizzone.go4lunch.viewmodels.PlacesViewModel" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
