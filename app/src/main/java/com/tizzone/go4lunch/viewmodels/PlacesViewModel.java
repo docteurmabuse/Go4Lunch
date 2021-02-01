@@ -1,6 +1,8 @@
 package com.tizzone.go4lunch.viewmodels;
 
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -37,14 +39,15 @@ public class PlacesViewModel extends ViewModel {
     public int radius;
     public String type;
     public String key;
-    private MutableLiveData<List<Restaurant>> restaurantsList;
+    public MutableLiveData<List<Restaurant>> restaurantsList = new MutableLiveData<>();
+    private List<Restaurant> lRestaurants;
     private MediatorLiveData<Resource<List<Result>>> resourceMediatorLiveData;
 
 
     @Inject
     public PlacesViewModel(Repository repository) {
         this.repository = repository;
-        this.restaurantsList = restaurantsList;
+        type = "hello";
     }
 
 
@@ -55,59 +58,12 @@ public class PlacesViewModel extends ViewModel {
         return restaurantsList;
     }
 
-    /*public LiveData<Resource<List<Result>>> observeResults(String location, int radius, String type, String key){
-        if (resourceMediatorLiveData == null){
-            resourceMediatorLiveData = new MediatorLiveData<>();
-            resourceMediatorLiveData.setValue(Resource.loading((List<Result>)null));
 
-            final LiveData<Resource<List<Result>>> source = LiveDataReactiveStreams.fromPublisher(
-                    repository.getNearByPlacesApi(location, radius, type, key)
-                    .onErrorReturn(new Function<Throwable,  List<Result>>() {
-                        @Override
-                        public List<Result> apply(Throwable throwable) throws Throwable {
-                            Log.e(TAG, "apply: ", throwable);
-                            Result result = new Result();
-                            List<Result> placesResults = new ArrayList<>();
-                            result.setId("error");
-                            placesResults.add(result);
-                            return placesResults;
-                        }
-                    })
-                    .map(new Function <List<Result>, Resource<List<Result>>>() {
-                        @Override
-                        public Resource<List<Result>> apply(List<Result> results) throws Throwable {
-                            if (results.size()>0){
-                                if (results.get(0).getId() == "error"){
-                                    return Resource.error("Something went wrong", null);
-                                }
-                            }
-                            return Resource.success(results);
-                        }
-                    })
-                    .subscribeOn(Schedulers.io())
-            );
+    public MutableLiveData<List<Restaurant>> getRestaurants() {
+        return restaurantsList;
+    }
 
-
-            resourceMediatorLiveData.addSource(source, new Observer<Resource<List<Result>>>(){
-
-                */
-
-//
-//                @Override
-//                public void onChanged(Resource<List<Result>> listResource) {
-//                    resourceMediatorLiveData.setValue(listResource);
-//                    resourceMediatorLiveData.removeSource(source);
-//                }
-//            });
-//        }
-//        return resourceMediatorLiveData;
-//    }*/
-
-//    public MutableLiveData<List<Restaurant>> getRestaurants(){
-//        return restaurantsList;
-//    }
-
-    public void getRestaurants(String location, int radius, String type, String key) {
+    public MutableLiveData<List<Restaurant>> getRestaurants(String location, int radius, String type, String key) {
         repository.getNearByPlacesApi(location, radius, type, key)
                 .subscribeOn(Schedulers.io())
                 .map(new Function<PlacesResults, List<Restaurant>>() {
@@ -133,9 +89,10 @@ public class PlacesViewModel extends ViewModel {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((result) -> {
                             restaurantsList.setValue(result);
-                        }
-                        //   error -> Log.e(TAG, "getRestaurants:" + error.getMessage())
+                        },
+                        error -> Log.e(TAG, "getRestaurants:" + error.getMessage())
                 );
+        return restaurantsList;
     }
 
     public void getNearByPlaces(String location, int radius, String type, String key) {

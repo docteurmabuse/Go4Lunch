@@ -29,7 +29,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -42,12 +41,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
-import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.AutocompletePrediction;
-import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
-import com.google.android.libraries.places.api.model.RectangularBounds;
-import com.google.android.libraries.places.api.model.TypeFilter;
-import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -121,48 +114,7 @@ public class MapFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         mapBinding = FragmentMapBinding.inflate(inflater, container, false);
         View root = mapBinding.getRoot();
-
-
         return root;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        // Init  ViewModels
-        placesViewModel = new ViewModelProvider(getActivity()).get(PlacesViewModel.class);
-        locationViewModel = new ViewModelProvider(getActivity()).get(LocationViewModel.class);
-        restaurantViewModel = new ViewModelProvider(this).get(RestaurantViewModel.class);
-
-        SupportMapFragment mapFragment =
-                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(callback);
-        }
-
-        key = getText(R.string.google_maps_key).toString();
-        // Construct a FusedLocationProviderClient.
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
-        Places.initialize(this.getContext().getApplicationContext(), key);
-        placesClient = Places.createClient(this.getContext());
-        observeData();
-
-    }
-
-
-    public Bitmap getBitmapFromVectorDrawable(int drawableId) {
-        Drawable drawable = AppCompatResources.getDrawable(mContext, drawableId);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            drawable = (DrawableCompat.wrap(drawable)).mutate();
-        }
-
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
-                drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-        return bitmap;
     }
 
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
@@ -181,6 +133,7 @@ public class MapFragment extends Fragment {
             // Get the current location of the device and set the position of the map.
             getDeviceLocation();
             placesViewModel.getRestaurantsList();
+            observeData();
 
             // Set a listener for info window events.
             mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
@@ -193,9 +146,61 @@ public class MapFragment extends Fragment {
 
     };
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Init  ViewModels
+        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
+        restaurantViewModel = new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
+
+        SupportMapFragment mapFragment =
+                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(callback);
+        }
+
+        key = getText(R.string.google_maps_key).toString();
+        // Construct a FusedLocationProviderClient.
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+
+    }
+
+    public Bitmap getBitmapFromVectorDrawable(int drawableId) {
+        Drawable drawable = AppCompatResources.getDrawable(mContext, drawableId);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            drawable = (DrawableCompat.wrap(drawable)).mutate();
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
+                drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+        return bitmap;
+    }
+
+    /**
+     * Called when the fragment's activity has been created and this
+     * fragment's view hierarchy instantiated.  It can be used to do final
+     * initialization once these pieces are in place, such as retrieving
+     * views or restoring state.  It is also useful for fragments that use
+     * {@link #setRetainInstance(boolean)} to retain their instance,
+     * as this callback tells the fragment when it is fully associated with
+     * the new activity instance.  This is called after {@link #onCreateView}
+     * and before {@link #onViewStateRestored(Bundle)}.
+     *
+     * @param savedInstanceState If the fragment is being re-created from
+     *                           a previous saved state, this is the state.
+     */
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+    }
 
     private void observeData() {
-        placesViewModel.getRestaurantsList().observe(getViewLifecycleOwner(), new Observer<List<Restaurant>>() {
+        placesViewModel.getRestaurantsList().observe(getActivity(), new Observer<List<Restaurant>>() {
             @Override
             public void onChanged(List<Restaurant> restaurants) {
                 setMarkers(restaurants);
@@ -219,15 +224,12 @@ public class MapFragment extends Fragment {
                 (SearchManager) getContext().getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView =
                 (SearchView) menu.findItem(R.id.search).getActionView();
-        //searchView.setBackgroundColor(Color.WHITE);
 
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getActivity().getComponentName()));
         searchView.setIconifiedByDefault(true);
         searchView.setIconified(false);
 
-        //searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
-        // searchView.setBackgroundColor(Color.WHITE);
         searchView.findViewById(R.id.search_close_btn)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -255,40 +257,6 @@ public class MapFragment extends Fragment {
             public boolean onQueryTextChange(String newText) {
                 if (newText.length() > 2) {
                     searchView.setFocusable(false);
-
-                    AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
-                    // Create a RectangularBounds object.
-                    RectangularBounds bounds = RectangularBounds.newInstance(
-                            getCoordinate(currentLocation.latitude, currentLocation.longitude, -100, -100),
-                            getCoordinate(currentLocation.latitude, currentLocation.longitude, 100, 100));
-                    // Use the builder to create a FindAutocompletePredictionsRequest.
-                    FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest.builder()
-                            // Call either setLocationBias() OR setLocationRestriction().
-                            .setLocationBias(bounds)
-                            //.setLocationRestriction(bounds)
-                            .setOrigin(currentLocation)
-                            .setCountries("FR")
-                            .setTypeFilter(TypeFilter.ESTABLISHMENT)
-                            .setSessionToken(token)
-                            .setQuery(newText)
-                            .build();
-                    placesClient.findAutocompletePredictions(request).addOnSuccessListener((response) -> {
-                        List<String> placesPrediction = new ArrayList<>();
-                        List<Restaurant> filteredRestaurants = new ArrayList<>();
-
-                        for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
-                            Log.i(TAG, prediction.getPlaceId());
-                            Log.i(TAG, prediction.getPrimaryText(null).toString());
-                            placesPrediction.add(prediction.getPlaceId());
-
-                        }
-
-                    }).addOnFailureListener((exception) -> {
-                        if (exception instanceof ApiException) {
-                            ApiException apiException = (ApiException) exception;
-                            Log.e(TAG, "Place not found: " + apiException.getStatusCode());
-                        }
-                    });
                     return true;
                 }
                 return false;
@@ -462,6 +430,7 @@ public class MapFragment extends Fragment {
     private void build_retrofit_and_get_response(double latitude, double longitude) {
         newRestaurantsList = new ArrayList<>();
         placesViewModel.getRestaurants(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
+        locationViewModel.setUserLocation(latitude, longitude);
     }
 
     private void viewRestaurantDetail(Restaurant restaurant) {

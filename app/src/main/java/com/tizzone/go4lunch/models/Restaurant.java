@@ -12,12 +12,12 @@ import com.tizzone.go4lunch.BR;
 
 import org.jetbrains.annotations.Nullable;
 
-
 public class Restaurant extends BaseObservable implements Parcelable {
     private String uid;
     private int restaurant_counter;
     private String name;
     private String address;
+
     public static final Creator<Restaurant> CREATOR = new Creator<Restaurant>() {
         @Override
         public Restaurant createFromParcel(Parcel in) {

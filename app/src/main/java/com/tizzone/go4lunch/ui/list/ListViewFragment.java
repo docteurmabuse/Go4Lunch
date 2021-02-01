@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -38,7 +39,6 @@ import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.adapters.PlacesListAdapter;
 import com.tizzone.go4lunch.databinding.FragmentListBinding;
 import com.tizzone.go4lunch.models.Restaurant;
-import com.tizzone.go4lunch.models.places.PlacesResults;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import com.tizzone.go4lunch.viewmodels.RestaurantViewModel;
@@ -77,7 +77,7 @@ public class ListViewFragment extends Fragment {
 
     private SearchView.SearchAutoComplete searchAutoComplete;
     private PlacesClient placesClient;
-    private ArrayList<Restaurant> restaurants;
+    private List<Restaurant> restaurants;
     private SearchView searchView;
 
     //FOR DATA
@@ -85,6 +85,7 @@ public class ListViewFragment extends Fragment {
 
 
     private List<Restaurant> newRestaurantsList;
+    private MutableLiveData<List<Restaurant>> newRestaurants;
 
     public static LatLng getCoordinate(double lat0, double lng0, long dy, long dx) {
         double lat = lat0 + (180 / Math.PI) * (dy / 6378137);
@@ -155,26 +156,24 @@ public class ListViewFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //Init ViewModels
-        locationViewModel = new ViewModelProvider(this).get(LocationViewModel.class);
-        placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
-        restaurantViewModel = new ViewModelProvider(this).get(RestaurantViewModel.class);
-
+        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
+        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+        restaurantViewModel = new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
 
 
         initRecycleView();
-        observeData();
-        // placesViewModel.getRestaurantsList();
+        newRestaurants = placesViewModel.getRestaurantsList();
     }
 
     private void observeData() {
-        locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
+        locationViewModel.getUserLocation().observe(requireActivity(), locationModel -> {
             if (locationModel != null) {
                 placesListAdapter.setCurrentLocation(locationModel.getLocation());
                 this.currentLocation = locationModel.getLocation();
             }
         });
 
-        placesViewModel.getRestaurantsList().observe(getViewLifecycleOwner(), restaurants -> {
+        placesViewModel.getRestaurantsList().observe(requireActivity(), restaurants -> {
             Log.e(TAG, "onChanged: " + restaurants.size());
             placesListAdapter.setPlaces(restaurants, currentLocation);
         });
@@ -184,6 +183,8 @@ public class ListViewFragment extends Fragment {
         fragmentListBinding.listViewPlaces.setLayoutManager(new LinearLayoutManager(getContext()));
         placesListAdapter = new PlacesListAdapter(restaurants, currentLocation, getContext());
         fragmentListBinding.listViewPlaces.setAdapter(placesListAdapter);
+        observeData();
+
     }
 
     /**
@@ -218,11 +219,7 @@ public class ListViewFragment extends Fragment {
         fragmentListBinding = null;
     }
 
-    // Update UI
 
-    private void updateUIWithListOfRestaurant(PlacesResults placesResults) {
-
-    }
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {

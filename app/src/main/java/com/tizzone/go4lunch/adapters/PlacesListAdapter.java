@@ -121,7 +121,7 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     }
 
     public void setPlaces(List<Restaurant> restaurants, LatLng currentLocation) {
-        this.mPlaces.clear();
+       // this.mPlaces.clear();
         this.mPlaces = restaurants;
         this.currentLocation = currentLocation;
         notifyDataSetChanged();
