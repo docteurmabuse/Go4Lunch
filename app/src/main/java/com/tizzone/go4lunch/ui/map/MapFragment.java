@@ -429,7 +429,7 @@ public class MapFragment extends Fragment {
 
     private void build_retrofit_and_get_response(double latitude, double longitude) {
         newRestaurantsList = new ArrayList<>();
-        placesViewModel.getRestaurants(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
+        placesViewModel.setRestaurants(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
         locationViewModel.setUserLocation(latitude, longitude);
     }
 

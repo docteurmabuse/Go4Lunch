@@ -108,38 +108,7 @@ public class ListViewFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         fragmentListBinding = FragmentListBinding.inflate(inflater, container, false);
-        View root = fragmentListBinding.getRoot();
-//        List<Restaurant> places = new ArrayList<>();
-//        placesViewModel =
-//                new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
-//        container.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-//            @Override
-//            public void onViewAttachedToWindow(View view) {
-//
-//            }
-//
-//            @Override
-//            public void onViewDetachedFromWindow(View view) {
-//                // Manage this event.
-//                setRetrofitInAdapter();
-//                Toast.makeText(getActivity(), "You close the search", Toast.LENGTH_LONG).show();
-//            }
-//        });
-//        placesViewModel.init();
-//
-//
-//        placesListAdapter = new PlacesListAdapter(places, currentLocation, getContext());
-//
-//        RecyclerView recyclerViewPlaces = root.findViewById(R.id.listViewPlaces);
-//        recyclerViewPlaces.setHasFixedSize(true);
-//        recyclerViewPlaces.setLayoutManager(new LinearLayoutManager(root.getContext()));
-//
-//
-//        setRetrofitInAdapter();
-//        recyclerViewPlaces.setAdapter(placesListAdapter);
-//
-//        restaurantViewModel.getRestaurants().observe(this.getActivity(), this::onChanged);
-        return root;
+        return fragmentListBinding.getRoot();
     }
 
     /**

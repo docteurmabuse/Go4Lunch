@@ -81,8 +81,8 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
             holder.distance.setText(resources.getString(R.string.distance, mDistance));
         }
 
-
-        String imageUrl = place.getPhotoUrl();
+        mKey = context.getString(R.string.google_maps_key);
+        String imageUrl = place.getPhotoUrl() + mKey;
 
         Glide.with(holder.itemView)
                 .load(imageUrl)
@@ -121,7 +121,7 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     }
 
     public void setPlaces(List<Restaurant> restaurants, LatLng currentLocation) {
-       // this.mPlaces.clear();
+        // this.mPlaces.clear();
         this.mPlaces = restaurants;
         this.currentLocation = currentLocation;
         notifyDataSetChanged();

@@ -3,16 +3,14 @@ package com.tizzone.go4lunch.viewmodels;
 
 import android.util.Log;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.places.PlacesResults;
-import com.tizzone.go4lunch.models.places.Resource;
 import com.tizzone.go4lunch.models.places.Result;
+import com.tizzone.go4lunch.models.prediction.Prediction;
 import com.tizzone.go4lunch.repositories.PlacesRepository;
 import com.tizzone.go4lunch.repositories.Repository;
 
@@ -40,14 +38,13 @@ public class PlacesViewModel extends ViewModel {
     public String type;
     public String key;
     public MutableLiveData<List<Restaurant>> restaurantsList = new MutableLiveData<>();
-    private List<Restaurant> lRestaurants;
-    private MediatorLiveData<Resource<List<Result>>> resourceMediatorLiveData;
+
+    private final MutableLiveData<List<Restaurant>> filteredRestaurants = new MutableLiveData<>();
 
 
     @Inject
     public PlacesViewModel(Repository repository) {
         this.repository = repository;
-        type = "hello";
     }
 
 
@@ -59,11 +56,7 @@ public class PlacesViewModel extends ViewModel {
     }
 
 
-    public MutableLiveData<List<Restaurant>> getRestaurants() {
-        return restaurantsList;
-    }
-
-    public MutableLiveData<List<Restaurant>> getRestaurants(String location, int radius, String type, String key) {
+    public MutableLiveData<List<Restaurant>> setRestaurants(String location, int radius, String type, String key) {
         repository.getNearByPlacesApi(location, radius, type, key)
                 .subscribeOn(Schedulers.io())
                 .map(new Function<PlacesResults, List<Restaurant>>() {
@@ -90,49 +83,28 @@ public class PlacesViewModel extends ViewModel {
                 .subscribe((result) -> {
                             restaurantsList.setValue(result);
                         },
-                        error -> Log.e(TAG, "getRestaurants:" + error.getMessage())
+                        error -> Log.e(TAG, "setRestaurants:" + error.getMessage())
                 );
         return restaurantsList;
     }
 
-    public void getNearByPlaces(String location, int radius, String type, String key) {
-        placesRepository.getNearByPlaces(location, radius, type, key, new PlacesRepository.PlacesResultsInterface() {
-            @Override
-            public void onResponse(PlacesResults placesResults) {
-                mutableLiveDataPlaces.setValue(placesResults);
-            }
-        });
+
+    public void setPredictions(String input, String location, int radius, int sessiontoken, String key) {
+        repository.getPredictionsApi(input, location, radius, sessiontoken, key)
+                .subscribeOn(Schedulers.io())
+                .map(new Function<Prediction, List<Prediction>>() {
+                    @Override
+                    public List<Prediction> apply(Prediction prediction) throws Throwable {
+                        return null;
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((result) -> {
+
+                        },
+                        error -> Log.e(TAG, "setPredictions:" + error.getMessage())
+                );
     }
 
-    public void getDetailByPlaceId(String placeId, String fields, String key) {
-        placesRepository.getDetailByPlaceId(placeId, fields, key, new PlacesRepository.PlacesResultsInterface() {
-            @Override
-            public void onResponse(PlacesResults placesResults) {
-                mutableLiveDataSearchPlaces.setValue(placesResults);
-            }
-        });
-    }
-
-    public LiveData<PlacesResults> getPlacesResultsLiveData() {
-        if (mutableLiveDataPlaces == null) {
-            mutableLiveDataPlaces = new MutableLiveData<PlacesResults>();
-        }
-        return mutableLiveDataPlaces;
-    }
-
-
-    public LiveData<PlacesResults> getPlacesResultsSearchPlaces() {
-        if (mutableLiveDataSearchPlaces == null) {
-            mutableLiveDataSearchPlaces = new MutableLiveData<PlacesResults>();
-        }
-        return mutableLiveDataSearchPlaces;
-    }
-
-    public LiveData<List<Restaurant>> getRestaurantsLiveData() {
-        if (restaurantsList == null) {
-            restaurantsList = new MutableLiveData<List<Restaurant>>();
-        }
-        return restaurantsList;
-    }
 
 }

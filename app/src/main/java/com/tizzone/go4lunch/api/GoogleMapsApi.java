@@ -5,7 +5,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class PlacesApi {
+public class GoogleMapsApi {
 
     private static Retrofit retrofit = null;
 

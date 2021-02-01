@@ -1,6 +1,8 @@
 package com.tizzone.go4lunch.network;
 
+
 import com.tizzone.go4lunch.models.places.PlacesResults;
+import com.tizzone.go4lunch.models.prediction.Prediction;
 
 import io.reactivex.rxjava3.core.Flowable;
 import retrofit2.http.GET;
@@ -12,6 +14,15 @@ public interface PlacesApiService {
             @Query("location") String location,
             @Query("radius") int radius,
             @Query("type") String type,
+            @Query("key") String key
+    );
+
+    @GET("place/autocomplete/json?types=establishment&strictbounds")
+    Flowable<Prediction> getPredictionsApi(
+            @Query("input") String input,
+            @Query("location") String location,
+            @Query("radius") int radius,
+            @Query("sessiontoken ") int sessiontoken,
             @Query("key") String key
     );
 }

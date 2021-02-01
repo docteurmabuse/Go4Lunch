@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.tizzone.go4lunch.api.GoogleMapDetailApi;
-import com.tizzone.go4lunch.api.PlacesApi;
+import com.tizzone.go4lunch.api.GoogleMapsApi;
 import com.tizzone.go4lunch.api.PlacesService;
 import com.tizzone.go4lunch.models.places.PlacesResults;
 
@@ -25,7 +25,7 @@ public class PlacesRepository {
 
     private final MutableLiveData<PlacesResults> placesResultsLiveData;
     private final MutableLiveData<PlacesResults> placesSearchResultsLiveData;
-    private PlacesApi placesApi;
+    private GoogleMapsApi googleMapsApi;
 
     public PlacesRepository() {
         placesResultsLiveData = new MutableLiveData<>();
