@@ -45,7 +45,6 @@ public class AuthActivity extends BaseActivity {
             getSupportActionBar().hide();
         }
         coordinatorLayout = mBinding.mainLayout;
-
     }
 
     @Override
@@ -59,9 +58,6 @@ public class AuthActivity extends BaseActivity {
         }
     }
 
-    private void init() {
-
-    }
 
     private void startSignInActivity() {
         //Login
@@ -116,7 +112,6 @@ public class AuthActivity extends BaseActivity {
     }
 
     private void updateUserIsAuthenticatedInFirestore() {
-
         if (this.getCurrentUser() != null) {
             String uid = this.getCurrentUser().getUid();
             UserHelper.updateIsAuthenticated(true, uid).addOnFailureListener(this.onFailureListener());

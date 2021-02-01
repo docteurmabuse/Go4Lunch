@@ -3,6 +3,7 @@ package com.tizzone.go4lunch.viewmodels;
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -11,7 +12,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.tizzone.go4lunch.models.User;
 
-public class UserRepository {
+public class UserViewModel extends ViewModel {
     private static final String TAG = "FirebaseAuthAppTag";
     private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private final FirebaseFirestore rootRef = FirebaseFirestore.getInstance();

@@ -73,9 +73,6 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
             holder.ratingBar.setRating(rating);
         }
 
-//        if (place.isOpen_now()=!null) {
-//            Boolean isOpen = place.isOpen_now();
-//        }
         if (place.getLocation() != null) {
             int mDistance = (int) Math.floor(SphericalUtil.computeDistanceBetween(currentLocation, place.getLocation()));
             holder.distance.setText(resources.getString(R.string.distance, mDistance));
