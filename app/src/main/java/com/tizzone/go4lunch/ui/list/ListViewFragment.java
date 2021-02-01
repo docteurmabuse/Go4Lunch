@@ -11,29 +11,18 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.AutocompletePrediction;
-import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
-import com.google.android.libraries.places.api.model.PhotoMetadata;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.model.RectangularBounds;
-import com.google.android.libraries.places.api.model.TypeFilter;
-import com.google.android.libraries.places.api.net.FetchPlaceRequest;
-import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.adapters.PlacesListAdapter;
@@ -44,13 +33,9 @@ import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import com.tizzone.go4lunch.viewmodels.RestaurantViewModel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.rxjava3.disposables.Disposable;
 
 import static android.content.ContentValues.TAG;
 
@@ -64,6 +49,9 @@ public class ListViewFragment extends Fragment {
     private final int PERMISSION_ID = 44;
 
     private final LatLng mDefaultLocation = new LatLng(48.850559, 2.377078);
+    private final int PROXIMITY_RADIUS = 1000;
+    private final int SESSION_TOKEN = 54784;
+
     private boolean mLocationPermissionGranted;
     // The geographical location where the device is currently located. That is, the last-known
     // location retrieved by the Fused Location Provider.
@@ -78,14 +66,7 @@ public class ListViewFragment extends Fragment {
     private SearchView.SearchAutoComplete searchAutoComplete;
     private PlacesClient placesClient;
     private List<Restaurant> restaurants;
-    private SearchView searchView;
 
-    //FOR DATA
-    private Disposable disposable;
-
-
-    private List<Restaurant> newRestaurantsList;
-    private MutableLiveData<List<Restaurant>> newRestaurants;
 
     public static LatLng getCoordinate(double lat0, double lng0, long dy, long dx) {
         double lat = lat0 + (180 / Math.PI) * (dy / 6378137);
@@ -129,9 +110,7 @@ public class ListViewFragment extends Fragment {
         placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         restaurantViewModel = new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
 
-
         initRecycleView();
-        newRestaurants = placesViewModel.getRestaurantsList();
     }
 
     private void observeData() {
@@ -142,8 +121,14 @@ public class ListViewFragment extends Fragment {
             }
         });
 
-        placesViewModel.getRestaurantsList().observe(requireActivity(), restaurants -> {
-            Log.e(TAG, "onChanged: " + restaurants.size());
+        placesViewModel.getRestaurantsList().observe(requireActivity(), restaurantsList -> {
+            Log.e(TAG, "onChanged: " + restaurantsList.size());
+            placesListAdapter.setPlaces(restaurantsList, currentLocation);
+            restaurants = new ArrayList<>();
+            restaurants.addAll(restaurantsList);
+        });
+
+        placesViewModel.getFilteredRestaurantsList().observe(getViewLifecycleOwner(), restaurants -> {
             placesListAdapter.setPlaces(restaurants, currentLocation);
         });
     }
@@ -163,11 +148,6 @@ public class ListViewFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        this.disposeWhenDestroy();
-    }
-
-    private void disposeWhenDestroy() {
-        if (this.disposable != null && this.disposable.isDisposed()) this.disposable.dispose();
     }
 
     public void onResume() {
@@ -189,7 +169,6 @@ public class ListViewFragment extends Fragment {
     }
 
 
-
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.options_menu, menu);
@@ -203,8 +182,7 @@ public class ListViewFragment extends Fragment {
 
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getActivity().getComponentName()));
-        searchView.setIconifiedByDefault(true);
-        searchView.setIconified(false);
+        searchView.setIconifiedByDefault(false);
 
         //searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
         // searchView.setBackgroundColor(Color.WHITE);
@@ -213,11 +191,8 @@ public class ListViewFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         Log.d("called", "this is called.");
-
                         searchView.setIconified(true);
-                        //initRestaurants();
-                        Toast.makeText(getActivity(), "You close the search", Toast.LENGTH_LONG).show();
-
+                        placesListAdapter.setPlaces(restaurants, currentLocation);
                     }
                 });
 
@@ -226,7 +201,6 @@ public class ListViewFragment extends Fragment {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if (query.length() > 2) {
-                    initAutocomplete(query);
                     searchView.setFocusable(false);
                     return false;
                 }
@@ -236,145 +210,13 @@ public class ListViewFragment extends Fragment {
             @Override
             public boolean onQueryTextChange(String newText) {
                 if (newText.length() > 2) {
-                    initAutocomplete(newText);
+                    placesViewModel.setPredictions(newText, currentLocation.latitude + "," + currentLocation.longitude, PROXIMITY_RADIUS, SESSION_TOKEN, key);
                     searchView.setFocusable(false);
                     return true;
                 }
-                return false;
+                return true;
             }
         });
-    }
-
-
-    // Get the intent, verify the action and get the query
-//        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-//            String query = intent.getStringExtra(SearchManager.QUERY);
-//            initAutocomplete(query);
-//        }
-
-
-    // Get SearchView autocomplete object.
-//        final SearchView.SearchAutoComplete searchAutoComplete = (SearchView.SearchAutoComplete)searchView.findViewById(androidx.appcompat.R.id.search_src_text);
-//        searchAutoComplete.setBackgroundColor(Color.WHITE);
-//        searchAutoComplete.setTextColor(Color.BLACK);
-//        searchAutoComplete.setDropDownBackgroundResource(android.R.color.white);
-    private void initAutocomplete(String query) {
-        // Set the fields to specify which types of place data to
-        // return after the user has made a selection.
-        // Create a new token for the autocomplete session. Pass this to FindAutocompletePredictionsRequest,
-        // and once again when the user makes a selection (for example when calling fetchPlace()).
-        AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
-        // Create a RectangularBounds object.
-        RectangularBounds bounds = RectangularBounds.newInstance(
-                getCoordinate(currentLocation.latitude, currentLocation.longitude, -100, -100),
-                getCoordinate(currentLocation.latitude, currentLocation.longitude, 100, 100));
-        // Use the builder to create a FindAutocompletePredictionsRequest.
-        FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest.builder()
-                // Call either setLocationBias() OR setLocationRestriction().
-                .setLocationBias(bounds)
-                //.setLocationRestriction(bounds)
-                .setOrigin(currentLocation)
-                .setCountries("FR")
-                .setTypeFilter(TypeFilter.ESTABLISHMENT)
-                .setSessionToken(token)
-                .setQuery(query)
-                .build();
-        placesClient.findAutocompletePredictions(request).addOnSuccessListener((response) -> {
-            // List<String> placesPrediction = new ArrayList<>();
-            List<Restaurant> filteredRestaurants = new ArrayList<>();
-
-            for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
-                //  Log.i(TAG, prediction.getPlaceId());
-                // Log.i(TAG, prediction.getPrimaryText(null).toString());
-                //placesPrediction.add(prediction.getPlaceId());
-                //   placesViewModel.getDetailByPlaceId(prediction.getPlaceId(), "name,geometry,vicinity,photos,rating,formatted_phone_number", key);
-                // addRestaurant(prediction.getPlaceId());
-//                for (Result place :prediction.getPlaceId()) {
-//                    Boolean isOpen = null;
-//                    if (place.getOpeningHours() != null)
-//                        isOpen = place.getOpeningHours().getOpenNow();
-//                    Restaurant restaurant = new Restaurant(place.getPlaceId(), place.getName(), place.getVicinity(), place.getPhotoUrl(resources), place.getRating(), 0,
-//                            isOpen, new LatLng(place.getGeometry().getLocation().getLat(), place.getGeometry().getLocation().getLat()));
-//                    restaurants.add(restaurant);
-//                }
-                for (Restaurant restaurant : restaurants) {
-                    Log.i(TAG, prediction.getPrimaryText(null).toString() + ":" +
-                            restaurant.getName());
-                    Log.i(TAG, prediction.getPlaceId() + ":" +
-                            restaurant.getUid());
-                    if (restaurant.getUid().contains(prediction.getPlaceId())) {
-                        filteredRestaurants.add(restaurant);
-
-
-                    }
-                }
-
-            }
-            restaurantViewModel.setRestaurants(filteredRestaurants);
-            // addRestaurant(placesPrediction);
-            //  placesListAdapter.setFilter(placesPrediction);
-            //placesListAdapter.setPlaces(filteredRestaurants,currentLocation);
-            //restaurantViewModel.setRestaurants(filteredRestaurants);
-            //restaurants = new ArrayList<>();
-            //placesListAdapter.setPlaces(restaurants,currentLocation);
-            // setRetrofitDetailInAdapter(placesPrediction);
-
-        }).addOnFailureListener((exception) -> {
-            if (exception instanceof ApiException) {
-                ApiException apiException = (ApiException) exception;
-                Log.e(TAG, "Place not found: " + apiException.getStatusCode());
-            }
-        });
-    }
-
-    private void addRestaurant(List<String> placesId) {
-
-        // Specify the fields to return.
-        newRestaurantsList = new ArrayList<>();
-        List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.TYPES, Place.Field.PHOTO_METADATAS,
-                Place.Field.WEBSITE_URI, Place.Field.PHONE_NUMBER, Place.Field.RATING, Place.Field.TYPES, Place.Field.LAT_LNG, Place.Field.OPENING_HOURS);
-        //restaurants = new ArrayList<>();
-        for (String placeId : placesId) {
-            // Construct a request object, passing the place ID and fields array.
-            FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeId, placeFields);
-            placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
-
-                Place place = response.getPlace();
-                createList(response.getPlace());
-            });
-        }
-        restaurantViewModel.setRestaurants(newRestaurantsList);
-    }
-
-    private void createList(Place place) {
-        List<Place.Type> types = place.getTypes();
-        for (int i = 0; i < place.getTypes().size(); i++) {
-            if (types.get(i).name().contains("RESTAURANT")) {
-                final List<PhotoMetadata> metadata = place.getPhotoMetadatas();
-                // Create a FetchPhotoRequest.
-                if (metadata != null) {
-                    String photoMetadata = metadata.get(0).toString();
-                    photoMetadata = photoMetadata.substring(1, photoMetadata.length() - 1);
-                    String[] photoArray = photoMetadata.split(",");
-                    Map<String, String> hashMapPhoto = new HashMap<>();
-
-                    for (String val : photoArray) {
-                        String[] name = val.split("=");
-                        hashMapPhoto.put(name[0].trim(), name[1].trim());
-                    }
-                    String photoReference = hashMapPhoto.get("photoReference");
-                    String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
-                    String mKey = getString(R.string.google_maps_key);
-                    String photoUrl = staticUrl + "maxwidth=400&photoreference=" + photoReference + "&key=" + mKey;
-                    Restaurant restaurant = new Restaurant(place.getId(), place.getName(), place.getAddress(), photoUrl, place.getRating().floatValue(), 0,
-                            place.isOpen(), place.getLatLng());
-                    newRestaurantsList.add(restaurant);
-                }
-
-            }
-
-            Log.i(TAG, "Place found: " + place.getName());
-        }
     }
 
 

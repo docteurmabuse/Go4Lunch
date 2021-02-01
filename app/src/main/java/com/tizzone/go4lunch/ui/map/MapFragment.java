@@ -40,7 +40,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
-import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -81,7 +80,6 @@ public class MapFragment extends Fragment {
     private Marker workmatesRestaurant;
     private Marker emptyRestaurant;
     private Context mContext;
-    private PlacesClient placesClient;
     private LatLng currentLocation;
     private RestaurantViewModel restaurantViewModel;
     private List<Restaurant> restaurantsList;
@@ -251,7 +249,7 @@ public class MapFragment extends Fragment {
                     placesViewModel.setPredictions(newText, currentLocation.latitude + "," + currentLocation.longitude, PROXIMITY_RADIUS, SESSION_TOKEN, key);
                     return true;
                 }
-                return false;
+                return true;
             }
         });
     }
