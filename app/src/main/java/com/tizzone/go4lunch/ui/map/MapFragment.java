@@ -16,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -66,7 +65,7 @@ import static android.content.ContentValues.TAG;
 public class MapFragment extends Fragment {
 
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 546;
-    private static final float DEFAULT_ZOOM = 16;
+    private static final float DEFAULT_ZOOM = 15;
     private final int PROXIMITY_RADIUS = 1000;
     private final int SESSION_TOKEN = 54784;
     private GoogleMap mMap;
@@ -222,8 +221,8 @@ public class MapFragment extends Fragment {
 
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getActivity().getComponentName()));
-        searchView.setIconifiedByDefault(true);
-        searchView.setIconified(false);
+
+        searchView.setIconifiedByDefault(false);
 
         searchView.findViewById(R.id.search_close_btn)
                 .setOnClickListener(new View.OnClickListener() {
@@ -232,12 +231,9 @@ public class MapFragment extends Fragment {
                         Log.d("called", "this is called.");
                         setMarkers(restaurantsList);
                         searchView.setIconified(true);
-                        //initRestaurants();
-                        Toast.makeText(getActivity(), "You close the search", Toast.LENGTH_LONG).show();
                     }
                 });
 
-        //  getActivity().setContentView(R.layout.search);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
