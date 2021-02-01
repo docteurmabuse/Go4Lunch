@@ -54,6 +54,7 @@ import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import com.tizzone.go4lunch.viewmodels.RestaurantViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -188,8 +189,9 @@ public class MapFragment extends Fragment {
         placesViewModel.getRestaurantsList().observe(getActivity(), new Observer<List<Restaurant>>() {
             @Override
             public void onChanged(List<Restaurant> restaurants) {
-                restaurantsList.addAll(restaurants);
                 setMarkers(restaurants);
+                restaurantsList = new ArrayList<>();
+                restaurantsList.addAll(restaurants);
             }
         });
         locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
@@ -259,43 +261,21 @@ public class MapFragment extends Fragment {
     }
 
     private void setMarkers(List<Restaurant> restaurants) {
-        for (Restaurant restaurant : restaurants) {
-            MarkerOptions markerOptions = new MarkerOptions();
-            LatLng latLng = restaurant.getLocation();
-            // Position of Marker on Map
-            markerOptions.position(latLng);
-            // Adding Title to the Marker
-            markerOptions.title(restaurant.getName() + " : " + restaurant.getAddress());
-            Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_red);
-            BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
-            UserHelper.getUsersLunchSpot(restaurant.getUid()).addSnapshotListener(new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                    if (error != null) {
-                        Log.w(TAG, "Listener failed.", error);
-                        Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_red);
-                        BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
-                        // Adding No Workmates Restaurant Marker to the Camera.
-                        emptyRestaurant = mMap.addMarker(new MarkerOptions()
-                                .position(latLng)
-                                .title(restaurant.getName())
-                                .snippet(restaurant.getAddress())
-                                .icon(mapIcon));
-                        emptyRestaurant.setTag(restaurant);
-                    } else {
-                        int usersCount = value.size();
-                        if (usersCount > 0) {
-                            Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_green);
-                            BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
-                            // Adding Workmates Restaurant's Marker to the Camera.
-
-                            workmatesRestaurant = mMap.addMarker(new MarkerOptions()
-                                    .position(latLng)
-                                    .title(restaurant.getName())
-                                    .snippet(restaurant.getAddress())
-                                    .icon(mapIcon));
-                            workmatesRestaurant.setTag(restaurant);
-                        } else {
+        if (restaurants.size() > 0) {
+            for (Restaurant restaurant : restaurants) {
+                MarkerOptions markerOptions = new MarkerOptions();
+                LatLng latLng = restaurant.getLocation();
+                // Position of Marker on Map
+                markerOptions.position(latLng);
+                // Adding Title to the Marker
+                markerOptions.title(restaurant.getName() + " : " + restaurant.getAddress());
+                Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_red);
+                BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
+                UserHelper.getUsersLunchSpot(restaurant.getUid()).addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if (error != null) {
+                            Log.w(TAG, "Listener failed.", error);
                             Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_red);
                             BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
                             // Adding No Workmates Restaurant Marker to the Camera.
@@ -305,12 +285,37 @@ public class MapFragment extends Fragment {
                                     .snippet(restaurant.getAddress())
                                     .icon(mapIcon));
                             emptyRestaurant.setTag(restaurant);
-                        }
-                    }
+                        } else {
+                            int usersCount = value.size();
+                            if (usersCount > 0) {
+                                Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_green);
+                                BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
+                                // Adding Workmates Restaurant's Marker to the Camera.
 
-                }
-            });
+                                workmatesRestaurant = mMap.addMarker(new MarkerOptions()
+                                        .position(latLng)
+                                        .title(restaurant.getName())
+                                        .snippet(restaurant.getAddress())
+                                        .icon(mapIcon));
+                                workmatesRestaurant.setTag(restaurant);
+                            } else {
+                                Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_red);
+                                BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
+                                // Adding No Workmates Restaurant Marker to the Camera.
+                                emptyRestaurant = mMap.addMarker(new MarkerOptions()
+                                        .position(latLng)
+                                        .title(restaurant.getName())
+                                        .snippet(restaurant.getAddress())
+                                        .icon(mapIcon));
+                                emptyRestaurant.setTag(restaurant);
+                            }
+                        }
+
+                    }
+                });
+            }
         }
+
     }
 
 
