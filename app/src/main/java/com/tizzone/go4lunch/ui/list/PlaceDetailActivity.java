@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -48,11 +49,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 
 public class PlaceDetailActivity extends BaseActivity implements UsersListAdapter.Listener {
     private static final String TAG = "1543";
     private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 5873;
+    private static final String CHANNEL_ID = "4578";
     private String mDetailAddress;
     private String mDetailName;
     private String placePhone;
@@ -60,12 +63,12 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private String lunchSpot;
     private String mDetailPhotoUrl;
     private String uid;
-    private List<User> mUsers;
-    private ArrayList restaurants;
     private List<String> favouriteRestaurantsList;
     private float ratingThreeStars;
     private float ratingFiveStarFloat;
     private String key;
+    @Nullable
+    boolean isOpen;
 
     private ActivityPlaceDetailBinding placeDetailBinding;
     private ContentLayoutPlaceDetailActivityBinding contentLayoutBinding;
@@ -162,7 +165,11 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
                 Place place = response.getPlace();
                 placePhone = place.getPhoneNumber();
-                placeWebsite = place.getWebsiteUri();
+
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    isOpen = Optional.ofNullable(restaurant.isOpen_now()).orElse(null);
+                    placeWebsite = Optional.ofNullable(place.getWebsiteUri()).orElse(null);
+                }
 
                 placeAddress.setText(mDetailAddress);
                 placeName.setText(mDetailName);
@@ -294,11 +301,20 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
         if (currentPlaceId != null) {
             //Add restaurant in firebase
-            @Nullable boolean isOpen = restaurant.isOpen_now();
+
 
             RestaurantHelper.createRestaurant(currentPlaceId, mDetailName, mDetailAddress, mDetailPhotoUrl, ratingFiveStarFloat, 1,
-                    isOpen, restaurant.getLocation()).addOnFailureListener(this.onFailureListener());
+                    isOpen, restaurant.getLocation(), placeWebsite.toString(), placePhone).addOnFailureListener(this.onFailureListener());
+
         }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.id.logo_go4lunch)
+                .setContentTitle(getCurrentUser().getDisplayName() + "just choose a lunch spot")
+                .setContentText("He's lunching at" + restaurant.getName())
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText("Much longer text that cannot fit one line..."))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
     }
 
     //Add favourite in Firebase
@@ -419,3 +435,4 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         placeDetailBinding = null;
     }
 }
+

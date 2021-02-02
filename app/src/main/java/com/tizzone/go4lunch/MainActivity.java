@@ -43,6 +43,7 @@ public class MainActivity extends BaseActivity {
     private NavHeaderMainBinding navHeaderMainBinding;
     private ActivityMainBinding mainBinding;
     private Restaurant restaurant;
+    private String restaurantId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,7 +165,7 @@ public class MainActivity extends BaseActivity {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     User currentUser = documentSnapshot.toObject(User.class);
-                    String restaurantId = currentUser.getLunchSpot();
+                    restaurantId = currentUser.getLunchSpot();
                 }
             });
         }

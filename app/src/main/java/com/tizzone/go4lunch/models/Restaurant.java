@@ -37,8 +37,12 @@ public class Restaurant extends BaseObservable implements Parcelable {
     private Float rating;
     @Nullable
     private Boolean open_now;
+    @Nullable
+    private String websiteUrl;
+    @Nullable
+    private String phone;
 
-    public Restaurant(String uid, String name, String address, @Nullable String photoUrl, @Nullable Float rating, int restaurant_counter, @Nullable Boolean open_now, LatLng location) {
+    public Restaurant(String uid, String name, String address, @Nullable String photoUrl, @Nullable Float rating, int restaurant_counter, @Nullable Boolean open_now, LatLng location, String websiteUrl, String phone) {
         this.uid = uid;
         this.restaurant_counter = restaurant_counter;
         this.name = name;
@@ -47,6 +51,8 @@ public class Restaurant extends BaseObservable implements Parcelable {
         this.rating = rating;
         this.open_now = open_now;
         this.location = location;
+        this.websiteUrl = websiteUrl;
+        this.phone = phone;
     }
 
     protected Restaurant(Parcel in) {
@@ -63,6 +69,8 @@ public class Restaurant extends BaseObservable implements Parcelable {
         location = in.readParcelable(LatLng.class.getClassLoader());
         byte tmpOpen_now = in.readByte();
         open_now = tmpOpen_now == 0 ? null : tmpOpen_now == 1;
+        websiteUrl = in.readString();
+        phone = in.readString();
     }
 
     public LatLng getLocation() {
@@ -158,6 +166,8 @@ public class Restaurant extends BaseObservable implements Parcelable {
         }
         parcel.writeParcelable(location, i);
         parcel.writeByte((byte) (open_now == null ? 0 : open_now ? 1 : 2));
+        parcel.writeString(websiteUrl);
+        parcel.writeString(phone);
     }
 
     @Override

@@ -5,10 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,11 +16,9 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -59,6 +54,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.ContentValues.TAG;
+import static com.tizzone.go4lunch.utils.Utils.getBitmapFromVectorDrawable;
 
 @AndroidEntryPoint
 public class MapFragment extends Fragment {
@@ -162,19 +158,6 @@ public class MapFragment extends Fragment {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
     }
 
-    public Bitmap getBitmapFromVectorDrawable(int drawableId) {
-        Drawable drawable = AppCompatResources.getDrawable(mContext, drawableId);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            drawable = (DrawableCompat.wrap(drawable)).mutate();
-        }
-
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
-                drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-        return bitmap;
-    }
 
 
     @Override
@@ -263,14 +246,14 @@ public class MapFragment extends Fragment {
                 markerOptions.position(latLng);
                 // Adding Title to the Marker
                 markerOptions.title(restaurant.getName() + " : " + restaurant.getAddress());
-                Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_red);
+                Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_red, mContext);
                 BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
                 UserHelper.getUsersLunchSpot(restaurant.getUid()).addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                         if (error != null) {
                             Log.w(TAG, "Listener failed.", error);
-                            Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_red);
+                            Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_red, mContext);
                             BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
                             // Adding No Workmates Restaurant Marker to the Camera.
                             emptyRestaurant = mMap.addMarker(new MarkerOptions()
@@ -282,7 +265,7 @@ public class MapFragment extends Fragment {
                         } else {
                             int usersCount = value.size();
                             if (usersCount > 0) {
-                                Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_green);
+                                Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_green, mContext);
                                 BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
                                 // Adding Workmates Restaurant's Marker to the Camera.
 
@@ -293,7 +276,7 @@ public class MapFragment extends Fragment {
                                         .icon(mapIcon));
                                 workmatesRestaurant.setTag(restaurant);
                             } else {
-                                Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_red);
+                                Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_red, mContext);
                                 BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
                                 // Adding No Workmates Restaurant Marker to the Camera.
                                 emptyRestaurant = mMap.addMarker(new MarkerOptions()

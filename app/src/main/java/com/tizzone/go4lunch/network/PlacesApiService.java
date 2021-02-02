@@ -1,6 +1,7 @@
 package com.tizzone.go4lunch.network;
 
 
+import com.tizzone.go4lunch.models.detail.PlaceDetail;
 import com.tizzone.go4lunch.models.places.PlacesResults;
 import com.tizzone.go4lunch.models.prediction.Predictions;
 
@@ -17,6 +18,14 @@ public interface PlacesApiService {
             @Query("key") String key
     );
 
+
+    @GET("place/details/json?")
+    Flowable<PlaceDetail> getDetailByPlaceId(
+            @Query("place_id") String placeId,
+            @Query("fields") String fields,
+            @Query("key") String key
+    );
+
     @GET("place/autocomplete/json?types=establishment&strictbounds")
     Flowable<Predictions> getPredictionsApi(
             @Query("input") String input,
@@ -25,4 +34,5 @@ public interface PlacesApiService {
             @Query("sessiontoken ") int sessiontoken,
             @Query("key") String key
     );
+
 }

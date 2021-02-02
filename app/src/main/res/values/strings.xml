@@ -33,6 +33,8 @@
     <string name="place_name">Thios is place name example</string>
     <string name="place_open">Open now</string>
     <string name="place_close">Close</string>
+    <string name="channel_name">Go4Lunch</string>
+    <string name="channel_description">Your workmate choose a lunch spot</string>
 
 
 </resources>
