@@ -60,8 +60,8 @@ public class PlacesViewModel extends ViewModel {
         return filteredRestaurants;
     }
 
-    public MutableLiveData<List<Restaurant>> setRestaurants(String location, int radius, String type, String key) {
-        repository.getNearByPlacesApi(location, radius, type, key)
+    public MutableLiveData<List<Restaurant>> setRestaurants(String location, int radius, String type) {
+        repository.getNearByPlacesApi(location, radius, type)
                 .subscribeOn(Schedulers.io())
                 .map(new Function<PlacesResults, List<Restaurant>>() {
                     @Override
@@ -92,8 +92,8 @@ public class PlacesViewModel extends ViewModel {
         return restaurantsList;
     }
 
-    public MutableLiveData<Restaurant> setRestaurant(String uid, String key) {
-        repository.getDetailByPlaceId(uid, key)
+    public MutableLiveData<Restaurant> setRestaurant(String uid) {
+        repository.getDetailByPlaceId(uid)
                 .subscribeOn(Schedulers.io())
                 .map(new Function<PlaceDetail, Restaurant>() {
                     @Override
@@ -116,7 +116,7 @@ public class PlacesViewModel extends ViewModel {
     }
 
     public void setPredictions(String input, String location, int radius, int sessiontoken, String key) {
-        repository.getPredictionsApi(input, location, radius, sessiontoken, key)
+        repository.getPredictionsApi(input, location, radius, sessiontoken)
                 .subscribeOn(Schedulers.io())
                 .map(new Function<Predictions, List<Prediction>>() {
                     @Override

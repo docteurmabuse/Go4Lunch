@@ -21,16 +21,16 @@ public class Repository {
 
     }
 
-    public Flowable<PlacesResults> getNearByPlacesApi(String location, int radius, String type, String key) {
-        return placesApiService.getNearByPlacesApi(location, radius, type, key);
+    public Flowable<PlacesResults> getNearByPlacesApi(String location, int radius, String type) {
+        return placesApiService.getNearByPlacesApi(location, radius, type);
     }
 
-    public Flowable<PlaceDetail> getDetailByPlaceId(String uid, String key) {
-        return placesApiService.getDetailByPlaceId(uid, key);
+    public Flowable<PlaceDetail> getDetailByPlaceId(String uid) {
+        return placesApiService.getDetailByPlaceId(uid);
     }
 
-    public Flowable<Predictions> getPredictionsApi(String input, String location, int radius, int sessiontoken, String key) {
-        return placesApiService.getPredictionsApi(input, location, radius, sessiontoken, key);
+    public Flowable<Predictions> getPredictionsApi(String input, String location, int radius, int sessiontoken) {
+        return placesApiService.getPredictionsApi(input, location, radius, sessiontoken);
     }
 }
 

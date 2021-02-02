@@ -144,7 +144,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             currentPlaceId = extras.getString("RESTAURANT");
-            placesViewModel.setRestaurant(currentPlaceId, key);
+            placesViewModel.setRestaurant(currentPlaceId);
             placesViewModel.getRestaurant().observe(this, new Observer<Restaurant>() {
                 @Override
                 public void onChanged(Restaurant restaurantDetail) {

@@ -12,6 +12,11 @@ public class PlaceDetail {
     @SerializedName("placeResult")
     @Expose
     private PlaceResult placeResult;
+
+    public PlaceDetail(PlaceResult placeResult) {
+        this.placeResult = placeResult;
+    }
+
     @SerializedName("status")
     @Expose
     private String status;
