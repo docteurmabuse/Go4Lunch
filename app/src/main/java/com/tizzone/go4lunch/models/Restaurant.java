@@ -1,8 +1,5 @@
 package com.tizzone.go4lunch.models;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 import androidx.databinding.PropertyChangeRegistry;
@@ -12,23 +9,12 @@ import com.tizzone.go4lunch.BR;
 
 import org.jetbrains.annotations.Nullable;
 
-public class Restaurant extends BaseObservable implements Parcelable {
+public class Restaurant extends BaseObservable {
     private String uid;
     private int restaurant_counter;
     private String name;
     private String address;
 
-    public static final Creator<Restaurant> CREATOR = new Creator<Restaurant>() {
-        @Override
-        public Restaurant createFromParcel(Parcel in) {
-            return new Restaurant(in);
-        }
-
-        @Override
-        public Restaurant[] newArray(int size) {
-            return new Restaurant[size];
-        }
-    };
     private final PropertyChangeRegistry registry = new PropertyChangeRegistry();
     private LatLng location;
     @Nullable
@@ -55,29 +41,11 @@ public class Restaurant extends BaseObservable implements Parcelable {
         this.phone = phone;
     }
 
-    protected Restaurant(Parcel in) {
-        uid = in.readString();
-        restaurant_counter = in.readInt();
-        name = in.readString();
-        address = in.readString();
-        photoUrl = in.readString();
-        if (in.readByte() == 0) {
-            rating = null;
-        } else {
-            rating = in.readFloat();
-        }
-        location = in.readParcelable(LatLng.class.getClassLoader());
-        byte tmpOpen_now = in.readByte();
-        open_now = tmpOpen_now == 0 ? null : tmpOpen_now == 1;
-        websiteUrl = in.readString();
-        phone = in.readString();
-    }
 
 
     public Restaurant() {
 
     }
-
     public LatLng getLocation() {
         return location;
     }
@@ -114,6 +82,13 @@ public class Restaurant extends BaseObservable implements Parcelable {
     }
 
     public float getRating() {
+        float ratingFiveStar;
+        if (rating != null) {
+            ratingFiveStar = rating;
+        } else {
+            ratingFiveStar = (float) 1.5;
+        }
+        rating = ((ratingFiveStar * 3) / 5);
         return rating;
     }
 
@@ -170,29 +145,6 @@ public class Restaurant extends BaseObservable implements Parcelable {
         this.phone = phone;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(uid);
-        parcel.writeInt(restaurant_counter);
-        parcel.writeString(name);
-        parcel.writeString(address);
-        parcel.writeString(photoUrl);
-        if (rating == null) {
-            parcel.writeByte((byte) 0);
-        } else {
-            parcel.writeByte((byte) 1);
-            parcel.writeFloat(rating);
-        }
-        parcel.writeParcelable(location, i);
-        parcel.writeByte((byte) (open_now == null ? 0 : open_now ? 1 : 2));
-        parcel.writeString(websiteUrl);
-        parcel.writeString(phone);
-    }
 
     @Override
     public void addOnPropertyChangedCallback(OnPropertyChangedCallback callback) {

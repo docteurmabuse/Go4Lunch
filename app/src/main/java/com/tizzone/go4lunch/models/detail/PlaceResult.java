@@ -82,8 +82,14 @@ public class PlaceResult {
         return photoUrl;
     }
 
-    public Double getRating() {
-        return rating;
+    public Float getRating() {
+        if (rating != null) {
+            float ratingFiveStarFloat = rating.floatValue();
+            return (ratingFiveStarFloat * 3) / 5;
+        } else {
+            rating = 1.5;
+            return rating.floatValue();
+        }
     }
 
     public void setRating(Double rating) {

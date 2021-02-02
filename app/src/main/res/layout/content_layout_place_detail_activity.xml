@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <data>
 
-        <variable
-            name="restaurant"
-            type="com.tizzone.go4lunch.models.Restaurant" />
-    </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-
         android:layout_height="match_parent"
+        android:id="@+id/place_detail_layout"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.core.widget.NestedScrollView
@@ -43,7 +38,6 @@
 
                         <TextView
                             android:id="@+id/detail_place_name"
-                            android:text="@{restaurant.name}"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -53,7 +47,6 @@
 
                         <RatingBar
                             android:id="@+id/detail_rating_bar"
-                            android:text="@{restaurant.rating}"
                             style="@style/Widget.AppCompat.RatingBar.Small"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -65,7 +58,6 @@
 
                     <TextView
                         android:id="@+id/detail_place_address"
-                        android:text="@{restaurant.address}"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -168,7 +160,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/no_worlmates_text_view"
+                    android:id="@+id/no_workmates_text_view"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="No workmates are lunching in this restaurant"
@@ -176,9 +168,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/textView3"
-
-                    />
+                    app:layout_constraintTop_toBottomOf="@id/textView3" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

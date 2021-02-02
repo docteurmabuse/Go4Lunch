@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -47,7 +48,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import dagger.hilt.android.AndroidEntryPoint;
 
+@AndroidEntryPoint
 public class PlaceDetailActivity extends BaseActivity implements UsersListAdapter.Listener {
     private static final String TAG = "1543";
     private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 5873;
@@ -114,9 +117,9 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         super.onCreate(savedInstanceState);
         placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
         restaurant = new Restaurant();
-        placeDetailBinding = ActivityPlaceDetailBinding.inflate(getLayoutInflater());
-        View view = placeDetailBinding.getRoot();
-        setContentView(view);
+        placeDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_place_detail);
+        contentLayoutBinding = DataBindingUtil.setContentView(this, R.layout.content_layout_place_detail_activity);
+
         favouriteRestaurantsList = new ArrayList<String>();
 
         if (this.getCurrentUser() != null) {
@@ -132,49 +135,46 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         placeName = contentLayoutBinding.detailPlaceName;
         placeAddress = contentLayoutBinding.detailPlaceAddress;
         placeRatingBar = contentLayoutBinding.detailRatingBar;
-
         placesDetailsTitle = placeDetailBinding.placeDetailsTitle;
         placesDetailsAddress = placeDetailBinding.placeDetailsAddress;
         ImageView DetailImage = placeDetailBinding.mDetailImage;
-        usersRecyclerView = placeDetailBinding.contentLayoutPlaceDetailActivity.usersSpotList;
+        usersRecyclerView = contentLayoutBinding.usersSpotList;
+        noWorkmates = contentLayoutBinding.noWorkmatesTextView;
 
-
-        Intent intent = this.getIntent();
-        if (intent != null) {
-            currentPlaceId = restaurant.getUid();
-            placesViewModel.setRestaurant(currentPlaceId, "name,formatted_address,photos,rating,international_phone_number,website,geometry", key);
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            currentPlaceId = extras.getString("RESTAURANT");
+            placesViewModel.setRestaurant(currentPlaceId, key);
             placesViewModel.getRestaurant().observe(this, new Observer<Restaurant>() {
                 @Override
                 public void onChanged(Restaurant restaurantDetail) {
                     restaurant = restaurantDetail;
-                    placeDetailBinding.setRestaurant(restaurant);
                 }
             });
 
-            restaurant = intent.getParcelableExtra("RESTAURANT");
             placePhone = restaurant.getPhone();
-//                placeAddress.setText(mDetailAddress);
-//                placeName.setText(mDetailName);
-//
-//                if (restaurant.getRating() != null) {
-//                    ratingFiveStar = restaurant.getRating();
-//                } else {
-//                    ratingFiveStar = 1.5;
-//                }
-//                ratingFiveStarFloat = ratingFiveStar.floatValue();
-//                ratingThreeStars = (ratingFiveStarFloat * 3) / 5;
-//                placeRatingBar.setRating(ratingThreeStars);
+            placeAddress.setText(mDetailAddress);
+            placeName.setText(mDetailName);
+            Double rating = (double) restaurant.getRating();
+            if (rating != null) {
+                ratingFiveStar = rating;
+            } else {
+                ratingFiveStar = 1.5;
+            }
+            ratingFiveStarFloat = ratingFiveStar.floatValue();
+            ratingThreeStars = (ratingFiveStarFloat * 3) / 5;
+            placeRatingBar.setRating(ratingThreeStars);
             getUserDataFromFirestore(this.getCurrentUser().getUid());
 
             addOnOffsetChangedListener();
 
-            AppCompatImageButton call = placeDetailBinding.contentLayoutPlaceDetailActivity.callButton;
+            AppCompatImageButton call = contentLayoutBinding.callButton;
             call.setOnClickListener(view1 -> dialPhoneNumber(placePhone));
 
-            likeButton = placeDetailBinding.contentLayoutPlaceDetailActivity.starButton;
+            likeButton = contentLayoutBinding.starButton;
             likeButton.setOnClickListener(view1 -> addFavoriteInSharedPreferences());
 
-            AppCompatImageButton website = placeDetailBinding.contentLayoutPlaceDetailActivity.websiteButton;
+            AppCompatImageButton website = contentLayoutBinding.websiteButton;
             website.setOnClickListener(view12 -> openWebPage(placeWebsite));
 
             mDetailPhotoUrl = restaurant.getPhotoUrl() + key;
@@ -199,6 +199,8 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                     // collapsingToolbar.setCollapsedTitleTextColor(0xffffff);
                     toolbar.setTitle("placeName");
                     toolbar.setSubtitle("placeAddress");
+                    placesDetailsTitle.setText(restaurant.getName());
+                    placesDetailsTitle.setText(restaurant.getAddress());
                     placesDetailsTitle.setVisibility(View.VISIBLE);
                     placesDetailsAddress.setVisibility(View.VISIBLE);
                     placeAddress.setVisibility(View.INVISIBLE);
@@ -268,8 +270,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
         if (currentPlaceId != null) {
             //Add restaurant in firebase
-
-
             RestaurantHelper.createRestaurant(currentPlaceId, mDetailName, mDetailAddress, mDetailPhotoUrl, ratingFiveStarFloat, 1,
                     isOpen, restaurant.getLocation(), placeWebsite.toString(), placePhone).addOnFailureListener(this.onFailureListener());
 
@@ -340,10 +340,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 favouriteRestaurantsList = documentSnapshot.toObject(User.class).getFavoriteRestaurants();
                 if (favouriteRestaurantsList != null) {
                     addFavorite(favouriteRestaurantsList);
-
-//                    if (currentUser.getFavoriteRestaurants() != null) {
-//                        favouriteRestaurantsList = currentUser.getFavoriteRestaurants();
-//                    }
                     if (lunchSpot != null) {
                         isLunchSpot = lunchSpot.equals(currentPlaceId);
                         if (!isLunchSpot) {
@@ -365,9 +361,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     // --------------------
     // 5 - Configure RecyclerView with a Query
     private void configureRecyclerView(String placeId) {
-
-        this.currentPlaceId = placeId;
-        this.usersListAdapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersLunchSpotWithoutCurrentUser(this.currentPlaceId, uid)), Glide.with(this), this, this.getCurrentUser().getUid(), false);
+        this.usersListAdapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersLunchSpotWithoutCurrentUser(placeId, uid)), Glide.with(this), this, this.getCurrentUser().getUid(), false);
         usersListAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {

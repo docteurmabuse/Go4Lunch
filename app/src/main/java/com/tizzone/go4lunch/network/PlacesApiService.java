@@ -22,7 +22,7 @@ public interface PlacesApiService {
     @GET("place/details/json?")
     Flowable<PlaceDetail> getDetailByPlaceId(
             @Query("place_id") String placeId,
-            @Query("fields") String fields,
+            //  @Query("fields") String fields,
             @Query("key") String key
     );
 

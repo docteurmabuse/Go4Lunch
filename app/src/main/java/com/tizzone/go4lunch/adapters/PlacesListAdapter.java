@@ -67,11 +67,8 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
         Resources resources = context.getResources();
         holder.placeItemBinding.setRestaurant(place);
         getUsersCountFromFirestore(place.getUid(), holder);
-        Float rating = place.getRating();
+        holder.ratingBar.setRating(place.getRating());
 
-        if (rating != null) {
-            holder.ratingBar.setRating(rating);
-        }
 
         if (place.getLocation() != null) {
             int mDistance = (int) Math.floor(SphericalUtil.computeDistanceBetween(currentLocation, place.getLocation()));
@@ -90,7 +87,7 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
             public void onClick(View view) {
                 final Context context = holder.itemView.getContext();
                 Intent intent = new Intent(context, PlaceDetailActivity.class);
-                intent.putExtra("RESTAURANT", place);
+                intent.putExtra("RESTAURANT", place.getUid());
                 context.startActivity(intent);
             }
         });

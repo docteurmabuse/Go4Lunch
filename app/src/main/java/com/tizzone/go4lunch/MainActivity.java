@@ -117,7 +117,7 @@ public class MainActivity extends BaseActivity {
 
     private void viewRestaurantDetail(Restaurant restaurant) {
         Intent intent = new Intent(this, PlaceDetailActivity.class);
-        intent.putExtra("RESTAURANT", restaurant);
+        intent.putExtra("RESTAURANT", restaurant.getUid());
         startActivity(intent);
     }
 

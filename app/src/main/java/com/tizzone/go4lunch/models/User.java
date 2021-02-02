@@ -7,8 +7,8 @@ import java.util.List;
 
 public class User {
 
-    public String uid;
-    public boolean isAuthenticated;
+    private String uid;
+    private boolean isAuthenticated;
     private String userName;
     @Nullable
     private String userEmail;

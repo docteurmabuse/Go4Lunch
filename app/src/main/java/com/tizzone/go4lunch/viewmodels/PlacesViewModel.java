@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.detail.PlaceDetail;
+import com.tizzone.go4lunch.models.detail.PlaceResult;
 import com.tizzone.go4lunch.models.places.PlacesResults;
 import com.tizzone.go4lunch.models.places.Result;
 import com.tizzone.go4lunch.models.prediction.Prediction;
@@ -91,20 +92,21 @@ public class PlacesViewModel extends ViewModel {
         return restaurantsList;
     }
 
-    public MutableLiveData<Restaurant> setRestaurant(String uid, String fields, String key) {
-        repository.getDetailByPlaceId(uid, fields, key)
+    public MutableLiveData<Restaurant> setRestaurant(String uid, String key) {
+        repository.getDetailByPlaceId(uid, key)
                 .subscribeOn(Schedulers.io())
                 .map(new Function<PlaceDetail, Restaurant>() {
                     @Override
                     public Restaurant apply(PlaceDetail placeDetail) throws Throwable {
-                        Log.e(TAG, "apply: " + placeDetail.getPlaceResult().getName());
+                        PlaceResult placeResult = placeDetail.getPlaceResult();
+                        Restaurant restaurant = new Restaurant();
                         Float rating = null;
-                        if (placeDetail.getPlaceResult().getRating() != null) {
-                            rating = placeDetail.getPlaceResult().getRating().floatValue();
+                        if (placeDetail.getPlaceResult() != null) {
+                            Log.e(TAG, "apply: " + placeResult.getName());
+                            rating = placeResult.getRating();
+                            restaurant = new Restaurant(uid, placeResult.getName(), placeResult.getFormattedAddress(), placeResult.getPhotoUrl(), rating, 0,
+                                    null, new LatLng(placeResult.getGeometry().getLocation().getLat(), placeResult.getGeometry().getLocation().getLng()), placeResult.getWebsite(), placeResult.getInternationalPhoneNumber());
                         }
-
-                        Restaurant restaurant = new Restaurant(uid, placeDetail.getPlaceResult().getName(), placeDetail.getPlaceResult().getFormattedAddress(), placeDetail.getPlaceResult().getPhotoUrl(), rating, 0,
-                                null, new LatLng(placeDetail.getPlaceResult().getGeometry().getLocation().getLat(), placeDetail.getPlaceResult().getGeometry().getLocation().getLng()), null, null);
                         return restaurant;
                     }
                 })

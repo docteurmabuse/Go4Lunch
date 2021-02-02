@@ -86,7 +86,7 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
                 public void onClick(View view) {
                     final Context context = holder.itemView.getContext();
                     Intent intent = new Intent(context, PlaceDetailActivity.class);
-                    intent.putExtra("RESTAURANT", restaurant);
+                    intent.putExtra("RESTAURANT", restaurant.getUid());
                     context.startActivity(intent);
                 }
             });

@@ -405,7 +405,7 @@ public class MapFragment extends Fragment {
     private void viewRestaurantDetail(Restaurant restaurant) {
         final Context context = getContext();
         Intent intent = new Intent(context, PlaceDetailActivity.class);
-        intent.putExtra("RESTAURANT", restaurant);
+        intent.putExtra("RESTAURANT", restaurant.getUid());
         context.startActivity(intent);
     }
 }
