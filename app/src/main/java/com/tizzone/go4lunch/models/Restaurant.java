@@ -73,6 +73,11 @@ public class Restaurant extends BaseObservable implements Parcelable {
         phone = in.readString();
     }
 
+
+    public Restaurant() {
+
+    }
+
     public LatLng getLocation() {
         return location;
     }
@@ -87,10 +92,6 @@ public class Restaurant extends BaseObservable implements Parcelable {
 
     public void setOpen_now(@Nullable Boolean open_now) {
         this.open_now = open_now;
-    }
-
-    public Restaurant() {
-
     }
 
     @Bindable
@@ -144,6 +145,29 @@ public class Restaurant extends BaseObservable implements Parcelable {
     public void setName(String name) {
         this.name = name;
         registry.notifyChange(this, BR.name);
+    }
+
+    @Nullable
+    public Boolean getOpen_now() {
+        return open_now;
+    }
+
+    @Nullable
+    public String getWebsiteUrl() {
+        return websiteUrl;
+    }
+
+    public void setWebsiteUrl(@Nullable String websiteUrl) {
+        this.websiteUrl = websiteUrl;
+    }
+
+    @Nullable
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(@Nullable String phone) {
+        this.phone = phone;
     }
 
     @Override

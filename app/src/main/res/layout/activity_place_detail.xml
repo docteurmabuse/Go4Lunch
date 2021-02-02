@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
+        <variable
+            name="restaurant"
+            type="com.tizzone.go4lunch.models.Restaurant" />
 
     </data>
 
@@ -62,6 +67,7 @@
                             android:gravity="top"
                             android:maxLines="2"
                             android:paddingTop="@dimen/padding_normal"
+                            android:text="@{restaurant.name}"
                             android:textColor="@color/white"
                             android:textSize="16sp" />
 
@@ -72,6 +78,7 @@
                             android:gravity="top"
                             android:maxLines="2"
                             android:paddingTop="5dp"
+                            android:text="@{restaurant.address}"
                             android:textColor="@color/white"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -82,7 +89,8 @@
 
         <include
             android:id="@+id/content_layout_place_detail_activity"
-            layout="@layout/content_layout_place_detail_activity" />
+            layout="@layout/content_layout_place_detail_activity"
+            bind:restaurant="@{restaurant}" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/add_spot_lunch_button"

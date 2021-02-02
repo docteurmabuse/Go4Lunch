@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -17,15 +16,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -44,12 +41,11 @@ import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.utils.RestaurantHelper;
 import com.tizzone.go4lunch.utils.UserHelper;
+import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 
 public class PlaceDetailActivity extends BaseActivity implements UsersListAdapter.Listener {
@@ -66,7 +62,9 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private List<String> favouriteRestaurantsList;
     private float ratingThreeStars;
     private float ratingFiveStarFloat;
+    private PlacesViewModel placesViewModel;
     private String key;
+    private Restaurant restaurantDetail;
     @Nullable
     boolean isOpen;
 
@@ -114,8 +112,9 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
+        restaurant = new Restaurant();
         placeDetailBinding = ActivityPlaceDetailBinding.inflate(getLayoutInflater());
-        contentLayoutBinding = placeDetailBinding.contentLayoutPlaceDetailActivity;
         View view = placeDetailBinding.getRoot();
         setContentView(view);
         favouriteRestaurantsList = new ArrayList<String>();
@@ -124,10 +123,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             uid = this.getCurrentUser().getUid();
         }
         key = getText(R.string.google_maps_key).toString();
-
-
-        Places.initialize(getApplicationContext(), key);
-        PlacesClient placesClient = Places.createClient(this);
 
         toolbar = placeDetailBinding.detailToolbar;
         collapsingToolbar = placeDetailBinding.toolbarLayout;
@@ -142,57 +137,34 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         placesDetailsAddress = placeDetailBinding.placeDetailsAddress;
         ImageView DetailImage = placeDetailBinding.mDetailImage;
         usersRecyclerView = placeDetailBinding.contentLayoutPlaceDetailActivity.usersSpotList;
-        noWorkmates = placeDetailBinding.contentLayoutPlaceDetailActivity.noWorlmatesTextView;
 
 
         Intent intent = this.getIntent();
         if (intent != null) {
-
-            restaurant = intent.getParcelableExtra("RESTAURANT");
-
-            mDetailName = restaurant.getName();
-
-            mDetailAddress = restaurant.getAddress();
-
-            // Specify the fields to return.
-            final List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.TYPES, Place.Field.WEBSITE_URI, Place.Field.PHONE_NUMBER, Place.Field.RATING);
-
-            // Construct a request object, passing the place ID and fields array.
             currentPlaceId = restaurant.getUid();
-            getUserDataFromFirestore(this.getCurrentUser().getUid());
-            final FetchPlaceRequest request = FetchPlaceRequest.newInstance(restaurant.getUid(), placeFields);
-
-            placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
-                Place place = response.getPlace();
-                placePhone = place.getPhoneNumber();
-
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    isOpen = Optional.ofNullable(restaurant.isOpen_now()).orElse(null);
-                    placeWebsite = Optional.ofNullable(place.getWebsiteUri()).orElse(null);
-                }
-
-                placeAddress.setText(mDetailAddress);
-                placeName.setText(mDetailName);
-
-
-                if (place.getRating() != null) {
-                    ratingFiveStar = place.getRating();
-                } else {
-                    ratingFiveStar = 1.5;
-                }
-                ratingFiveStarFloat = ratingFiveStar.floatValue();
-                ratingThreeStars = (ratingFiveStarFloat * 3) / 5;
-                placeRatingBar.setRating(ratingThreeStars);
-
-                Log.i(TAG, "Place found: " + place.getName());
-            }).addOnFailureListener((exception) -> {
-                if (exception instanceof ApiException) {
-                    final ApiException apiException = (ApiException) exception;
-                    Log.e(TAG, "Place not found: " + exception.getMessage());
-                    final int statusCode = apiException.getStatusCode();
-                    // TODO: Handle error with given status code.
+            placesViewModel.setRestaurant(currentPlaceId, "name,formatted_address,photos,rating,international_phone_number,website,geometry", key);
+            placesViewModel.getRestaurant().observe(this, new Observer<Restaurant>() {
+                @Override
+                public void onChanged(Restaurant restaurantDetail) {
+                    restaurant = restaurantDetail;
+                    placeDetailBinding.setRestaurant(restaurant);
                 }
             });
+
+            restaurant = intent.getParcelableExtra("RESTAURANT");
+            placePhone = restaurant.getPhone();
+//                placeAddress.setText(mDetailAddress);
+//                placeName.setText(mDetailName);
+//
+//                if (restaurant.getRating() != null) {
+//                    ratingFiveStar = restaurant.getRating();
+//                } else {
+//                    ratingFiveStar = 1.5;
+//                }
+//                ratingFiveStarFloat = ratingFiveStar.floatValue();
+//                ratingThreeStars = (ratingFiveStarFloat * 3) / 5;
+//                placeRatingBar.setRating(ratingThreeStars);
+            getUserDataFromFirestore(this.getCurrentUser().getUid());
 
             addOnOffsetChangedListener();
 
@@ -227,8 +199,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                     // collapsingToolbar.setCollapsedTitleTextColor(0xffffff);
                     toolbar.setTitle("placeName");
                     toolbar.setSubtitle("placeAddress");
-                    placesDetailsTitle.setText(mDetailName);
-                    placesDetailsAddress.setText(mDetailAddress);
                     placesDetailsTitle.setVisibility(View.VISIBLE);
                     placesDetailsAddress.setVisibility(View.VISIBLE);
                     placeAddress.setVisibility(View.INVISIBLE);
@@ -237,10 +207,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 } else {
                     // Expanded
                     collapsingToolbar.setTitle("");
-                    toolbar.setTitle(mDetailAddress);
                     // mDetailAddress = intent.getStringExtra("placeAddress");
-                    placeAddress.setText(mDetailAddress);
-                    placeName.setText(mDetailName);
                     placeAddress.setVisibility(View.VISIBLE);
                     placeName.setVisibility(View.VISIBLE);
                     findViewById(R.id.detail_title_layout).setVisibility(View.VISIBLE);

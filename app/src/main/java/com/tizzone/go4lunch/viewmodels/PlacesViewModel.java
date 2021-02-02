@@ -51,6 +51,10 @@ public class PlacesViewModel extends ViewModel {
         return restaurantsList;
     }
 
+    public MutableLiveData<Restaurant> getRestaurant() {
+        return restaurantMutableLiveData;
+    }
+
     public MutableLiveData<List<Restaurant>> getFilteredRestaurantsList() {
         return filteredRestaurants;
     }
