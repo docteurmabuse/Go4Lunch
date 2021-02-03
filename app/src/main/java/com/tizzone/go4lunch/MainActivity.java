@@ -22,21 +22,18 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityMainBinding;
 import com.tizzone.go4lunch.databinding.NavHeaderMainBinding;
-import com.tizzone.go4lunch.models.Restaurant;
-import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.ui.auth.AuthActivity;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
-import com.tizzone.go4lunch.utils.UserHelper;
+
+import org.jetbrains.annotations.NotNull;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -46,12 +43,10 @@ public class MainActivity extends BaseActivity {
     private ActivityMainBinding mBinding;
     private AppBarConfiguration mAppBarConfiguration;
     private NavHeaderMainBinding navHeaderMainBinding;
-    private ActivityMainBinding mainBinding;
-    private Restaurant restaurant;
     public static final String lunchSpotId = "lunchSpotId";
-    private String restaurantId;
     public static final String myPreference = "mypref";
     private SharedPreferences sharedPreferences;
+
 
 
     @Override
@@ -76,6 +71,7 @@ public class MainActivity extends BaseActivity {
         DrawerLayout drawer = mBinding.drawerLayout;
         NavigationView navigationView = mBinding.drawerNavView;
         BottomNavigationView bottomNavigationView = mBinding.bottomNavView;
+
         String uid = this.getCurrentUser().getUid();
 
         // Passing each menu ID as a set of Ids because each
@@ -110,7 +106,7 @@ public class MainActivity extends BaseActivity {
         });
         navigationView.setNavigationItemSelectedListener(new OnNavigationItemSelectedListener() {
             @Override
-            public boolean onNavigationItemSelected(MenuItem menuItem) {
+            public boolean onNavigationItemSelected(@NotNull MenuItem menuItem) {
                 int id = menuItem.getItemId();
                 if (id == R.id.nav_logout) {
                     signOutUserFromFirebase();
@@ -121,7 +117,7 @@ public class MainActivity extends BaseActivity {
                         if (spotId != null) {
                             viewRestaurantDetail(spotId);
                         } else {
-                            Snackbar.make(view, "You didn't choose any lunch spot yet!", Snackbar.LENGTH_LONG)
+                            Snackbar.make(mBinding.getRoot(), "You didn't choose any lunch spot yet!", Snackbar.LENGTH_LONG)
                                     .setAction("Action", null).show();
                         }
                     }
@@ -178,19 +174,6 @@ public class MainActivity extends BaseActivity {
     private void startMainActivity() {
         Intent intent = new Intent(this, AuthActivity.class);
         startActivity(intent);
-    }
-
-    private void getUserInFirestore() {
-        if (this.getCurrentUser() != null) {
-            // 5 - Get additional data from Firestore
-            UserHelper.getUser(this.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    User currentUser = documentSnapshot.toObject(User.class);
-                    restaurantId = currentUser.getLunchSpot();
-                }
-            });
-        }
     }
 
     @Override
