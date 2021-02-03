@@ -36,7 +36,6 @@ import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.adapters.UsersListAdapter;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityPlaceDetailBinding;
-import com.tizzone.go4lunch.databinding.ContentLayoutPlaceDetailActivityBinding;
 import com.tizzone.go4lunch.databinding.FragmentListBinding;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
@@ -72,7 +71,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     boolean isOpen;
 
     private ActivityPlaceDetailBinding placeDetailBinding;
-    private ContentLayoutPlaceDetailActivityBinding contentLayoutBinding;
     private FragmentListBinding listBinding;
 
     private FloatingActionButton addSpotLunch;
@@ -135,8 +133,10 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         placesDetailsTitle = placeDetailBinding.placeDetailsTitle;
         placesDetailsAddress = placeDetailBinding.placeDetailsAddress;
         detailImage = placeDetailBinding.mDetailImage;
-        usersRecyclerView = contentLayoutBinding.usersSpotList;
-        noWorkmates = contentLayoutBinding.noWorkmatesTextView;
+        placeAddress = placeDetailBinding.contentLayoutPlaceDetailActivity.detailPlaceAddress;
+        placeName = placeDetailBinding.contentLayoutPlaceDetailActivity.detailPlaceName;
+        usersRecyclerView = placeDetailBinding.contentLayoutPlaceDetailActivity.usersSpotList;
+        noWorkmates = placeDetailBinding.contentLayoutPlaceDetailActivity.noWorkmatesTextView;
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -169,15 +169,15 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         }
         ratingFiveStarFloat = ratingFiveStar.floatValue();
         ratingThreeStars = (ratingFiveStarFloat * 3) / 5;
-        placeRatingBar.setRating(ratingThreeStars);
-        AppCompatImageButton call = contentLayoutBinding.callButton;
+        // placeRatingBar.setRating(ratingThreeStars);
+        AppCompatImageButton call = placeDetailBinding.contentLayoutPlaceDetailActivity.callButton;
 
         call.setOnClickListener(view1 -> dialPhoneNumber(placePhone));
 
-        likeButton = contentLayoutBinding.starButton;
+        likeButton = placeDetailBinding.contentLayoutPlaceDetailActivity.starButton;
         likeButton.setOnClickListener(view1 -> addFavoriteInSharedPreferences());
 
-        AppCompatImageButton website = contentLayoutBinding.websiteButton;
+        AppCompatImageButton website = placeDetailBinding.contentLayoutPlaceDetailActivity.websiteButton;
         website.setOnClickListener(view12 -> openWebPage(placeWebsite));
 
         mDetailPhotoUrl = restaurant.getPhotoUrl() + key;

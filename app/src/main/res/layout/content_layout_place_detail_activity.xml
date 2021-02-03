@@ -66,6 +66,7 @@
 
                     <TextView
                         android:id="@+id/detail_place_address"
+                        android:text="@{restaurantDetail.address}"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/activity_horizontal_margin"
