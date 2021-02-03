@@ -79,6 +79,7 @@
                             android:gravity="top"
                             android:maxLines="2"
                             android:paddingTop="5dp"
+                            android:text="@{restaurant.address}"
                             android:textColor="@color/white"
                             android:textSize="12sp" />
                     </LinearLayout>

@@ -1,11 +1,15 @@
 package com.tizzone.go4lunch;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -23,6 +27,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityMainBinding;
@@ -43,7 +48,11 @@ public class MainActivity extends BaseActivity {
     private NavHeaderMainBinding navHeaderMainBinding;
     private ActivityMainBinding mainBinding;
     private Restaurant restaurant;
+    public static final String lunchSpotId = "lunchSpotId";
     private String restaurantId;
+    public static final String myPreference = "mypref";
+    private SharedPreferences sharedPreferences;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +65,12 @@ public class MainActivity extends BaseActivity {
 
         View view = mBinding.getRoot();
         setContentView(view);
+
+
+        sharedPreferences = getSharedPreferences(myPreference,
+                Context.MODE_PRIVATE);
+
+
         Toolbar toolbar = mBinding.toolbar;
         setSupportActionBar(toolbar);
         DrawerLayout drawer = mBinding.drawerLayout;
@@ -101,7 +116,15 @@ public class MainActivity extends BaseActivity {
                     signOutUserFromFirebase();
                 }
                 if (id == R.id.nav_lunch) {
-                    viewRestaurantDetail(restaurant);
+                    if (sharedPreferences.contains(lunchSpotId)) {
+                        String spotId = (sharedPreferences.getString(lunchSpotId, ""));
+                        if (spotId != null) {
+                            viewRestaurantDetail(spotId);
+                        } else {
+                            Snackbar.make(view, "You didn't choose any lunch spot yet!", Snackbar.LENGTH_LONG)
+                                    .setAction("Action", null).show();
+                        }
+                    }
                 }
 
                 drawer.closeDrawer(GravityCompat.START);
@@ -115,9 +138,9 @@ public class MainActivity extends BaseActivity {
         updateProfileWhenCreating();
     }
 
-    private void viewRestaurantDetail(Restaurant restaurant) {
+    private void viewRestaurantDetail(String restaurantId) {
         Intent intent = new Intent(this, PlaceDetailActivity.class);
-        intent.putExtra("RESTAURANT", restaurant.getUid());
+        intent.putExtra("RESTAURANT", restaurantId);
         startActivity(intent);
     }
 
@@ -159,7 +182,6 @@ public class MainActivity extends BaseActivity {
 
     private void getUserInFirestore() {
         if (this.getCurrentUser() != null) {
-            String uid = this.getCurrentUser().getUid();
             // 5 - Get additional data from Firestore
             UserHelper.getUser(this.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
@@ -177,4 +199,9 @@ public class MainActivity extends BaseActivity {
         mBinding = null;
     }
 
+    @Nullable
+    @Override
+    public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context, @NonNull AttributeSet attrs) {
+        return super.onCreateView(parent, name, context, attrs);
+    }
 }

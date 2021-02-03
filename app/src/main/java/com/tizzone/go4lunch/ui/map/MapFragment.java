@@ -174,13 +174,13 @@ public class MapFragment extends Fragment {
                 restaurantsList.addAll(restaurants);
             }
         });
-        locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
+        locationViewModel.getUserLocation().observe(getActivity(), locationModel -> {
             if (locationModel != null) {
                 this.currentLocation = locationModel.getLocation();
             }
         });
 
-        placesViewModel.getFilteredRestaurantsList().observe(getViewLifecycleOwner(), new Observer<List<Restaurant>>() {
+        placesViewModel.getFilteredRestaurantsList().observe(getActivity(), new Observer<List<Restaurant>>() {
             @Override
             public void onChanged(List<Restaurant> restaurants) {
                 mMap.clear();

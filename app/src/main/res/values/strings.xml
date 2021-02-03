@@ -35,6 +35,7 @@
     <string name="place_close">Close</string>
     <string name="channel_name">Go4Lunch</string>
     <string name="channel_description">Your workmate choose a lunch spot</string>
+    <string name="lunchSpotId">lunchSpotId</string>
 
 
 </resources>

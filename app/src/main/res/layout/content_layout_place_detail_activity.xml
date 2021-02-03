@@ -60,6 +60,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="5dp"
                             android:layout_marginTop="20dp"
+                            android:rating="@{restaurantDetail.rating}"
                             android:numStars="3"
                             android:theme="@style/RatingBar" />
                     </LinearLayout>

@@ -1,5 +1,6 @@
 package com.tizzone.go4lunch.ui.list;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -9,7 +10,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,7 +31,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
-import com.google.gson.Gson;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.adapters.UsersListAdapter;
 import com.tizzone.go4lunch.base.BaseActivity;
@@ -48,6 +47,8 @@ import java.util.List;
 import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
+
+import static com.tizzone.go4lunch.MainActivity.myPreference;
 
 @AndroidEntryPoint
 public class PlaceDetailActivity extends BaseActivity implements UsersListAdapter.Listener {
@@ -92,13 +93,13 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private SharedPreferences sharedPreferences;
     private ArrayList<String> favouritesArray;
     private AppCompatImageButton likeButton;
+    private AppCompatImageButton website;
+    private AppCompatImageButton call;
 
 
     private UsersListAdapter usersListAdapter;
     private RecyclerView usersRecyclerView;
     private RecyclerView.LayoutManager layoutManager;
-    private Gson gson;
-    private String json;
     private Restaurant restaurant;
 
 
@@ -125,6 +126,21 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         }
         key = getText(R.string.google_maps_key).toString();
 
+        initViews();
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            currentPlaceId = extras.getString("RESTAURANT");
+            placesViewModel.setRestaurant(currentPlaceId);
+
+            getUserDataFromFirestore();
+
+            addOnOffsetChangedListener();
+
+        }
+    }
+
+    private void initViews() {
+
         toolbar = placeDetailBinding.detailToolbar;
         collapsingToolbar = placeDetailBinding.toolbarLayout;
         appbar = placeDetailBinding.appBarDetail;
@@ -137,30 +153,24 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         placeName = placeDetailBinding.contentLayoutPlaceDetailActivity.detailPlaceName;
         usersRecyclerView = placeDetailBinding.contentLayoutPlaceDetailActivity.usersSpotList;
         noWorkmates = placeDetailBinding.contentLayoutPlaceDetailActivity.noWorkmatesTextView;
+        likeButton = placeDetailBinding.contentLayoutPlaceDetailActivity.starButton;
+        website = placeDetailBinding.contentLayoutPlaceDetailActivity.websiteButton;
+        call = placeDetailBinding.contentLayoutPlaceDetailActivity.callButton;
+        addSpotLunch = placeDetailBinding.addSpotLunchButton;
 
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            currentPlaceId = extras.getString("RESTAURANT");
-            placesViewModel.setRestaurant(currentPlaceId);
-            placesViewModel.getRestaurant().observe(this, new Observer<Restaurant>() {
-                @Override
-                public void onChanged(Restaurant restaurantDetail) {
-                    observeData(restaurantDetail);
-                }
-            });
-
-            getUserDataFromFirestore(this.getCurrentUser().getUid());
-
-            addOnOffsetChangedListener();
-
-        }
+        placesViewModel.getRestaurant().observe(this, new Observer<Restaurant>() {
+            @Override
+            public void onChanged(Restaurant restaurantDetail) {
+                observeData(restaurantDetail);
+            }
+        });
     }
 
     private void observeData(Restaurant restaurant) {
         placeDetailBinding.setRestaurant(restaurant);
+        this.restaurant = restaurant;
         placePhone = restaurant.getPhone();
-        placeAddress.setText(mDetailAddress);
-        placeName.setText(mDetailName);
+
         Double rating = (double) restaurant.getRating();
         if (rating != null) {
             ratingFiveStar = rating;
@@ -170,17 +180,14 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         ratingFiveStarFloat = ratingFiveStar.floatValue();
         ratingThreeStars = (ratingFiveStarFloat * 3) / 5;
         // placeRatingBar.setRating(ratingThreeStars);
-        AppCompatImageButton call = placeDetailBinding.contentLayoutPlaceDetailActivity.callButton;
 
         call.setOnClickListener(view1 -> dialPhoneNumber(placePhone));
 
-        likeButton = placeDetailBinding.contentLayoutPlaceDetailActivity.starButton;
-        likeButton.setOnClickListener(view1 -> addFavoriteInSharedPreferences());
+        // likeButton.setOnClickListener(view1 -> addFavoriteInSharedPreferences());
 
-        AppCompatImageButton website = placeDetailBinding.contentLayoutPlaceDetailActivity.websiteButton;
         website.setOnClickListener(view12 -> openWebPage(placeWebsite));
 
-        mDetailPhotoUrl = restaurant.getPhotoUrl() + key;
+        mDetailPhotoUrl = restaurant.getPhotoUrl();
         Glide.with(detailImage.getContext())
                 .load(mDetailPhotoUrl)
                 .into(detailImage);
@@ -201,8 +208,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                     // collapsingToolbar.setCollapsedTitleTextColor(0xffffff);
                     toolbar.setTitle("placeName");
                     toolbar.setSubtitle("placeAddress");
-                    placesDetailsTitle.setText(restaurant.getName());
-                    placesDetailsTitle.setText(restaurant.getAddress());
                     placesDetailsTitle.setVisibility(View.VISIBLE);
                     placesDetailsAddress.setVisibility(View.VISIBLE);
                     placeAddress.setVisibility(View.INVISIBLE);
@@ -223,25 +228,24 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     }
 
     private void fabOnClickListener() {
-        addSpotLunch = placeDetailBinding.addSpotLunchButton;
-        if (uid != null) {
-            getUserDataFromFirestore(uid);
-        }
+        getUserDataFromFirestore();
 
         addSpotLunch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!isLunchSpot) {
                     addLunchSpotInFirebase();
+                    addSpotLunchInSharedPreferences(restaurant.getUid());
                     addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
                     isLunchSpot = true;
-                    Snackbar.make(view, "You're going to " + mDetailName + " for lunch!", Snackbar.LENGTH_LONG)
+                    Snackbar.make(view, "You're going to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 } else {
+                    addSpotLunchInSharedPreferences(null);
                     addLunchSpotInFirebase();
                     addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
                     isLunchSpot = false;
-                    Snackbar.make(view, "You're not going anymore to " + mDetailName + " for lunch!", Snackbar.LENGTH_LONG)
+                    Snackbar.make(view, "You're not going anymore to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 }
             }
@@ -267,13 +271,18 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
     //Add Lunch Spot
     private void addLunchSpotInFirebase() {
+        //Add LunchSpot to SharedPreferences
+        //addSpotLunchInSharedPreferences(currentPlaceId);
         //Add restaurant to user in Firebase
-        UserHelper.updateLunchSpot(currentPlaceId, uid).addOnFailureListener(this.onFailureListener());
-
+        UserHelper.updateLunchSpot(restaurant.getUid(), uid).addOnFailureListener(this.onFailureListener());
+        String website = null;
+        if (restaurant.getPhone() != null) {
+            website = (restaurant.getPhone());
+        }
         if (currentPlaceId != null) {
             //Add restaurant in firebase
-            RestaurantHelper.createRestaurant(currentPlaceId, mDetailName, mDetailAddress, mDetailPhotoUrl, ratingFiveStarFloat, 1,
-                    isOpen, restaurant.getLocation(), placeWebsite.toString(), placePhone).addOnFailureListener(this.onFailureListener());
+            RestaurantHelper.createRestaurant(restaurant.getUid(), restaurant.getName(), restaurant.getAddress(), restaurant.getPhotoUrl(), restaurant.getRating(), +1,
+                    null, restaurant.getLocation(), website, restaurant.getPhone()).addOnFailureListener(this.onFailureListener());
 
         }
 
@@ -308,31 +317,15 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         }
     }
 
-    private void addFavoriteInSharedPreferences() {
-        if (favouriteRestaurantsList.size() == 0) {
-            favouriteRestaurantsList.add(currentPlaceId);
-            likeButton.setImageResource(R.drawable.ic_baseline_star_24);
-            addFavouriteInFirebase(favouriteRestaurantsList, uid);
-            Toast.makeText(PlaceDetailActivity.this, "You add this restaurant to your favourite", Toast.LENGTH_LONG).show();
-        } else {
-            boolean like = favouriteRestaurantsList.contains(currentPlaceId);
-            if (!like) {
-                favouriteRestaurantsList.add(currentPlaceId);
-                addFavouriteInFirebase(favouriteRestaurantsList, uid);
-                likeButton.setImageResource(R.drawable.ic_baseline_star_24);
-                Toast.makeText(PlaceDetailActivity.this, "You add this restaurant to your favourite", Toast.LENGTH_LONG).show();
-            } else {
-                favouriteRestaurantsList.remove(currentPlaceId);
-                addFavouriteInFirebase(favouriteRestaurantsList, uid);
-                likeButton.setImageResource(R.drawable.ic_baseline_star_outline_24);
-                Toast.makeText(PlaceDetailActivity.this, "You remove this restaurant to your favourite", Toast.LENGTH_LONG).show();
-            }
-        }
-
+    private void addSpotLunchInSharedPreferences(String lunchSpot) {
+        SharedPreferences sharedPref = getSharedPreferences(myPreference,
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(getString(R.string.lunchSpotId), lunchSpot);
+        editor.apply();
     }
 
-
-    private void getUserDataFromFirestore(String uid) {
+    private void getUserDataFromFirestore() {
         // 5 - Get additional data from Firestore
 
         UserHelper.getUser(this.getCurrentUser().getUid()).addOnCompleteListener(task -> {

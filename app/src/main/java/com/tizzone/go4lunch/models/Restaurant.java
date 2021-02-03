@@ -54,9 +54,6 @@ public class Restaurant extends BaseObservable {
         this.location = location;
     }
 
-    public Boolean isOpen_now() {
-        return open_now;
-    }
 
     public void setOpen_now(@Nullable Boolean open_now) {
         this.open_now = open_now;
