@@ -88,6 +88,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private TextView placesDetailsTitle;
     private TextView placesDetailsAddress;
     private TextView noWorkmates;
+    private ImageView detailImage;
     private RatingBar placeRatingBar;
     private Double ratingFiveStar;
     private SharedPreferences sharedPreferences;
@@ -118,7 +119,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
         restaurant = new Restaurant();
         placeDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_place_detail);
-        contentLayoutBinding = DataBindingUtil.setContentView(this, R.layout.content_layout_place_detail_activity);
 
         favouriteRestaurantsList = new ArrayList<String>();
 
@@ -132,12 +132,9 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         appbar = placeDetailBinding.appBarDetail;
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        placeName = contentLayoutBinding.detailPlaceName;
-        placeAddress = contentLayoutBinding.detailPlaceAddress;
-        placeRatingBar = contentLayoutBinding.detailRatingBar;
         placesDetailsTitle = placeDetailBinding.placeDetailsTitle;
         placesDetailsAddress = placeDetailBinding.placeDetailsAddress;
-        ImageView DetailImage = placeDetailBinding.mDetailImage;
+        detailImage = placeDetailBinding.mDetailImage;
         usersRecyclerView = contentLayoutBinding.usersSpotList;
         noWorkmates = contentLayoutBinding.noWorkmatesTextView;
 
@@ -148,43 +145,48 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             placesViewModel.getRestaurant().observe(this, new Observer<Restaurant>() {
                 @Override
                 public void onChanged(Restaurant restaurantDetail) {
-                    restaurant = restaurantDetail;
+                    observeData(restaurantDetail);
                 }
             });
 
-            placePhone = restaurant.getPhone();
-            placeAddress.setText(mDetailAddress);
-            placeName.setText(mDetailName);
-            Double rating = (double) restaurant.getRating();
-            if (rating != null) {
-                ratingFiveStar = rating;
-            } else {
-                ratingFiveStar = 1.5;
-            }
-            ratingFiveStarFloat = ratingFiveStar.floatValue();
-            ratingThreeStars = (ratingFiveStarFloat * 3) / 5;
-            placeRatingBar.setRating(ratingThreeStars);
             getUserDataFromFirestore(this.getCurrentUser().getUid());
 
             addOnOffsetChangedListener();
 
-            AppCompatImageButton call = contentLayoutBinding.callButton;
-            call.setOnClickListener(view1 -> dialPhoneNumber(placePhone));
-
-            likeButton = contentLayoutBinding.starButton;
-            likeButton.setOnClickListener(view1 -> addFavoriteInSharedPreferences());
-
-            AppCompatImageButton website = contentLayoutBinding.websiteButton;
-            website.setOnClickListener(view12 -> openWebPage(placeWebsite));
-
-            mDetailPhotoUrl = restaurant.getPhotoUrl() + key;
-            Glide.with(DetailImage.getContext())
-                    .load(mDetailPhotoUrl)
-                    .into(DetailImage);
-
-            fabOnClickListener();
-            configureRecyclerView(currentPlaceId);
         }
+    }
+
+    private void observeData(Restaurant restaurant) {
+        placeDetailBinding.setRestaurant(restaurant);
+        placePhone = restaurant.getPhone();
+        placeAddress.setText(mDetailAddress);
+        placeName.setText(mDetailName);
+        Double rating = (double) restaurant.getRating();
+        if (rating != null) {
+            ratingFiveStar = rating;
+        } else {
+            ratingFiveStar = 1.5;
+        }
+        ratingFiveStarFloat = ratingFiveStar.floatValue();
+        ratingThreeStars = (ratingFiveStarFloat * 3) / 5;
+        placeRatingBar.setRating(ratingThreeStars);
+        AppCompatImageButton call = contentLayoutBinding.callButton;
+
+        call.setOnClickListener(view1 -> dialPhoneNumber(placePhone));
+
+        likeButton = contentLayoutBinding.starButton;
+        likeButton.setOnClickListener(view1 -> addFavoriteInSharedPreferences());
+
+        AppCompatImageButton website = contentLayoutBinding.websiteButton;
+        website.setOnClickListener(view12 -> openWebPage(placeWebsite));
+
+        mDetailPhotoUrl = restaurant.getPhotoUrl() + key;
+        Glide.with(detailImage.getContext())
+                .load(mDetailPhotoUrl)
+                .into(detailImage);
+
+        fabOnClickListener();
+        configureRecyclerView(currentPlaceId);
     }
 
 

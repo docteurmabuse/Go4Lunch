@@ -398,7 +398,7 @@ public class MapFragment extends Fragment {
     }
 
     private void build_retrofit_and_get_response(double latitude, double longitude) {
-        placesViewModel.setRestaurants(latitude + "," + longitude, PROXIMITY_RADIUS, "restaurant", key);
+        placesViewModel.setRestaurants(latitude + "," + longitude, PROXIMITY_RADIUS);
         locationViewModel.setUserLocation(latitude, longitude);
     }
 

@@ -4,13 +4,11 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.tizzone.go4lunch.R;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class PlaceResult {
-
-    @SerializedName("formatted_address")
-    @Expose
-    private String formattedAddress;
+public class Result implements Serializable {
+    private final static long serialVersionUID = 3834918294238241150L;
     @SerializedName("geometry")
     @Expose
     private Geometry geometry;
@@ -20,6 +18,9 @@ public class PlaceResult {
     @SerializedName("name")
     @Expose
     private String name;
+    @SerializedName("formatted_address")
+    @Expose
+    private String formattedAddress;
     @SerializedName("photos")
     @Expose
     private List<Photo> photos = null;
@@ -29,8 +30,38 @@ public class PlaceResult {
     @SerializedName("website")
     @Expose
     private String website;
+    @SerializedName("obfuscated_type")
+    @Expose
+    private List<Object> obfuscatedType = null;
     private String photoUrl;
 
+    /**
+     * No args constructor for use in serialization
+     */
+    public Result() {
+    }
+
+    /**
+     * @param obfuscatedType
+     * @param website
+     * @param formattedAddress
+     * @param name
+     * @param rating
+     * @param geometry
+     * @param internationalPhoneNumber
+     * @param photos
+     */
+    public Result(String formattedAddress, Geometry geometry, String internationalPhoneNumber, String name, List<Object> obfuscatedType, List<Photo> photos, Double rating, String website) {
+        super();
+        this.formattedAddress = formattedAddress;
+        this.geometry = geometry;
+        this.internationalPhoneNumber = internationalPhoneNumber;
+        this.name = name;
+        this.obfuscatedType = obfuscatedType;
+        this.photos = photos;
+        this.rating = rating;
+        this.website = website;
+    }
 
     public String getFormattedAddress() {
         return formattedAddress;
@@ -38,6 +69,11 @@ public class PlaceResult {
 
     public void setFormattedAddress(String formattedAddress) {
         this.formattedAddress = formattedAddress;
+    }
+
+    public Result withFormattedAddress(String formattedAddress) {
+        this.formattedAddress = formattedAddress;
+        return this;
     }
 
     public Geometry getGeometry() {
@@ -48,12 +84,22 @@ public class PlaceResult {
         this.geometry = geometry;
     }
 
+    public Result withGeometry(Geometry geometry) {
+        this.geometry = geometry;
+        return this;
+    }
+
     public String getInternationalPhoneNumber() {
         return internationalPhoneNumber;
     }
 
     public void setInternationalPhoneNumber(String internationalPhoneNumber) {
         this.internationalPhoneNumber = internationalPhoneNumber;
+    }
+
+    public Result withInternationalPhoneNumber(String internationalPhoneNumber) {
+        this.internationalPhoneNumber = internationalPhoneNumber;
+        return this;
     }
 
     public String getName() {
@@ -64,12 +110,40 @@ public class PlaceResult {
         this.name = name;
     }
 
+    public Result withName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public List<Object> getObfuscatedType() {
+        return obfuscatedType;
+    }
+
+    public void setObfuscatedType(List<Object> obfuscatedType) {
+        this.obfuscatedType = obfuscatedType;
+    }
+
+    public Result withObfuscatedType(List<Object> obfuscatedType) {
+        this.obfuscatedType = obfuscatedType;
+        return this;
+    }
+
     public List<Photo> getPhotos() {
         return photos;
     }
 
     public void setPhotos(List<Photo> photos) {
         this.photos = photos;
+    }
+
+    public Result withPhotos(List<Photo> photos) {
+        this.photos = photos;
+        return this;
+    }
+
+
+    public void setRating(Double rating) {
+        this.rating = rating;
     }
 
     public String getPhotoUrl() {
@@ -92,8 +166,9 @@ public class PlaceResult {
         }
     }
 
-    public void setRating(Double rating) {
+    public Result withRating(Double rating) {
         this.rating = rating;
+        return this;
     }
 
     public String getWebsite() {
@@ -103,4 +178,10 @@ public class PlaceResult {
     public void setWebsite(String website) {
         this.website = website;
     }
+
+    public Result withWebsite(String website) {
+        this.website = website;
+        return this;
+    }
+
 }

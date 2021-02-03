@@ -8,6 +8,7 @@ import com.tizzone.go4lunch.network.PlacesApiService;
 import javax.inject.Inject;
 
 import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Observable;
 
 
 public class Repository {
@@ -21,11 +22,11 @@ public class Repository {
 
     }
 
-    public Flowable<PlacesResults> getNearByPlacesApi(String location, int radius, String type) {
-        return placesApiService.getNearByPlacesApi(location, radius, type);
+    public Flowable<PlacesResults> getNearByPlacesApi(String location, int radius) {
+        return placesApiService.getNearByPlacesApi(location, radius);
     }
 
-    public Flowable<PlaceDetail> getDetailByPlaceId(String uid) {
+    public Observable<PlaceDetail> getDetailByPlaceId(String uid) {
         return placesApiService.getDetailByPlaceId(uid);
     }
 

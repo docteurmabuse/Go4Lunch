@@ -9,9 +9,8 @@ import androidx.lifecycle.ViewModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.detail.PlaceDetail;
-import com.tizzone.go4lunch.models.detail.PlaceResult;
+import com.tizzone.go4lunch.models.detail.Result;
 import com.tizzone.go4lunch.models.places.PlacesResults;
-import com.tizzone.go4lunch.models.places.Result;
 import com.tizzone.go4lunch.models.prediction.Prediction;
 import com.tizzone.go4lunch.models.prediction.Predictions;
 import com.tizzone.go4lunch.repositories.Repository;
@@ -60,16 +59,16 @@ public class PlacesViewModel extends ViewModel {
         return filteredRestaurants;
     }
 
-    public MutableLiveData<List<Restaurant>> setRestaurants(String location, int radius, String type) {
-        repository.getNearByPlacesApi(location, radius, type)
+    public MutableLiveData<List<Restaurant>> setRestaurants(String location, int radius) {
+        repository.getNearByPlacesApi(location, radius)
                 .subscribeOn(Schedulers.io())
                 .map(new Function<PlacesResults, List<Restaurant>>() {
                     @Override
                     public List<Restaurant> apply(PlacesResults placesResults) throws Throwable {
-                        List<Result> placesResultsList = placesResults.getResults();
+                        List<com.tizzone.go4lunch.models.places.Result> placesResultsList = placesResults.getResults();
                         List<Restaurant> restaurants = new ArrayList<>();
 
-                        for (Result result : placesResultsList) {
+                        for (com.tizzone.go4lunch.models.places.Result result : placesResultsList) {
                             Boolean isOpen = null;
                             if (result.getOpeningHours() != null)
                                 isOpen = result.getOpeningHours().getOpenNow();
@@ -98,14 +97,14 @@ public class PlacesViewModel extends ViewModel {
                 .map(new Function<PlaceDetail, Restaurant>() {
                     @Override
                     public Restaurant apply(PlaceDetail placeDetail) throws Throwable {
-                        PlaceResult placeResult = placeDetail.getPlaceResult();
+                        Result result = placeDetail.getResult();
                         Restaurant restaurant = new Restaurant();
                         Float rating = null;
-                        if (placeDetail.getPlaceResult() != null) {
-                            Log.e(TAG, "apply: " + placeResult.getName());
-                            rating = placeResult.getRating();
-                            restaurant = new Restaurant(uid, placeResult.getName(), placeResult.getFormattedAddress(), placeResult.getPhotoUrl(), rating, 0,
-                                    null, new LatLng(placeResult.getGeometry().getLocation().getLat(), placeResult.getGeometry().getLocation().getLng()), placeResult.getWebsite(), placeResult.getInternationalPhoneNumber());
+                        if (placeDetail.getResult() != null) {
+                            Log.e(TAG, "apply: " + result.getName());
+                            rating = result.getRating();
+                            restaurant = new Restaurant(uid, result.getName(), result.getFormattedAddress(), result.getPhotoUrl(), rating, 0,
+                                    null, new LatLng(result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng()), result.getWebsite(), result.getInternationalPhoneNumber());
                         }
                         return restaurant;
                     }
