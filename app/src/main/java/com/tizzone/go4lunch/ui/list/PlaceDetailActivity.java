@@ -1,9 +1,12 @@
 package com.tizzone.go4lunch.ui.list;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -101,6 +105,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private RecyclerView usersRecyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private Restaurant restaurant;
+    private static final int notificationId = 1578;
 
 
     @Override
@@ -118,7 +123,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
         restaurant = new Restaurant();
         placeDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_place_detail);
-
+        createNotificationChannel();
         favouriteRestaurantsList = new ArrayList<String>();
 
         if (this.getCurrentUser() != null) {
@@ -137,6 +142,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             addOnOffsetChangedListener();
 
         }
+
     }
 
     private void initViews() {
@@ -235,6 +241,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             public void onClick(View view) {
                 if (!isLunchSpot) {
                     addLunchSpotInFirebase();
+                    sendUsersNotification();
                     addSpotLunchInSharedPreferences(restaurant.getUid());
                     addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
                     isLunchSpot = true;
@@ -250,6 +257,19 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 }
             }
         });
+    }
+
+    private void sendUsersNotification() {
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.id.logo_go4lunch)
+                .setContentTitle(getCurrentUser().getDisplayName() + "just choose a lunch spot")
+                .setContentText("He's lunching at" + restaurant.getName())
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText("Much longer text that cannot fit one line..."))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(notificationId, builder.build());
     }
 
     //Dial restaurant's phone number
@@ -285,14 +305,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                     null, restaurant.getLocation(), website, restaurant.getPhone()).addOnFailureListener(this.onFailureListener());
 
         }
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.id.logo_go4lunch)
-                .setContentTitle(getCurrentUser().getDisplayName() + "just choose a lunch spot")
-                .setContentText("He's lunching at" + restaurant.getName())
-                .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText("Much longer text that cannot fit one line..."))
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
     }
 
     //Add favourite in Firebase
@@ -389,6 +401,22 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     protected void onDestroy() {
         super.onDestroy();
         placeDetailBinding = null;
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 }
 

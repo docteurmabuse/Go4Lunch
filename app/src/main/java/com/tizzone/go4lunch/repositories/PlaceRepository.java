@@ -11,18 +11,19 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Observable;
 
 
-public class Repository {
+public class PlaceRepository {
 
     private final PlacesApiService placesApiService;
 
     @Inject
-    public Repository(PlacesApiService placesApiService) {
+    public PlaceRepository(PlacesApiService placesApiService) {
 
         this.placesApiService = placesApiService;
 
     }
 
     public Flowable<PlacesResults> getNearByPlacesApi(String location, int radius) {
+
         return placesApiService.getNearByPlacesApi(location, radius);
     }
 

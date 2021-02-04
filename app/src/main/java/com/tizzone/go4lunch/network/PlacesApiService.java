@@ -1,6 +1,8 @@
 package com.tizzone.go4lunch.network;
 
 
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.tizzone.go4lunch.BuildConfig;
 import com.tizzone.go4lunch.models.detail.PlaceDetail;
 import com.tizzone.go4lunch.models.places.PlacesResults;
@@ -33,5 +35,13 @@ public interface PlacesApiService {
             @Query("radius") int radius,
             @Query("sessiontoken ") int sessiontoken
     );
+
+    String COLLECTION_NAME = "users";
+
+    // --- COLLECTION REFERENCE ---
+
+    static CollectionReference getUsersCollection() {
+        return FirebaseFirestore.getInstance().collection(COLLECTION_NAME);
+    }
 
 }

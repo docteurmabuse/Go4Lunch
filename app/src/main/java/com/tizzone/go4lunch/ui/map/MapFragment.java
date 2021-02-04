@@ -1,5 +1,6 @@
 package com.tizzone.go4lunch.ui.map;
 
+import android.Manifest;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,6 +26,9 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -80,6 +85,8 @@ public class MapFragment extends Fragment {
     private RestaurantViewModel restaurantViewModel;
     private List<Restaurant> restaurantsList;
     private FragmentMapBinding mapBinding;
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
 
 
     /**
@@ -98,7 +105,7 @@ public class MapFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
+        setUpLocationListener();
     }
 
     @Nullable
@@ -110,6 +117,7 @@ public class MapFragment extends Fragment {
         View root = mapBinding.getRoot();
         return root;
     }
+
 
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -157,7 +165,6 @@ public class MapFragment extends Fragment {
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
     }
-
 
 
     @Override
@@ -407,5 +414,45 @@ public class MapFragment extends Fragment {
         Intent intent = new Intent(context, PlaceDetailActivity.class);
         intent.putExtra("RESTAURANT", restaurant.getUid());
         context.startActivity(intent);
+    }
+
+    private void setUpLocationListener() {
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        locationRequest = new LocationRequest().setInterval(2000).setFastestInterval(2000)
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        if (ActivityCompat.checkSelfPermission(this.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                for (Location location : locationResult.getLocations()) {
+                    build_retrofit_and_get_response(location.getLatitude(), location.getLongitude());
+                }
+            }
+        };
+
+        mFusedLocationProviderClient.requestLocationUpdates(
+                locationRequest, locationCallback,
+                Looper.getMainLooper());
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopLocationUpdates();
+    }
+
+    private void stopLocationUpdates() {
+        mFusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
 }

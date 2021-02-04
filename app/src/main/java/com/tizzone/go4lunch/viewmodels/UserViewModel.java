@@ -10,6 +10,9 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.tizzone.go4lunch.models.User;
+import com.tizzone.go4lunch.repositories.UserRepository;
+
+import java.util.List;
 
 public class UserViewModel extends ViewModel {
     private static final String TAG = "FirebaseAuthAppTag";
@@ -17,8 +20,12 @@ public class UserViewModel extends ViewModel {
     private final FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
     private final CollectionReference usersRef = rootRef.collection("USERS");
     public MutableLiveData<User> userMutableLiveData;
-    private User user;
+    private final UserRepository userRepository;
+    public MutableLiveData<List<User>> usersMutableLiveData = new MutableLiveData<>();
 
+    public UserViewModel(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public MutableLiveData<User> addUserToLiveData(String uid) {
         userMutableLiveData = new MutableLiveData<>();
@@ -35,6 +42,11 @@ public class UserViewModel extends ViewModel {
         });
         return userMutableLiveData;
     }
+
+    public MutableLiveData<List<User>> getUsersMutableLiveData(String uid) {
+        return userRepository.getFirebaseUsersLunch(uid);
+    }
+
 
     public static void logErrorMessage(String errorMessage) {
         Log.d(TAG, errorMessage);

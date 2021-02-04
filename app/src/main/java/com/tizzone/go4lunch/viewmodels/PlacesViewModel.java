@@ -13,7 +13,7 @@ import com.tizzone.go4lunch.models.detail.Result;
 import com.tizzone.go4lunch.models.places.PlacesResults;
 import com.tizzone.go4lunch.models.prediction.Prediction;
 import com.tizzone.go4lunch.models.prediction.Predictions;
-import com.tizzone.go4lunch.repositories.Repository;
+import com.tizzone.go4lunch.repositories.PlaceRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class PlacesViewModel extends ViewModel {
     private static final String TAG = "RestaurantViewModel";
 
-    private final Repository repository;
+    private final PlaceRepository placeRepository;
     public String location;
     public String key;
     public MutableLiveData<List<Restaurant>> restaurantsList = new MutableLiveData<>();
@@ -39,8 +39,8 @@ public class PlacesViewModel extends ViewModel {
     private final MutableLiveData<Restaurant> restaurantMutableLiveData = new MutableLiveData<>();
 
     @Inject
-    public PlacesViewModel(Repository repository) {
-        this.repository = repository;
+    public PlacesViewModel(PlaceRepository placeRepository) {
+        this.placeRepository = placeRepository;
     }
 
 
@@ -60,7 +60,7 @@ public class PlacesViewModel extends ViewModel {
     }
 
     public MutableLiveData<List<Restaurant>> setRestaurants(String location, int radius) {
-        repository.getNearByPlacesApi(location, radius)
+        placeRepository.getNearByPlacesApi(location, radius)
                 .subscribeOn(Schedulers.io())
                 .map(new Function<PlacesResults, List<Restaurant>>() {
                     @Override
@@ -92,7 +92,7 @@ public class PlacesViewModel extends ViewModel {
     }
 
     public MutableLiveData<Restaurant> setRestaurant(String uid) {
-        repository.getDetailByPlaceId(uid)
+        placeRepository.getDetailByPlaceId(uid)
                 .subscribeOn(Schedulers.io())
                 .map(new Function<PlaceDetail, Restaurant>() {
                     @Override
@@ -115,7 +115,7 @@ public class PlacesViewModel extends ViewModel {
     }
 
     public void setPredictions(String input, String location, int radius, int sessiontoken, String key) {
-        repository.getPredictionsApi(input, location, radius, sessiontoken)
+        placeRepository.getPredictionsApi(input, location, radius, sessiontoken)
                 .subscribeOn(Schedulers.io())
                 .map(new Function<Predictions, List<Prediction>>() {
                     @Override

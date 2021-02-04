@@ -3,27 +3,24 @@ package com.tizzone.go4lunch.models;
 
 import androidx.annotation.Nullable;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class User {
+public class User implements Serializable {
 
     private String uid;
-    private boolean isAuthenticated;
     private String userName;
     @Nullable
     private String userEmail;
     @Nullable
     private String photoUrl;
     @Nullable
-    private List favoriteRestaurants;
+    private List<String> favoriteRestaurants;
     @Nullable
     private String lunchSpot;
 
 
-    public User() {
-    }
-
-    public User(String uid, String userName, String userEmail, String photoUrl, List<String> favoriteRestaurants, String lunchSpot) {
+    public User(String uid, String userName, @org.jetbrains.annotations.Nullable String userEmail, @org.jetbrains.annotations.Nullable String photoUrl, @org.jetbrains.annotations.Nullable List<String> favoriteRestaurants, String lunchSpot) {
         this.uid = uid;
         this.userName = userName;
         this.userEmail = userEmail;
@@ -59,27 +56,30 @@ public class User {
         return this;
     }
 
+    @org.jetbrains.annotations.Nullable
     public String getPhotoUrl() {
         return photoUrl;
     }
 
-    public void setPhotoUrl(String photoUrl) {
+    public void setPhotoUrl(@org.jetbrains.annotations.Nullable String photoUrl) {
         this.photoUrl = photoUrl;
     }
 
+    @org.jetbrains.annotations.Nullable
     public List<String> getFavoriteRestaurants() {
         return favoriteRestaurants;
     }
 
-    public void setFavoriteRestaurants(List<String> favoriteRestaurants) {
+    public void setFavoriteRestaurants(@org.jetbrains.annotations.Nullable List<String> favoriteRestaurants) {
         this.favoriteRestaurants = favoriteRestaurants;
     }
 
+    @org.jetbrains.annotations.Nullable
     public String getLunchSpot() {
         return lunchSpot;
     }
 
-    public void setLunchSpot(String lunchSpot) {
+    public void setLunchSpot(@org.jetbrains.annotations.Nullable String lunchSpot) {
         this.lunchSpot = lunchSpot;
     }
 

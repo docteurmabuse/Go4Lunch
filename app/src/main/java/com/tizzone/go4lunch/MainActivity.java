@@ -32,6 +32,7 @@ import com.tizzone.go4lunch.databinding.ActivityMainBinding;
 import com.tizzone.go4lunch.databinding.NavHeaderMainBinding;
 import com.tizzone.go4lunch.ui.auth.AuthActivity;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
+import com.tizzone.go4lunch.ui.settings.SettingsActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -46,8 +47,6 @@ public class MainActivity extends BaseActivity {
     public static final String lunchSpotId = "lunchSpotId";
     public static final String myPreference = "mypref";
     private SharedPreferences sharedPreferences;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,6 +121,9 @@ public class MainActivity extends BaseActivity {
                         }
                     }
                 }
+                if (id == R.id.nav_settings) {
+                    launchSettingsActivity();
+                }
 
                 drawer.closeDrawer(GravityCompat.START);
                 return true;
@@ -132,6 +134,10 @@ public class MainActivity extends BaseActivity {
 
         navHeaderMainBinding = NavHeaderMainBinding.bind(headerView);
         updateProfileWhenCreating();
+    }
+
+    private void launchSettingsActivity() {
+        startActivity(new Intent(MainActivity.this, SettingsActivity.class));
     }
 
     private void viewRestaurantDetail(String restaurantId) {

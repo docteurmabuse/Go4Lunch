@@ -1,4 +1,4 @@
-package com.tizzone.go4lunch.ui.slideshow;
+package com.tizzone.go4lunch.ui.settings;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -10,7 +10,7 @@ public class SlideshowViewModel extends ViewModel {
 
     public SlideshowViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is slideshow fragment");
+        mText.setValue("This is settings fragment");
     }
 
     public LiveData<String> getText() {
