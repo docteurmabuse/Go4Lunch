@@ -22,6 +22,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -43,11 +44,13 @@ import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.FragmentMapBinding;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
+import com.tizzone.go4lunch.utils.PermissionsManager;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import com.tizzone.go4lunch.viewmodels.RestaurantViewModel;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -87,6 +90,7 @@ public class MapFragment extends Fragment {
     private LocationCallback locationCallback;
     private List<String> lunchSpotList;
     private List<Restaurant> noMatesRestaurantsList;
+    private PermissionsManager permissionsManager;
 
 
     /**
@@ -105,7 +109,13 @@ public class MapFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        setUpLocationListener();
+//        if (permissionsManager.isAccessFineLocationGranted(getActivity())){
+//            setUpLocationListener();
+//        }
+//        else {
+//            permissionsManager.requestLocationPermission(this);
+//        }
+
     }
 
     @Nullable
@@ -174,9 +184,16 @@ public class MapFragment extends Fragment {
     }
 
     private void observeData() {
-        placesViewModel.getRestaurantsList().observe(getActivity(), this::initRestaurantsList);
+        placesViewModel.getRestaurantsList().observe(getActivity(), new Observer<List<Restaurant>>() {
+            @Override
+            public void onChanged(List<Restaurant> restaurants) {
+                restaurants.addAll(restaurants);
+                initRestaurantsList(restaurants);
+            }
+        });
         locationViewModel.getUserLocation().observe(getActivity(), locationModel -> {
             if (locationModel != null) {
+                // build_retrofit_and_get_response(locationModel.getLocation().latitude, locationModel.getLocation().longitude);
                 this.currentLocation = locationModel.getLocation();
             }
         });
@@ -190,18 +207,17 @@ public class MapFragment extends Fragment {
 
 
     private void initRestaurantsList(List<Restaurant> mRestaurants) {
-        restaurants.clear();
-        restaurants.addAll(mRestaurants);
-        for (Restaurant restaurant : restaurants) {
+        restaurantsList = new ArrayList<>();
+        for (Restaurant restaurant : mRestaurants) {
             userViewModel.addUserToLiveData(restaurant.getUid()).observe(getActivity(), users -> {
                 if (users.size() > 0) {
                     restaurantsMatesList.add(restaurant);
                 } else {
-                    noMatesRestaurantsList.add(restaurant);
+                    restaurantsList.add(restaurant);
                 }
             });
         }
-        setMarkers(restaurants, R.drawable.ic_restaurant_pin_red);
+        setMarkers(mRestaurants, R.drawable.ic_restaurant_pin_red);
         setMarkers(restaurantsMatesList, R.drawable.ic_restaurant_pin_green);
     }
 
@@ -317,8 +333,6 @@ public class MapFragment extends Fragment {
             }
         });
     }
-
-
 
 
     private void updateLocationUI() {
@@ -454,8 +468,13 @@ public class MapFragment extends Fragment {
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
                 for (Location location : locationResult.getLocations()) {
-                    build_retrofit_and_get_response(location.getLatitude(), location.getLongitude());
+                    if (currentLocation != null) {
+                        if (location.getLatitude() != currentLocation.latitude && location.getLongitude() != currentLocation.longitude)
+                            locationViewModel.setUserLocation(mLastKnownLocation.getLatitude(),
+                                    mLastKnownLocation.getLongitude());
+                    }
                 }
+
             }
         };
 
@@ -471,6 +490,6 @@ public class MapFragment extends Fragment {
     }
 
     private void stopLocationUpdates() {
-        mFusedLocationProviderClient.removeLocationUpdates(locationCallback);
+        // mFusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
 }

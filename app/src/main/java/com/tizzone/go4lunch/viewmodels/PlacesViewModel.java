@@ -94,7 +94,7 @@ public class PlacesViewModel extends ViewModel {
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(result -> {
-                            restaurantsList.setValue(new ArrayList<>());
+                          //  restaurantsList.setValue(new ArrayList<>());
                             restaurantsList.setValue(result);
                         },
                         error -> Log.e(TAG, "setRestaurants:" + error.getMessage())

@@ -17,9 +17,18 @@ import com.tizzone.go4lunch.utils.UserHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import static android.content.ContentValues.TAG;
 
 public class UserRepository {
+
+    public UserHelper userHelper;
+
+    @Inject
+    public UserRepository(UserHelper userHelper) {
+        this.userHelper = userHelper;
+    }
 
     public MutableLiveData<List<User>> getFirebaseUsersLunch(String uid) {
         MutableLiveData<List<User>> firebaseUsers = new MutableLiveData<>();

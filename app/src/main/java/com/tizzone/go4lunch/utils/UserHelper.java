@@ -10,10 +10,16 @@ import com.tizzone.go4lunch.models.User;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class UserHelper {
     private static final String COLLECTION_NAME = "users";
 
-    // --- COLLECTION REFERENCE ---
+    @Inject
+    public UserHelper() {
+
+    }
+// --- COLLECTION REFERENCE ---
 
     public static CollectionReference getUsersCollection() {
         return FirebaseFirestore.getInstance().collection(COLLECTION_NAME);
