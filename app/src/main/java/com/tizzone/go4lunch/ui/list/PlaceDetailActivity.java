@@ -243,6 +243,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                     addLunchSpotInFirebase();
                     sendUsersNotification();
                     addSpotLunchInSharedPreferences(restaurant.getUid());
+                    RestaurantHelper.incrementCounter(restaurant.getUid(), 1);
                     addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
                     isLunchSpot = true;
                     Snackbar.make(view, "You're going to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
@@ -251,6 +252,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                     addSpotLunchInSharedPreferences(null);
                     addLunchSpotInFirebase();
                     addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
+                    RestaurantHelper.incrementCounter(restaurant.getUid(), -1);
                     isLunchSpot = false;
                     Snackbar.make(view, "You're not going anymore to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
@@ -301,7 +303,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         }
         if (currentPlaceId != null) {
             //Add restaurant in firebase
-            RestaurantHelper.createRestaurant(restaurant.getUid(), restaurant.getName(), restaurant.getAddress(), restaurant.getPhotoUrl(), restaurant.getRating(), +1,
+            RestaurantHelper.createRestaurant(restaurant.getUid(), restaurant.getName(), restaurant.getAddress(), restaurant.getPhotoUrl(), restaurant.getRating(), 1,
                     null, restaurant.getLocation(), website, restaurant.getPhone()).addOnFailureListener(this.onFailureListener());
 
         }

@@ -6,6 +6,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.tizzone.go4lunch.models.Restaurant;
 
 public class RestaurantHelper {
@@ -17,6 +18,16 @@ public class RestaurantHelper {
         return FirebaseFirestore.getInstance().collection(COLLECTION_NAME);
     }
 
+    // --- READ ---
+    public static Query getRestaurants() {
+        return RestaurantHelper.getRestaurantsCollection();
+    }
+
+    // --- READ ---
+    public static Task<DocumentSnapshot> getRestaurantsById(String uid) {
+        return RestaurantHelper.getRestaurantsCollection().document(uid).get();
+    }
+
     // --- CREATE ---
     public static Task<Void> createRestaurant(String uid, String name, String address, String photoUrl, Float rating, int restaurant_counter,
                                               Boolean openNow, LatLng location, String websiteUrl, String phone) {
@@ -24,14 +35,10 @@ public class RestaurantHelper {
         return RestaurantHelper.getRestaurantsCollection().document(uid).set(restaurantToCreate);
     }
 
-    public static Task<Void> incrementCounter(String uid) {
-        return RestaurantHelper.getRestaurantsCollection().document(uid).update("restaurant_counter", FieldValue.increment(1));
+    public static Task<Void> incrementCounter(String uid, int i) {
+        return RestaurantHelper.getRestaurantsCollection().document(uid).update("restaurant_counter", FieldValue.increment(i));
     }
 
-    // --- READ ---
-    public static Task<DocumentSnapshot> getRestaurants(String uid) {
-        return RestaurantHelper.getRestaurantsCollection().document(uid).get();
-    }
 
     // --- DELETE ---
     public static Task<Void> deleteRestaurant(String uid) {

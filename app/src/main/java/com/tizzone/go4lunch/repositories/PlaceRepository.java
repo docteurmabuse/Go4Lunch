@@ -23,7 +23,6 @@ public class PlaceRepository {
     }
 
     public Flowable<PlacesResults> getNearByPlacesApi(String location, int radius) {
-
         return placesApiService.getNearByPlacesApi(location, radius);
     }
 

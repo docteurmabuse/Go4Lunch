@@ -32,9 +32,12 @@ public class PlacesViewModel extends ViewModel {
     private static final String TAG = "RestaurantViewModel";
 
     private final PlaceRepository placeRepository;
+    public MutableLiveData<List<Restaurant>> matesRestaurantsList = new MutableLiveData<>();
     public String location;
     public String key;
     public MutableLiveData<List<Restaurant>> restaurantsList = new MutableLiveData<>();
+    private UserViewModel userViewModel;
+
     private final MutableLiveData<List<Restaurant>> filteredRestaurants = new MutableLiveData<>();
     private final MutableLiveData<Restaurant> restaurantMutableLiveData = new MutableLiveData<>();
 
@@ -55,11 +58,18 @@ public class PlacesViewModel extends ViewModel {
         return restaurantMutableLiveData;
     }
 
+    public MutableLiveData<List<Restaurant>> getMatesRestaurantsList() {
+
+        return matesRestaurantsList;
+    }
+
+
     public MutableLiveData<List<Restaurant>> getFilteredRestaurantsList() {
         return filteredRestaurants;
     }
 
     public MutableLiveData<List<Restaurant>> setRestaurants(String location, int radius) {
+        List<com.tizzone.go4lunch.models.places.Result> placesResultsList;
         placeRepository.getNearByPlacesApi(location, radius)
                 .subscribeOn(Schedulers.io())
                 .map(new Function<PlacesResults, List<Restaurant>>() {
@@ -78,12 +88,13 @@ public class PlacesViewModel extends ViewModel {
                             restaurants.add(restaurant);
                         }
                         Log.e(TAG, "apply: " + placesResultsList.get(0).getName());
-
                         return restaurants;
                     }
+
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(result -> {
+                            restaurantsList.setValue(new ArrayList<>());
                             restaurantsList.setValue(result);
                         },
                         error -> Log.e(TAG, "setRestaurants:" + error.getMessage())

@@ -2,9 +2,12 @@ package com.tizzone.go4lunch.repositories;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -36,6 +39,18 @@ public class UserRepository {
                         }
                     }
                 });
+        return firebaseUsers;
+    }
+
+
+    public MutableLiveData<List<User>> getFirebaseUsers() {
+        MutableLiveData<List<User>> firebaseUsers = new MutableLiveData<>();
+        UserHelper.getUsers().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                firebaseUsers.setValue(task.getResult().toObjects(User.class));
+            }
+        });
         return firebaseUsers;
     }
 

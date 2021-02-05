@@ -5,6 +5,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.tizzone.go4lunch.models.User;
 
 import java.util.List;
@@ -30,6 +31,11 @@ public class UserHelper {
     public static Task<DocumentSnapshot> getUser(String uid) {
         return UserHelper.getUsersCollection().document(uid).get();
     }
+
+    public static Task<QuerySnapshot> getUsers() {
+        return UserHelper.getUsersCollection().get();
+    }
+
 
     public static Query getUserFavouriteRestaurants(String userId) {
         return getUsersCollection().document(userId).collection("favouriteRestaurants");
@@ -68,6 +74,7 @@ public class UserHelper {
     public static Task<Void> updateLunchSpot(String lunchSpot, String uid) {
         return UserHelper.getUsersCollection().document(uid).update("lunchSpot", lunchSpot);
     }
+
 
     // --- DELETE ---
     public static Task<Void> deleteUser(String uid) {

@@ -22,7 +22,6 @@ import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -40,19 +39,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.FragmentMapBinding;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
-import com.tizzone.go4lunch.utils.UserHelper;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import com.tizzone.go4lunch.viewmodels.RestaurantViewModel;
+import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -78,15 +73,20 @@ public class MapFragment extends Fragment {
     private String key;
     private PlacesViewModel placesViewModel;
     private LocationViewModel locationViewModel;
+    private UserViewModel userViewModel;
     private Marker workmatesRestaurant;
     private Marker emptyRestaurant;
     private Context mContext;
     private LatLng currentLocation;
     private RestaurantViewModel restaurantViewModel;
     private List<Restaurant> restaurantsList;
+    private List<Restaurant> restaurantsMatesList;
+    private List<Restaurant> restaurants;
     private FragmentMapBinding mapBinding;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
+    private List<String> lunchSpotList;
+    private List<Restaurant> noMatesRestaurantsList;
 
 
     /**
@@ -154,6 +154,7 @@ public class MapFragment extends Fragment {
         placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
         restaurantViewModel = new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
+        userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
 
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
@@ -173,78 +174,38 @@ public class MapFragment extends Fragment {
     }
 
     private void observeData() {
-        placesViewModel.getRestaurantsList().observe(getActivity(), new Observer<List<Restaurant>>() {
-            @Override
-            public void onChanged(List<Restaurant> restaurants) {
-                setMarkers(restaurants);
-                restaurantsList = new ArrayList<>();
-                restaurantsList.addAll(restaurants);
-            }
-        });
+        placesViewModel.getRestaurantsList().observe(getActivity(), this::initRestaurantsList);
         locationViewModel.getUserLocation().observe(getActivity(), locationModel -> {
             if (locationModel != null) {
                 this.currentLocation = locationModel.getLocation();
             }
         });
 
-        placesViewModel.getFilteredRestaurantsList().observe(getActivity(), new Observer<List<Restaurant>>() {
-            @Override
-            public void onChanged(List<Restaurant> restaurants) {
-                mMap.clear();
-                setMarkers(restaurants);
-            }
+
+        placesViewModel.getFilteredRestaurantsList().observe(getActivity(), restaurants -> {
+            mMap.clear();
+            initRestaurantsList(restaurants);
         });
     }
 
 
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.options_menu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-//        // Associate searchable configuration with the SearchView
-        SearchManager searchManager =
-                (SearchManager) getContext().getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView =
-                (SearchView) menu.findItem(R.id.search).getActionView();
-
-        searchView.setSearchableInfo(
-                searchManager.getSearchableInfo(getActivity().getComponentName()));
-
-        searchView.setIconifiedByDefault(false);
-
-        searchView.findViewById(R.id.search_close_btn)
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Log.d("called", "this is called.");
-                        setMarkers(restaurantsList);
-                        searchView.setIconified(true);
-                    }
-                });
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                if (query.length() > 2) {
-                    searchView.setFocusable(false);
-                    return false;
+    private void initRestaurantsList(List<Restaurant> mRestaurants) {
+        restaurants.clear();
+        restaurants.addAll(mRestaurants);
+        for (Restaurant restaurant : restaurants) {
+            userViewModel.addUserToLiveData(restaurant.getUid()).observe(getActivity(), users -> {
+                if (users.size() > 0) {
+                    restaurantsMatesList.add(restaurant);
+                } else {
+                    noMatesRestaurantsList.add(restaurant);
                 }
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                if (newText.length() > 2) {
-                    searchView.setFocusable(false);
-                    placesViewModel.setPredictions(newText, currentLocation.latitude + "," + currentLocation.longitude, PROXIMITY_RADIUS, SESSION_TOKEN, key);
-                    return true;
-                }
-                return true;
-            }
-        });
+            });
+        }
+        setMarkers(restaurants, R.drawable.ic_restaurant_pin_red);
+        setMarkers(restaurantsMatesList, R.drawable.ic_restaurant_pin_green);
     }
 
-    private void setMarkers(List<Restaurant> restaurants) {
+    private void setMarkers(List<Restaurant> restaurants, int iconId) {
         if (restaurants.size() > 0) {
             for (Restaurant restaurant : restaurants) {
                 MarkerOptions markerOptions = new MarkerOptions();
@@ -253,9 +214,16 @@ public class MapFragment extends Fragment {
                 markerOptions.position(latLng);
                 // Adding Title to the Marker
                 markerOptions.title(restaurant.getName() + " : " + restaurant.getAddress());
-                Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_red, mContext);
+                Bitmap bitmap = getBitmapFromVectorDrawable(iconId, mContext);
                 BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
-                UserHelper.getUsersLunchSpot(restaurant.getUid()).addSnapshotListener(new EventListener<QuerySnapshot>() {
+                Marker marker = mMap.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title(restaurant.getName())
+                        .snippet(restaurant.getAddress())
+                        .icon(mapIcon));
+                marker.setTag(restaurant);
+
+             /*   UserHelper.getUsersLunchSpot(restaurant.getUid()).addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                         if (error != null) {
@@ -296,11 +264,61 @@ public class MapFragment extends Fragment {
                         }
 
                     }
-                });
+                });*/
             }
         }
 
     }
+
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.options_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+//        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getContext().getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.search).getActionView();
+
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getActivity().getComponentName()));
+
+        searchView.setIconifiedByDefault(false);
+
+        searchView.findViewById(R.id.search_close_btn)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.d("called", "this is called.");
+                        initRestaurantsList(restaurants);
+                        searchView.setIconified(true);
+                    }
+                });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                if (query.length() > 2) {
+                    searchView.setFocusable(false);
+                    return false;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (newText.length() > 2) {
+                    searchView.setFocusable(false);
+                    placesViewModel.setPredictions(newText, currentLocation.latitude + "," + currentLocation.longitude, PROXIMITY_RADIUS, SESSION_TOKEN, key);
+                    return true;
+                }
+                return true;
+            }
+        });
+    }
+
+
 
 
     private void updateLocationUI() {

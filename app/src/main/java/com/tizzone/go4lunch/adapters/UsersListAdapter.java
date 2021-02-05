@@ -66,7 +66,7 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User user) {
         if (user.getLunchSpot() != null) {
-            RestaurantHelper.getRestaurants(user.getLunchSpot()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            RestaurantHelper.getRestaurantsById(user.getLunchSpot()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     restaurant = documentSnapshot.toObject(Restaurant.class);

@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.repositories.UserRepository;
@@ -21,30 +20,24 @@ public class UserViewModel extends ViewModel {
     private final CollectionReference usersRef = rootRef.collection("USERS");
     public MutableLiveData<User> userMutableLiveData;
     private final UserRepository userRepository;
+
     public MutableLiveData<List<User>> usersMutableLiveData = new MutableLiveData<>();
 
     public UserViewModel(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    public MutableLiveData<User> addUserToLiveData(String uid) {
+    public MutableLiveData<List<User>> addUserToLiveData(String restaurantId) {
         userMutableLiveData = new MutableLiveData<>();
-        usersRef.document(uid).get().addOnCompleteListener(userTask -> {
-            if (userTask.isSuccessful()) {
-                DocumentSnapshot document = userTask.getResult();
-                if (document.exists()) {
-                    User user = document.toObject(User.class);
-                    userMutableLiveData.setValue(user);
-                }
-            } else {
-                logErrorMessage(userTask.getException().getMessage());
-            }
-        });
-        return userMutableLiveData;
+        return userRepository.getFirebaseUsersLunch(restaurantId);
     }
 
-    public MutableLiveData<List<User>> getUsersMutableLiveData(String uid) {
+    public MutableLiveData<List<User>> getUsersByIdLiveData(String uid) {
         return userRepository.getFirebaseUsersLunch(uid);
+    }
+
+    public MutableLiveData<List<User>> getUsersMutableLiveData() {
+        return userRepository.getFirebaseUsers();
     }
 
 
