@@ -53,6 +53,8 @@ import com.tizzone.go4lunch.viewmodels.UserViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -76,7 +78,8 @@ public class MapFragment extends Fragment {
     private String key;
     private PlacesViewModel placesViewModel;
     private LocationViewModel locationViewModel;
-    private UserViewModel userViewModel;
+    @Inject
+    UserViewModel userViewModel;
     private Marker workmatesRestaurant;
     private Marker emptyRestaurant;
     private Context mContext;
@@ -211,7 +214,7 @@ public class MapFragment extends Fragment {
         for (Restaurant restaurant : mRestaurants) {
             userViewModel.addUserToLiveData(restaurant.getUid()).observe(getActivity(), users -> {
                 if (users.size() > 0) {
-                    restaurantsMatesList.add(restaurant);
+                    // restaurantsMatesList.add(restaurant);
                 } else {
                     restaurantsList.add(restaurant);
                 }

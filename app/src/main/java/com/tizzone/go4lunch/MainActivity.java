@@ -48,6 +48,7 @@ public class MainActivity extends BaseActivity {
     public static final String myPreference = "mypref";
     private SharedPreferences sharedPreferences;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

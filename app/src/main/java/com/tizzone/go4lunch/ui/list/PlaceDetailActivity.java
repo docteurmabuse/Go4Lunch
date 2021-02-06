@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.appbar.AppBarLayout;
@@ -49,6 +50,8 @@ import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -101,11 +104,16 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private AppCompatImageButton call;
 
 
-    private UsersListAdapter usersListAdapter;
     private RecyclerView usersRecyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private Restaurant restaurant;
     private static final int notificationId = 1578;
+
+
+    @Inject
+    UsersListAdapter usersListAdapter;
+    @Inject
+    RequestManager requestManager;
 
 
     @Override
@@ -370,15 +378,19 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     // --------------------
     // 5 - Configure RecyclerView with a Query
     private void configureRecyclerView(String placeId) {
-        this.usersListAdapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersLunchSpotWithoutCurrentUser(placeId, uid)), Glide.with(this), this, this.getCurrentUser().getUid(), false);
-        usersListAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                usersRecyclerView.smoothScrollToPosition(usersListAdapter.getItemCount()); // Scroll to bottom on new messages
-            }
-        });
+        //this.usersListAdapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersLunchSpotWithoutCurrentUser(placeId, uid)), Glide.with(this), this, this.getCurrentUser().getUid(), false);
+//        usersListAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+//            @Override
+//            public void onItemRangeInserted(int positionStart, int itemCount) {
+//                usersRecyclerView.smoothScrollToPosition(usersListAdapter.getItemCount()); // Scroll to bottom on new messages
+//            }
+//        });
+        // usersListAdapter.setClickListener(this);
+        usersRecyclerView.setHasFixedSize(true);
         usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        usersRecyclerView.setAdapter(this.usersListAdapter);
+        usersRecyclerView.setAdapter(usersListAdapter);
+        usersListAdapter.startListening();
+
     }
 
     // 6 - Create options for RecyclerView from a Query

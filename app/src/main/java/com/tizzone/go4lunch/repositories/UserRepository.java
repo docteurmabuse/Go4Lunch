@@ -22,6 +22,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.reactivex.rxjava3.core.Flowable;
+
 import static android.content.ContentValues.TAG;
 
 @Module
@@ -71,5 +73,9 @@ public class UserRepository {
 
     public FirestoreRecyclerOptions<User> getUserList() {
         return firebaseDataSource.getUsersList();
+    }
+
+    public Flowable<QuerySnapshot> getUsers() {
+        return firebaseDataSource.getUsers();
     }
 }
