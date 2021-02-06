@@ -9,16 +9,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.tizzone.go4lunch.models.User;
 
 import java.util.List;
-
-import javax.inject.Inject;
-
 public class UserHelper {
     private static final String COLLECTION_NAME = "users";
 
-    @Inject
-    public UserHelper() {
-
-    }
 // --- COLLECTION REFERENCE ---
 
     public static CollectionReference getUsersCollection() {

@@ -19,6 +19,9 @@ public class User implements Serializable {
     @Nullable
     private String lunchSpot;
 
+    public User() {
+
+    }
 
     public User(String uid, String userName, @org.jetbrains.annotations.Nullable String userEmail, @org.jetbrains.annotations.Nullable String photoUrl, @org.jetbrains.annotations.Nullable List<String> favoriteRestaurants, String lunchSpot) {
         this.uid = uid;
