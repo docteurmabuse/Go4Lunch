@@ -53,8 +53,6 @@ import com.tizzone.go4lunch.viewmodels.UserViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import dagger.hilt.android.AndroidEntryPoint;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -77,8 +75,7 @@ public class MapFragment extends Fragment {
     private String key;
     private PlacesViewModel placesViewModel;
     private LocationViewModel locationViewModel;
-    @Inject
-    UserViewModel userViewModel;
+    private UserViewModel userViewModel;
     private Marker workmatesRestaurant;
     private Marker emptyRestaurant;
     private Context mContext;

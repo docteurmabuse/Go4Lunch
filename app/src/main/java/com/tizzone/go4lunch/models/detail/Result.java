@@ -149,7 +149,7 @@ public class Result implements Serializable {
 
     public String getPhotoUrl() {
         String GOOGLE_MAP_API_KEY = BuildConfig.GOOGLE_MAPS_API_KEY;
-        if (this.photos.size() > 0) {
+        if (this.photos != null) {
             String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
             photoUrl = staticUrl + "maxwidth=400&photoreference=" + getPhotos().get(0).getPhotoReference() + "&key=" + GOOGLE_MAP_API_KEY;
         } else {
