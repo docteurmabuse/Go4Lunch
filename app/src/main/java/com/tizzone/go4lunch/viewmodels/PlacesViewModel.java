@@ -6,7 +6,6 @@ import android.util.Log;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.detail.PlaceDetail;
 import com.tizzone.go4lunch.models.detail.Result;
@@ -84,7 +83,7 @@ public class PlacesViewModel extends ViewModel {
                                 isOpen = result.getOpeningHours().getOpenNow();
 
                             Restaurant restaurant = new Restaurant(result.getPlaceId(), result.getName(), result.getVicinity(), result.getPhotoUrl(), result.getRating(), 0,
-                                    isOpen, new LatLng(result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng()), null, null);
+                                    isOpen, result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng(), null, null);
                             restaurants.add(restaurant);
                         }
                         Log.e(TAG, "apply: " + placesResultsList.get(0).getName());
@@ -115,7 +114,7 @@ public class PlacesViewModel extends ViewModel {
                             Log.e(TAG, "apply: " + result.getName());
                             rating = result.getRating();
                             restaurant = new Restaurant(uid, result.getName(), result.getFormattedAddress(), result.getPhotoUrl(), rating, 0,
-                                    null, new LatLng(result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng()), result.getWebsite(), result.getInternationalPhoneNumber());
+                                    null, result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng(), result.getWebsite(), result.getInternationalPhoneNumber());
                         }
                         return restaurant;
                     }

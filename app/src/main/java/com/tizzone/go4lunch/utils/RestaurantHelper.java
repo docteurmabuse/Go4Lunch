@@ -31,7 +31,7 @@ public class RestaurantHelper {
     // --- CREATE ---
     public static Task<Void> createRestaurant(String uid, String name, String address, String photoUrl, Float rating, int restaurant_counter,
                                               Boolean openNow, LatLng location, String websiteUrl, String phone) {
-        Restaurant restaurantToCreate = new Restaurant(uid, name, address, photoUrl, rating, restaurant_counter, null, location, websiteUrl, phone);
+        Restaurant restaurantToCreate = new Restaurant(uid, name, address, photoUrl, rating, restaurant_counter, null, location.latitude, location.longitude, websiteUrl, phone);
         return RestaurantHelper.getRestaurantsCollection().document(uid).set(restaurantToCreate);
     }
 

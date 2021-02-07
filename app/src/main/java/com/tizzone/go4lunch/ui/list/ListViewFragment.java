@@ -31,7 +31,6 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 
 import static android.content.ContentValues.TAG;
-
 @AndroidEntryPoint
 public class ListViewFragment extends Fragment {
 
@@ -42,7 +41,9 @@ public class ListViewFragment extends Fragment {
     private final int SESSION_TOKEN = 54784;
 
     private LocationViewModel locationViewModel;
+
     private PlacesViewModel placesViewModel;
+
 
     private List<Restaurant> restaurants;
     private String key;
@@ -53,6 +54,7 @@ public class ListViewFragment extends Fragment {
         super.onCreate(savedInstanceState);
         key = getText(R.string.google_maps_key).toString();
         setHasOptionsMenu(true);
+        // System.out.println(placesViewModel.getRestaurantsList().getValue().get(0));
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,

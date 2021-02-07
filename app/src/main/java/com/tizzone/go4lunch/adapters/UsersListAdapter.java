@@ -1,6 +1,7 @@
 package com.tizzone.go4lunch.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,10 +22,8 @@ import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.UsersListItemBinding;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
+import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.utils.RestaurantHelper;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAdapter.UserViewHolder> {
     private UsersListItemBinding userBinding;
@@ -32,33 +31,27 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
 
     //FOR DATA
     private final RequestManager glide;
-    // private final String idCurrentUser;
-    //  private final boolean isWorkmatesView;
+    private final String idCurrentUser;
+    private final boolean isWorkmatesView;
     private Context context;
     //FOR COMMUNICATION
-    //private final Listener callback;
+    private Listener callback;
     private Restaurant restaurant;
-    private UserListener userListener;
 
-
-    public UsersListAdapter(FirestoreRecyclerOptions<User> options, RequestManager glide) {
+    public UsersListAdapter(FirestoreRecyclerOptions<User> options, RequestManager glide
+                            //, Listener callback, String idCurrentUser, boolean isWorkmatesView
+    ) {
         super(options);
         this.glide = glide;
-        // this.idCurrentUser = idCurrentUser;
-        //  this.callback = callback;
-        // this.isWorkmatesView = isWorkmatesView;
-        List<Restaurant> restaurants = new ArrayList<>();
-
+        this.idCurrentUser = "idCurrentUser";
+        this.callback = callback;
+        this.isWorkmatesView = true;
     }
 
     @Override
     public void onDataChanged() {
         super.onDataChanged();
-        //  this.callback.onDataChanged();
-    }
-
-    public void setClickListener(UserListener userListener) {
-        this.userListener = userListener;
+        // this.callback.onDataChanged();
     }
 
     /**
@@ -77,23 +70,24 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
                 }
             });
         } else {
-            // holder.updateWithUser(user, this.idCurrentUser, this.glide, this.isWorkmatesView, restaurant);
+            holder.updateWithUser(user, this.idCurrentUser, this.glide, this.isWorkmatesView, restaurant);
         }
     }
 
     private void setHolder(UserViewHolder holder, User user, Restaurant restaurant) {
-        // holder.updateWithUser(user, this.glide);
+        holder.updateWithUser(user, this.idCurrentUser, this.glide, this.isWorkmatesView, restaurant);
+        if (isWorkmatesView) {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     final Context context = holder.itemView.getContext();
-                    userListener.onUserClick(context, restaurant.getUid());
-//                    Intent intent = new Intent(context, PlaceDetailActivity.class);
-//                    intent.putExtra("RESTAURANT", restaurant.getUid());
-//                    context.startActivity(intent);
+                    Intent intent = new Intent(context, PlaceDetailActivity.class);
+                    intent.putExtra("RESTAURANT", restaurant.getUid());
+                    context.startActivity(intent);
                 }
             });
         }
+    }
 
     @NonNull
     @Override
@@ -107,11 +101,6 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     public interface Listener {
         void onDataChanged();
     }
-
-    public interface UserListener {
-        void onUserClick(Context context, String uid);
-    }
-
 
     public class UserViewHolder extends RecyclerView.ViewHolder {
         private final ImageView avatarView;

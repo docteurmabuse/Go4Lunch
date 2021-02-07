@@ -60,7 +60,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.ContentValues.TAG;
 import static com.tizzone.go4lunch.utils.Utils.getBitmapFromVectorDrawable;
-
 @AndroidEntryPoint
 public class MapFragment extends Fragment {
 

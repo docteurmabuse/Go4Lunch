@@ -7,7 +7,6 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.datatransport.runtime.dagger.Module;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.EventListener;
@@ -26,11 +25,10 @@ import io.reactivex.rxjava3.core.Flowable;
 
 import static android.content.ContentValues.TAG;
 
-@Module
 public class UserRepository {
 
     private final FirebaseDataSource firebaseDataSource;
-
+    private UserHelper userHelper;
 
     @Inject
     public UserRepository(FirebaseDataSource firebaseDataSource) {
@@ -77,5 +75,9 @@ public class UserRepository {
 
     public Flowable<QuerySnapshot> getUsers() {
         return firebaseDataSource.getUsers();
+    }
+
+    public String doAThing() {
+        return "Injection work";
     }
 }

@@ -9,14 +9,19 @@ import com.tizzone.go4lunch.BR;
 
 import org.jetbrains.annotations.Nullable;
 
-public class Restaurant extends BaseObservable {
+import java.io.Serializable;
+
+public class Restaurant extends BaseObservable implements Serializable {
     private String uid;
     private int restaurant_counter;
     private String name;
     private String address;
 
     private final PropertyChangeRegistry registry = new PropertyChangeRegistry();
-    private LatLng location;
+    @Nullable
+    private Double latitude;
+    @Nullable
+    private Double longitude;
     @Nullable
     private String photoUrl;
     @Nullable
@@ -28,7 +33,9 @@ public class Restaurant extends BaseObservable {
     @Nullable
     private String phone;
 
-    public Restaurant(String uid, String name, String address, @Nullable String photoUrl, @Nullable Float rating, int restaurant_counter, @Nullable Boolean open_now, LatLng location, String websiteUrl, String phone) {
+
+    public Restaurant(String uid, String name, String address, @Nullable String photoUrl, @Nullable Float rating, int restaurant_counter, @Nullable Boolean open_now, @Nullable
+            Double latitude, Double longitude, String websiteUrl, String phone) {
         this.uid = uid;
         this.restaurant_counter = restaurant_counter;
         this.name = name;
@@ -36,24 +43,36 @@ public class Restaurant extends BaseObservable {
         this.photoUrl = photoUrl;
         this.rating = rating;
         this.open_now = open_now;
-        this.location = location;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.websiteUrl = websiteUrl;
         this.phone = phone;
     }
 
 
-
     public Restaurant() {
 
     }
+
     public LatLng getLocation() {
-        return location;
+        return new LatLng(latitude, longitude);
     }
 
-    public void setLocation(LatLng location) {
-        this.location = location;
+    public double getLatitude() {
+        return latitude;
     }
 
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
 
     public void setOpen_now(@Nullable Boolean open_now) {
         this.open_now = open_now;

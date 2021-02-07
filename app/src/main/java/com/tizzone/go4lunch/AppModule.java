@@ -40,13 +40,28 @@ public class AppModule {
                 .error(R.mipmap.avatar);
     }
 
+    @Singleton
     @Provides
     static FirebaseDataSource provideFirebaseDataSource(FirebaseFirestore firebaseFirestore) {
         return new FirebaseDataSource(firebaseFirestore);
     }
 
+    @Singleton
     @Provides
     static UserViewModel provideViewModel(UserRepository userRepository) {
         return new UserViewModel(userRepository);
     }
+
+    @Singleton
+    @Provides
+    static String provideString(String string) {
+        return string;
+    }
+
+    @Provides
+    static Boolean provideBoolean(boolean isWorkmates) {
+        return new Boolean(isWorkmates);
+    }
+
+
 }
