@@ -4,6 +4,7 @@ package com.tizzone.go4lunch.viewmodels;
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
 import com.tizzone.go4lunch.models.Restaurant;
@@ -31,6 +32,8 @@ public class PlacesViewModel extends ViewModel {
     private static final String TAG = "RestaurantViewModel";
 
     private final PlaceRepository placeRepository;
+    private final SavedStateHandle savedStateHandle;
+
     public MutableLiveData<List<Restaurant>> matesRestaurantsList = new MutableLiveData<>();
     public String location;
     public String key;
@@ -41,7 +44,8 @@ public class PlacesViewModel extends ViewModel {
     private final MutableLiveData<Restaurant> restaurantMutableLiveData = new MutableLiveData<>();
 
     @Inject
-    public PlacesViewModel(PlaceRepository placeRepository) {
+    public PlacesViewModel(SavedStateHandle savedStateHandle, PlaceRepository placeRepository) {
+        this.savedStateHandle = savedStateHandle;
         this.placeRepository = placeRepository;
     }
 

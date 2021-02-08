@@ -107,6 +107,11 @@ public class MapFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Init  ViewModels
+        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
+        restaurantViewModel = new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
+        userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
         setHasOptionsMenu(true);
 //        if (permissionsManager.isAccessFineLocationGranted(getActivity())){
 //            setUpLocationListener();
@@ -159,11 +164,6 @@ public class MapFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Init  ViewModels
-        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
-        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
-        restaurantViewModel = new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
-        userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
 
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);

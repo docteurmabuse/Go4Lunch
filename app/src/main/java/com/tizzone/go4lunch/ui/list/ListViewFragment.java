@@ -25,7 +25,6 @@ import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -42,7 +41,7 @@ public class ListViewFragment extends Fragment {
 
     private LocationViewModel locationViewModel;
 
-    private PlacesViewModel placesViewModel;
+    public PlacesViewModel placesViewModel;
 
 
     private List<Restaurant> restaurants;
@@ -53,6 +52,10 @@ public class ListViewFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         key = getText(R.string.google_maps_key).toString();
+        // Init  ViewModels
+        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
+
         setHasOptionsMenu(true);
         // System.out.println(placesViewModel.getRestaurantsList().getValue().get(0));
     }
@@ -67,8 +70,7 @@ public class ListViewFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //Init ViewModels
-        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
-        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+
         initRecycleView();
     }
 
@@ -83,7 +85,7 @@ public class ListViewFragment extends Fragment {
         placesViewModel.getRestaurantsList().observe(requireActivity(), restaurantsList -> {
             Log.e(TAG, "onChanged: " + restaurantsList.size());
             placesListAdapter.setPlaces(restaurantsList, currentLocation);
-            restaurants = new ArrayList<>();
+            //restaurants = new ArrayList<>();
             restaurants.addAll(restaurantsList);
         });
 

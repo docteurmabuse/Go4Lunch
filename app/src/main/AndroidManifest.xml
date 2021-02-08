@@ -23,7 +23,7 @@
         android:theme="@style/Theme.Go4Lunch">
         <activity
             android:name=".ui.settings.SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
+            android:label="@string/title_activity_settings" />
         <activity android:name=".ui.list.PlaceDetailActivity">
             <intent-filter>
                 <action android:name="android.intent.action.DIAL_PHONE" />

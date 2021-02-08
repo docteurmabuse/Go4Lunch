@@ -46,6 +46,7 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
         this.idCurrentUser = "idCurrentUser";
         this.callback = callback;
         this.isWorkmatesView = true;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -97,6 +98,7 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
         userBinding = UsersListItemBinding.inflate(inflater, parent, false);
         return new UserViewHolder(userBinding);
     }
+
 
     public interface Listener {
         void onDataChanged();

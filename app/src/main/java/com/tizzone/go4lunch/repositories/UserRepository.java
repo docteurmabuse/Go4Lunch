@@ -77,6 +77,12 @@ public class UserRepository {
         return firebaseDataSource.getUsers();
     }
 
+    public List<User> getWorkmates(String currentUserId) {
+        Log.e("Repo si working", firebaseDataSource.getWorkmates(currentUserId).toString());
+        return firebaseDataSource.getWorkmates(currentUserId);
+    }
+
+
     public String doAThing() {
         return "Injection work";
     }

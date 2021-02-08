@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -18,18 +19,48 @@ import com.google.firebase.firestore.Query;
 import com.tizzone.go4lunch.adapters.UsersListAdapter;
 import com.tizzone.go4lunch.databinding.FragmentWorkmatesBinding;
 import com.tizzone.go4lunch.models.User;
+import com.tizzone.go4lunch.repositories.UserRepository;
+import com.tizzone.go4lunch.utils.FirebaseDataSource;
 import com.tizzone.go4lunch.utils.UserHelper;
+import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class WorkmatesFragment extends Fragment implements UsersListAdapter.Listener {
 
     private WorkmatesViewModel workmatesViewModel;
 
     private FragmentWorkmatesBinding workmatesBinding;
+    @Inject
+    public UserRepository userRepository;
+
+    @Inject
+    public FirebaseDataSource firebaseDataSource;
     private RecyclerView workmatesRecyclerView;
     private UsersListAdapter adapter;
     private TextView textView;
     private String uid;
 
+    public UserViewModel userViewModel;
+
+
+    public WorkmatesFragment() {
+        // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        workmatesViewModel =
+                new ViewModelProvider(this).get(WorkmatesViewModel.class);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -43,6 +74,17 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
     }
 
     private void getWorkmatesList(String uid) {
+        List<User> usersTest = new ArrayList<>();
+        userViewModel.usersList.observe(getViewLifecycleOwner(),
+                collection -> usersTest.addAll(collection));
+
+        //new ArrayList<>(firebaseDataSource.getWorkmates(this.getArguments().getString("userId")));
+        // Log.e("Fragment si working", userViewModel.getUsersLiveData().getValue().addAll(User.class);
+        for (User user : usersTest) {
+            System.out.println("ViewModel is working" + user.getUserName());
+
+            //Log.e("Workmates User name is", user.getUserName());
+        }
         adapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getWorkmates(uid)), Glide.with(this)
                 //, this, "hFwyQ2wqySd5qpFcUSe9FiCClyC2", true
         );
@@ -57,8 +99,6 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
         workmatesRecyclerView.setAdapter(this.adapter);
 
         if (adapter.getItemCount() == 0) {
-            workmatesViewModel =
-                    new ViewModelProvider(this).get(WorkmatesViewModel.class);
             workmatesViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
         }
     }

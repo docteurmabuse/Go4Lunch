@@ -3,6 +3,7 @@ package com.tizzone.go4lunch.viewmodels;
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -31,8 +32,10 @@ public class UserViewModel extends ViewModel {
     private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private final FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
     private final CollectionReference usersRef = rootRef.collection("USERS");
-    public MutableLiveData<User> userMutableLiveData = new MutableLiveData<>();
+    private final SavedStateHandle savedStateHandle;
     private final UserRepository userRepository;
+
+    public MutableLiveData<User> userMutableLiveData = new MutableLiveData<>();
     private final CompositeDisposable disposable = new CompositeDisposable();
     public MutableLiveData<List<User>> usersList = new MutableLiveData<>();
 
@@ -40,7 +43,8 @@ public class UserViewModel extends ViewModel {
     public MutableLiveData<List<User>> usersMutableLiveData = new MutableLiveData<>();
 
     @Inject
-    public UserViewModel(UserRepository userRepository) {
+    public UserViewModel(SavedStateHandle savedStateHandle, UserRepository userRepository) {
+        this.savedStateHandle = savedStateHandle;
         this.userRepository = userRepository;
     }
 
@@ -70,7 +74,8 @@ public class UserViewModel extends ViewModel {
 
                     @Override
                     public void onNext(@NonNull QuerySnapshot queryDocumentSnapshots) {
-                        List<User> users = queryDocumentSnapshots.toObjects(User.class);
+                        List<User> users = queryDocumentSnapshots.getQuery().get().getResult().toObjects(User.class);
+                        System.out.println("ViewModel is working" + users.toString());
                         usersList.setValue(users);
                     }
 
@@ -86,6 +91,7 @@ public class UserViewModel extends ViewModel {
                 });
         return usersList;
     }
+
 
     public static void logErrorMessage(String errorMessage) {
         Log.d(TAG, errorMessage);

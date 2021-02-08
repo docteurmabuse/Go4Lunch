@@ -30,8 +30,8 @@ public class PlaceRepository {
         return placesApiService.getDetailByPlaceId(uid);
     }
 
-    public Flowable<Predictions> getPredictionsApi(String input, String location, int radius, int sessiontoken) {
-        return placesApiService.getPredictionsApi(input, location, radius, sessiontoken);
+    public Flowable<Predictions> getPredictionsApi(String input, String location, int radius, int sessionToken) {
+        return placesApiService.getPredictionsApi(input, location, radius, sessionToken);
     }
 }
 

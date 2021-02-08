@@ -13,6 +13,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -33,6 +35,7 @@ import com.tizzone.go4lunch.databinding.NavHeaderMainBinding;
 import com.tizzone.go4lunch.ui.auth.AuthActivity;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.ui.settings.SettingsActivity;
+import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -47,11 +50,13 @@ public class MainActivity extends BaseActivity {
     public static final String lunchSpotId = "lunchSpotId";
     public static final String myPreference = "mypref";
     private SharedPreferences sharedPreferences;
+    private PlacesViewModel placesViewModel;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
 
         // Declare a StorageReference and initialize it in the onCreate method
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -77,6 +82,8 @@ public class MainActivity extends BaseActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.my_graph);
+        placesViewModel = new ViewModelProvider(backStackEntry).get(PlacesViewModel.class);
         Bundle bundle = new Bundle();
         bundle.putString("userId", uid);
         mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph())

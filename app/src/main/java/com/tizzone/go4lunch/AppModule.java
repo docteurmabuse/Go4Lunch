@@ -6,9 +6,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.tizzone.go4lunch.repositories.UserRepository;
+import com.tizzone.go4lunch.adapters.UsersListAdapter;
 import com.tizzone.go4lunch.utils.FirebaseDataSource;
-import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
 import javax.inject.Singleton;
 
@@ -46,11 +45,18 @@ public class AppModule {
         return new FirebaseDataSource(firebaseFirestore);
     }
 
-    @Singleton
-    @Provides
-    static UserViewModel provideViewModel(UserRepository userRepository) {
-        return new UserViewModel(userRepository);
-    }
+//    @Singleton
+//    @Provides
+//    static UserViewModel provideUserViewModel(UserRepository userRepository, SavedStateHandle savedStateHandle) {
+//        return new UserViewModel(userRepository,savedStateHandle);
+//    }
+//
+//    @Singleton
+//    @Provides
+//    static PlacesViewModel providePlaceViewModel(PlaceRepository placeRepository, SavedStateHandle savedStateHandle) {
+//        return new PlacesViewModel(placeRepository,savedStateHandle);
+//    }
+
 
     @Singleton
     @Provides
@@ -58,10 +64,16 @@ public class AppModule {
         return string;
     }
 
+    @Singleton
     @Provides
     static Boolean provideBoolean(boolean isWorkmates) {
-        return new Boolean(isWorkmates);
+        return isWorkmates;
     }
 
+    @Singleton
+    @Provides
+    static UsersListAdapter.Listener provideListener(UsersListAdapter.Listener callback) {
+        return callback;
+    }
 
 }
