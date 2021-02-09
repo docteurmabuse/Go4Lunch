@@ -4,12 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.AttributeSet;
 import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -32,12 +30,17 @@ import com.google.android.material.snackbar.Snackbar;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityMainBinding;
 import com.tizzone.go4lunch.databinding.NavHeaderMainBinding;
+import com.tizzone.go4lunch.ui.MainFragmentFactory;
+import com.tizzone.go4lunch.ui.MainNavHostFragment;
 import com.tizzone.go4lunch.ui.auth.AuthActivity;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
+import com.tizzone.go4lunch.ui.map.MapFragment;
 import com.tizzone.go4lunch.ui.settings.SettingsActivity;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
 import org.jetbrains.annotations.NotNull;
+
+import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -52,11 +55,13 @@ public class MainActivity extends BaseActivity {
     private SharedPreferences sharedPreferences;
     private PlacesViewModel placesViewModel;
 
+    @Inject
+    public MainFragmentFactory fragmentFactory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
-        placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
 
         // Declare a StorageReference and initialize it in the onCreate method
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -65,6 +70,12 @@ public class MainActivity extends BaseActivity {
 
         View view = mBinding.getRoot();
         setContentView(view);
+        getSupportFragmentManager().setFragmentFactory(fragmentFactory);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.nav_host_fragment, MapFragment.class, null)
+                .commit();
+
+        //placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
 
 
         sharedPreferences = getSharedPreferences(myPreference,
@@ -81,9 +92,12 @@ public class MainActivity extends BaseActivity {
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.my_graph);
-        placesViewModel = new ViewModelProvider(backStackEntry).get(PlacesViewModel.class);
+        MainNavHostFragment navHostFragment =
+                (MainNavHostFragment) getSupportFragmentManager()
+                        .findFragmentById(R.id.nav_host_fragment);
+        NavController navController = navHostFragment.getNavController();
+        //NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+
         Bundle bundle = new Bundle();
         bundle.putString("userId", uid);
         mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph())
@@ -94,7 +108,8 @@ public class MainActivity extends BaseActivity {
         NavigationUI.setupWithNavController(navigationView, navController);
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
         navController.setGraph(R.navigation.mobile_navigation, bundle);
-
+        NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.my_graph);
+        placesViewModel = new ViewModelProvider(backStackEntry).get(PlacesViewModel.class);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -196,9 +211,9 @@ public class MainActivity extends BaseActivity {
         mBinding = null;
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context, @NonNull AttributeSet attrs) {
-        return super.onCreateView(parent, name, context, attrs);
-    }
+//    @Nullable
+//    @Override
+//    public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context, @NonNull AttributeSet attrs) {
+//        return super.onCreateView(parent, name, context, attrs);
+//    }
 }

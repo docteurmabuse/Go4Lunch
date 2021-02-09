@@ -2,8 +2,9 @@
     <string name="app_name">Go4Lunch</string>
     <string name="title_activity_bottom_navigation">Navigation activity</string>
     <string name="title_map_view">Map View</string>
+    <string name="title_hungry">I\'m Hungry!</string>
     <string name="title_list_view">List View</string>
-    <string name="title_workmates">Workmates</string>
+    <string name="title_workmates">Available workmates</string>
     <string name="go4lunch">Go4Lunch</string>
     <string name="find_a_nice_restaurant_and_invite_your_co_workers_for_lunch">Find a nice restaurant and invite your co-workers for lunch!</string>
     <string name="nav_header_title">Android Studio</string>

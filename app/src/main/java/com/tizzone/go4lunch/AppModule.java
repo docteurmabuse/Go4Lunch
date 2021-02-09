@@ -19,6 +19,9 @@ import dagger.hilt.components.SingletonComponent;
 @Module
 @InstallIn(SingletonComponent.class)
 public class AppModule {
+    public AppModule() {
+    }
+
     @Singleton
     @Provides
     static FirebaseFirestore provideFirebaseInstance() {
@@ -47,8 +50,8 @@ public class AppModule {
 
 //    @Singleton
 //    @Provides
-//    static UserViewModel provideUserViewModel(UserRepository userRepository, SavedStateHandle savedStateHandle) {
-//        return new UserViewModel(userRepository,savedStateHandle);
+//    static UserViewModel provideUserViewModel( SavedStateHandle savedStateHandle,UserRepository userRepository) {
+//        return new UserViewModel(savedStateHandle, userRepository);
 //    }
 //
 //    @Singleton
@@ -75,5 +78,4 @@ public class AppModule {
     static UsersListAdapter.Listener provideListener(UsersListAdapter.Listener callback) {
         return callback;
     }
-
 }

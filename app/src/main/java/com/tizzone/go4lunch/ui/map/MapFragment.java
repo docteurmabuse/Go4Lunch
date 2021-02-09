@@ -44,7 +44,6 @@ import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.FragmentMapBinding;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
-import com.tizzone.go4lunch.utils.PermissionsManager;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import com.tizzone.go4lunch.viewmodels.RestaurantViewModel;
@@ -58,6 +57,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.ContentValues.TAG;
 import static com.tizzone.go4lunch.utils.Utils.getBitmapFromVectorDrawable;
+
 @AndroidEntryPoint
 public class MapFragment extends Fragment {
 
@@ -70,8 +70,6 @@ public class MapFragment extends Fragment {
     private Location mLastKnownLocation;
     private final LatLng mDefaultLocation = new LatLng(65.850559, 2.377078);
     private FusedLocationProviderClient mFusedLocationProviderClient;
-    private final double latitude = 78.850559;
-    private final double longitude = 2.377078;
     private String key;
     private PlacesViewModel placesViewModel;
     private LocationViewModel locationViewModel;
@@ -80,17 +78,29 @@ public class MapFragment extends Fragment {
     private Marker emptyRestaurant;
     private Context mContext;
     private LatLng currentLocation;
-    private RestaurantViewModel restaurantViewModel;
     private List<Restaurant> restaurantsList;
     private List<Restaurant> restaurantsMatesList;
     private List<Restaurant> restaurants;
-    private FragmentMapBinding mapBinding;
-    private LocationRequest locationRequest;
-    private LocationCallback locationCallback;
-    private List<String> lunchSpotList;
-    private List<Restaurant> noMatesRestaurantsList;
-    private PermissionsManager permissionsManager;
 
+    /**
+     * Constructor used by the default {@link FragmentFactory}. You must
+     * {@link FragmentManager#setFragmentFactory(FragmentFactory) set a custom FragmentFactory}
+     * if you want to use a non-default constructor to ensure that your constructor
+     * is called when the fragment is re-instantiated.
+     *
+     * <p>It is strongly recommended to supply arguments with {@link #setArguments}
+     * and later retrieved by the Fragment with {@link #getArguments}. These arguments
+     * are automatically saved and restored alongside the Fragment.
+     *
+     * <p>Applications should generally not implement a constructor. Prefer
+     * {@link #onAttach(Context)} instead. It is the first place application code can run where
+     * the fragment is ready to be used - the point where the fragment is actually associated with
+     * its context. Some applications may also want to implement {@link #onInflate} to retrieve
+     * attributes from a layout resource, although note this happens when the fragment is attached.
+     */
+    public MapFragment(GoogleMap mMap) {
+        this.mMap = mMap;
+    }
 
     /**
      * Called when a fragment is first attached to its context.
@@ -110,7 +120,7 @@ public class MapFragment extends Fragment {
         // Init  ViewModels
         placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
-        restaurantViewModel = new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
+        RestaurantViewModel restaurantViewModel = new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
         setHasOptionsMenu(true);
 //        if (permissionsManager.isAccessFineLocationGranted(getActivity())){
@@ -127,7 +137,7 @@ public class MapFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        mapBinding = FragmentMapBinding.inflate(inflater, container, false);
+        com.tizzone.go4lunch.databinding.FragmentMapBinding mapBinding = FragmentMapBinding.inflate(inflater, container, false);
         View root = mapBinding.getRoot();
         return root;
     }
@@ -374,10 +384,10 @@ public class MapFragment extends Fragment {
                             build_retrofit_and_get_response(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
                         } else {
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                    new LatLng(latitude, longitude), DEFAULT_ZOOM));
-                            locationViewModel.setUserLocation(latitude,
-                                    longitude);
-                            build_retrofit_and_get_response(latitude, longitude);
+                                    new LatLng(mDefaultLocation.latitude, mDefaultLocation.longitude), DEFAULT_ZOOM));
+                            locationViewModel.setUserLocation(mDefaultLocation.latitude, mDefaultLocation.longitude
+                            );
+                            build_retrofit_and_get_response(mDefaultLocation.latitude, mDefaultLocation.longitude);
                         }
                     } else {
                         Log.d(TAG, "Current location is null. Using defaults.");
@@ -449,7 +459,7 @@ public class MapFragment extends Fragment {
 
     private void setUpLocationListener() {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        locationRequest = new LocationRequest().setInterval(2000).setFastestInterval(2000)
+        LocationRequest locationRequest = new LocationRequest().setInterval(2000).setFastestInterval(2000)
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         if (ActivityCompat.checkSelfPermission(this.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -462,7 +472,7 @@ public class MapFragment extends Fragment {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        locationCallback = new LocationCallback() {
+        LocationCallback locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
