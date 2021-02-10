@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -34,7 +33,6 @@ import com.tizzone.go4lunch.ui.MainFragmentFactory;
 import com.tizzone.go4lunch.ui.MainNavHostFragment;
 import com.tizzone.go4lunch.ui.auth.AuthActivity;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
-import com.tizzone.go4lunch.ui.map.MapFragment;
 import com.tizzone.go4lunch.ui.settings.SettingsActivity;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
@@ -63,6 +61,7 @@ public class MainActivity extends BaseActivity {
 
         super.onCreate(savedInstanceState);
 
+       // placesViewModel = new ViewModelProvider(backStackEntry).get(PlacesViewModel.class);
         // Declare a StorageReference and initialize it in the onCreate method
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         //  mBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
@@ -70,12 +69,16 @@ public class MainActivity extends BaseActivity {
 
         View view = mBinding.getRoot();
         setContentView(view);
-        getSupportFragmentManager().setFragmentFactory(fragmentFactory);
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.nav_host_fragment, MapFragment.class, null)
-                .commit();
+
 
         //placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
+
+
+        MainNavHostFragment navHostFragment =
+                (MainNavHostFragment) getSupportFragmentManager()
+                        .findFragmentById(R.id.nav_host_fragment);
+        NavController navController = navHostFragment.getNavController();
+        NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.my_graph);
 
 
         sharedPreferences = getSharedPreferences(myPreference,
@@ -90,16 +93,13 @@ public class MainActivity extends BaseActivity {
 
         String uid = this.getCurrentUser().getUid();
 
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        MainNavHostFragment navHostFragment =
-                (MainNavHostFragment) getSupportFragmentManager()
-                        .findFragmentById(R.id.nav_host_fragment);
-        NavController navController = navHostFragment.getNavController();
-        //NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+//        // Passing each menu ID as a set of Ids because each
+//        // menu should be considered as top level destinations.
 
-        Bundle bundle = new Bundle();
-        bundle.putString("userId", uid);
+//        //NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+//
+//        Bundle bundle = new Bundle();
+//        bundle.putString("userId", uid);
         mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph())
                 .setOpenableLayout(drawer)
                 .build();
@@ -107,21 +107,36 @@ public class MainActivity extends BaseActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
-        navController.setGraph(R.navigation.mobile_navigation, bundle);
-        NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.my_graph);
-        placesViewModel = new ViewModelProvider(backStackEntry).get(PlacesViewModel.class);
+        //navController.setGraph(R.navigation.mobile_navigation);
+
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+//                ConfirmationAction action =
+//                        SpecifyAmountFragmentDirections.confirmationAction();
+//                action.setAmount(amount);
+//                Navigation.findNavController(view).navigate(action);
                 int id = item.getItemId();
                 if (id == R.id.navigation_map) {
+//                    getSupportFragmentManager().setFragmentFactory(fragmentFactory);
+//                    getSupportFragmentManager().beginTransaction()
+//                            .replace(R.id.nav_host_fragment, MapFragment.class, null)
+//                            .commit();
                     navController.navigate(id);
                 } else if (id == R.id.navigation_list) {
                     navController.navigate(id);
+//                    getSupportFragmentManager().setFragmentFactory(fragmentFactory);
+//                    getSupportFragmentManager().beginTransaction()
+//                            .replace(R.id.nav_host_fragment, ListViewFragment.class, null)
+//                            .commit();
                 } else if (id == R.id.navigation_workmates) {
                     Bundle bundle = new Bundle();
                     bundle.putString("userId", uid);
                     navController.navigate(id, bundle);
+                    getSupportFragmentManager().setFragmentFactory(fragmentFactory);
+//                    getSupportFragmentManager().beginTransaction()
+//                            .replace(R.id.nav_host_fragment, WorkmatesFragment.class, null)
+//                            .commit();
                 }
                 return true;
             }
@@ -204,12 +219,12 @@ public class MainActivity extends BaseActivity {
         Intent intent = new Intent(this, AuthActivity.class);
         startActivity(intent);
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mBinding = null;
-    }
+//
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//       // mBinding = null;
+//    }
 
 //    @Nullable
 //    @Override

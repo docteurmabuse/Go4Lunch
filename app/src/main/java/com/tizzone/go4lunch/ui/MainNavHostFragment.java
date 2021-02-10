@@ -3,7 +3,6 @@ package com.tizzone.go4lunch.ui;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentFactory;
 
 import javax.inject.Inject;
 
@@ -17,7 +16,8 @@ public class MainNavHostFragment extends androidx.navigation.fragment.NavHostFra
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        FragmentFactory fragmentFactory = this.getChildFragmentManager().getFragmentFactory();
-        this.fragmentFactory = (MainFragmentFactory) fragmentFactory;
+        getChildFragmentManager().setFragmentFactory(fragmentFactory);
     }
+
+
 }

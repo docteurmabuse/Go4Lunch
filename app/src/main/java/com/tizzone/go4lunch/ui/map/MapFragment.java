@@ -22,8 +22,11 @@ import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.hilt.navigation.HiltViewModelFactory;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavBackStackEntry;
+import androidx.navigation.NavController;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -43,6 +46,7 @@ import com.google.android.gms.tasks.Task;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.FragmentMapBinding;
 import com.tizzone.go4lunch.models.Restaurant;
+import com.tizzone.go4lunch.ui.MainNavHostFragment;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
@@ -82,25 +86,8 @@ public class MapFragment extends Fragment {
     private List<Restaurant> restaurantsMatesList;
     private List<Restaurant> restaurants;
 
-    /**
-     * Constructor used by the default {@link FragmentFactory}. You must
-     * {@link FragmentManager#setFragmentFactory(FragmentFactory) set a custom FragmentFactory}
-     * if you want to use a non-default constructor to ensure that your constructor
-     * is called when the fragment is re-instantiated.
-     *
-     * <p>It is strongly recommended to supply arguments with {@link #setArguments}
-     * and later retrieved by the Fragment with {@link #getArguments}. These arguments
-     * are automatically saved and restored alongside the Fragment.
-     *
-     * <p>Applications should generally not implement a constructor. Prefer
-     * {@link #onAttach(Context)} instead. It is the first place application code can run where
-     * the fragment is ready to be used - the point where the fragment is actually associated with
-     * its context. Some applications may also want to implement {@link #onInflate} to retrieve
-     * attributes from a layout resource, although note this happens when the fragment is attached.
-     */
-    public MapFragment(GoogleMap mMap) {
-        this.mMap = mMap;
-    }
+    private MapViewModel mapViewModel;
+
 
     /**
      * Called when a fragment is first attached to its context.
@@ -115,10 +102,18 @@ public class MapFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Init  ViewModels
-        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+        mapViewModel = new ViewModelProvider(this).get(MapViewModel.class);
+        MainNavHostFragment navHostFragment =
+                (MainNavHostFragment) getActivity().getSupportFragmentManager()
+                        .findFragmentById(R.id.nav_host_fragment);
+        NavController navController = navHostFragment.getNavController();
+        NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.my_graph);
+        placesViewModel = new ViewModelProvider(backStackEntry,
+                HiltViewModelFactory.create(getContext(), backStackEntry)).get(PlacesViewModel.class);
+
         locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
         RestaurantViewModel restaurantViewModel = new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
@@ -173,8 +168,6 @@ public class MapFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {

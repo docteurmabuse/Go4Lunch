@@ -76,7 +76,7 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
     private void getWorkmatesList(String uid) {
         List<User> usersTest = new ArrayList<>();
         userViewModel.usersList.observe(getViewLifecycleOwner(),
-                collection -> usersTest.addAll(collection));
+                usersTest::addAll);
 
         //new ArrayList<>(firebaseDataSource.getWorkmates(this.getArguments().getString("userId")));
         // Log.e("Fragment si working", userViewModel.getUsersLiveData().getValue().addAll(User.class);

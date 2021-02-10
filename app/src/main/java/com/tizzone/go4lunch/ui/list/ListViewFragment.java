@@ -4,17 +4,18 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.hilt.navigation.HiltViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavBackStackEntry;
+import androidx.navigation.NavController;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -22,6 +23,7 @@ import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.adapters.PlacesListAdapter;
 import com.tizzone.go4lunch.databinding.FragmentListBinding;
 import com.tizzone.go4lunch.models.Restaurant;
+import com.tizzone.go4lunch.ui.MainNavHostFragment;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
@@ -53,18 +55,25 @@ public class ListViewFragment extends Fragment {
         super.onCreate(savedInstanceState);
         key = getText(R.string.google_maps_key).toString();
         // Init  ViewModels
-        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+        MainNavHostFragment navHostFragment =
+                (MainNavHostFragment) getActivity().getSupportFragmentManager()
+                        .findFragmentById(R.id.nav_host_fragment);
+        NavController navController = navHostFragment.getNavController();
+        NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.my_graph);
+        placesViewModel = new ViewModelProvider(backStackEntry,
+                HiltViewModelFactory.create(getContext(), backStackEntry)).get(PlacesViewModel.class);
+        //  placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
 
         setHasOptionsMenu(true);
         // System.out.println(placesViewModel.getRestaurantsList().getValue().get(0));
     }
 
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        fragmentListBinding = FragmentListBinding.inflate(inflater, container, false);
-        return fragmentListBinding.getRoot();
-    }
+//    public View onCreateView(@NonNull LayoutInflater inflater,
+//                             ViewGroup container, Bundle savedInstanceState) {
+//       // fragmentListBinding = FragmentListBinding.inflate(inflater, container, false);
+//       // return fragmentListBinding.getRoot();
+//    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -101,22 +110,22 @@ public class ListViewFragment extends Fragment {
         observeData();
     }
 
-
-    public void onResume() {
-        super.onResume();
-        locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
-            if (locationModel != null) {
-                placesListAdapter.setCurrentLocation(locationModel.getLocation());
-                this.currentLocation = locationModel.getLocation();
-            }
-        });
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        fragmentListBinding = null;
-    }
+//
+//    public void onResume() {
+//        super.onResume();
+//        locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
+//            if (locationModel != null) {
+//                placesListAdapter.setCurrentLocation(locationModel.getLocation());
+//                this.currentLocation = locationModel.getLocation();
+//            }
+//        });
+//    }
+//
+//    @Override
+//    public void onDestroyView() {
+//        super.onDestroyView();
+//        fragmentListBinding = null;
+//    }
 
 
     @Override

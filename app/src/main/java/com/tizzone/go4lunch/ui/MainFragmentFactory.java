@@ -4,17 +4,16 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
 
-import com.google.android.gms.maps.GoogleMap;
+import com.tizzone.go4lunch.ui.list.ListViewFragment;
 import com.tizzone.go4lunch.ui.map.MapFragment;
+import com.tizzone.go4lunch.ui.workmates.WorkmatesFragment;
 
 import javax.inject.Inject;
 
 public class MainFragmentFactory extends FragmentFactory {
-    private final GoogleMap mMap;
-
     @Inject
-    public MainFragmentFactory(GoogleMap mMap) {
-        this.mMap = mMap;
+    public MainFragmentFactory() {
+        super();
     }
 
     /**
@@ -32,8 +31,15 @@ public class MainFragmentFactory extends FragmentFactory {
     @NonNull
     @Override
     public Fragment instantiate(@NonNull ClassLoader classLoader, @NonNull String className) {
-        if (MapFragment.class.getName().equals(className)) {
-            return new MapFragment(mMap);
+        Class<? extends Fragment> fragmentClass = loadFragmentClass(classLoader, className);
+        if (fragmentClass == MapFragment.class) {
+            return new MapFragment();
+        }
+        if (fragmentClass == ListViewFragment.class) {
+            return new ListViewFragment();
+        }
+        if (fragmentClass == WorkmatesFragment.class) {
+            return new WorkmatesFragment();
         } else {
             return super.instantiate(classLoader, className);
         }
