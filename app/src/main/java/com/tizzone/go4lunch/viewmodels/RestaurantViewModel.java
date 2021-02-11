@@ -9,7 +9,7 @@ import java.util.List;
 
 
 public class RestaurantViewModel extends ViewModel {
-    public MutableLiveData<List<Restaurant>> restaurantLiveData = new MutableLiveData<List<Restaurant>>();
+    public MutableLiveData<List<Restaurant>> restaurantLiveData = new MutableLiveData<>();
 
 
     public RestaurantViewModel() {
@@ -20,7 +20,7 @@ public class RestaurantViewModel extends ViewModel {
         return restaurantLiveData;
     }
 
-    public void setRestaurants(List<Restaurant> restaurants) {
+    public void setRestaurantsList(List<Restaurant> restaurants) {
         restaurantLiveData.setValue(restaurants);
     }
 

@@ -1,6 +1,5 @@
 package com.tizzone.go4lunch.ui.map;
 
-import android.Manifest;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -8,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,15 +21,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.hilt.navigation.HiltViewModelFactory;
-import androidx.lifecycle.Observer;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -50,11 +45,13 @@ import com.tizzone.go4lunch.ui.MainNavHostFragment;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
-import com.tizzone.go4lunch.viewmodels.RestaurantViewModel;
+import com.tizzone.go4lunch.viewmodels.SharedViewModel;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -69,25 +66,58 @@ public class MapFragment extends Fragment {
     private static final float DEFAULT_ZOOM = 15;
     private final int PROXIMITY_RADIUS = 1000;
     private final int SESSION_TOKEN = 54784;
+    private final LatLng mDefaultLocation = new LatLng(65.850559, 2.377078);
+
+    @Inject
+    public String randomString;
+    @Inject
+    public MutableLiveData<List<Restaurant>> restaurantsList;
+
     private GoogleMap mMap;
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation;
-    private final LatLng mDefaultLocation = new LatLng(65.850559, 2.377078);
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private String key;
     private PlacesViewModel placesViewModel;
     private LocationViewModel locationViewModel;
     private UserViewModel userViewModel;
+    private SharedViewModel sharedViewModel;
     private Marker workmatesRestaurant;
     private Marker emptyRestaurant;
     private Context mContext;
     private LatLng currentLocation;
-    private List<Restaurant> restaurantsList;
+    private List<Restaurant> restaurantsList2;
     private List<Restaurant> restaurantsMatesList;
-    private List<Restaurant> restaurants;
 
+    private final OnMapReadyCallback callback = new OnMapReadyCallback() {
+
+        @Override
+        public void onMapReady(GoogleMap googleMap) {
+            mMap = googleMap;
+
+            // Prompt the user for permission.
+            getLocationPermission();
+            // [END_EXCLUDE]
+
+            // Turn on the My Location layer and the related control on the map.
+            updateLocationUI();
+
+            // Get the current location of the device and set the position of the map.
+            getDeviceLocation();
+
+
+            // Set a listener for info window events.
+            mMap.setOnInfoWindowClickListener(marker -> viewRestaurantDetail((Restaurant) marker.getTag()));
+        }
+    };
+    private List<Restaurant> restaurants;
     private MapViewModel mapViewModel;
 
+
+    public MapFragment(String randomString, MutableLiveData<List<Restaurant>> restaurantsList) {
+        this.randomString = randomString;
+        this.restaurantsList = restaurantsList;
+    }
 
     /**
      * Called when a fragment is first attached to its context.
@@ -107,16 +137,21 @@ public class MapFragment extends Fragment {
         // Init  ViewModels
         mapViewModel = new ViewModelProvider(this).get(MapViewModel.class);
         MainNavHostFragment navHostFragment =
-                (MainNavHostFragment) getActivity().getSupportFragmentManager()
+                (MainNavHostFragment) requireActivity().getSupportFragmentManager()
                         .findFragmentById(R.id.nav_host_fragment);
         NavController navController = navHostFragment.getNavController();
         NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.my_graph);
-        placesViewModel = new ViewModelProvider(backStackEntry,
-                HiltViewModelFactory.create(getContext(), backStackEntry)).get(PlacesViewModel.class);
+//        placesViewModel = new ViewModelProvider(backStackEntry,
+//                HiltViewModelFactory.create(getActivity(), backStackEntry)).get(PlacesViewModel.class);
 
-        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
-        RestaurantViewModel restaurantViewModel = new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
+        locationViewModel = new ViewModelProvider(backStackEntry,
+                HiltViewModelFactory.create(requireActivity(), backStackEntry)).get(LocationViewModel.class);
+        //RestaurantViewModel restaurantViewModel = new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
+
+        sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+
+        System.out.println("MapFragment test" + sharedViewModel);
         setHasOptionsMenu(true);
 //        if (permissionsManager.isAccessFineLocationGranted(getActivity())){
 //            setUpLocationListener();
@@ -133,37 +168,8 @@ public class MapFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         com.tizzone.go4lunch.databinding.FragmentMapBinding mapBinding = FragmentMapBinding.inflate(inflater, container, false);
-        View root = mapBinding.getRoot();
-        return root;
+        return mapBinding.getRoot();
     }
-
-
-    private final OnMapReadyCallback callback = new OnMapReadyCallback() {
-
-        @Override
-        public void onMapReady(GoogleMap googleMap) {
-            mMap = googleMap;
-
-            // Prompt the user for permission.
-            getLocationPermission();
-            // [END_EXCLUDE]
-
-            // Turn on the My Location layer and the related control on the map.
-            updateLocationUI();
-
-            // Get the current location of the device and set the position of the map.
-            getDeviceLocation();
-            observeData();
-
-            // Set a listener for info window events.
-            mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-                @Override
-                public void onInfoWindowClick(Marker marker) {
-                    viewRestaurantDetail((Restaurant) marker.getTag());
-                }
-            });
-        }
-    };
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -177,6 +183,7 @@ public class MapFragment extends Fragment {
         key = getText(R.string.google_maps_key).toString();
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+        observeData();
     }
 
 
@@ -186,36 +193,39 @@ public class MapFragment extends Fragment {
     }
 
     private void observeData() {
-        placesViewModel.getRestaurantsList().observe(getActivity(), new Observer<List<Restaurant>>() {
-            @Override
-            public void onChanged(List<Restaurant> restaurants) {
-                restaurants.addAll(restaurants);
-                initRestaurantsList(restaurants);
-            }
-        });
-        locationViewModel.getUserLocation().observe(getActivity(), locationModel -> {
+
+//        placesViewModel.getRestaurantsList().observe(getActivity(), restaurants -> {
+//            restaurants.addAll(restaurants);
+//            initRestaurantsList(restaurants);
+//        });
+
+        locationViewModel.getUserLocation().observe(requireActivity(), locationModel -> {
             if (locationModel != null) {
                 // build_retrofit_and_get_response(locationModel.getLocation().latitude, locationModel.getLocation().longitude);
                 this.currentLocation = locationModel.getLocation();
             }
         });
 
+//        placesViewModel.getFilteredRestaurantsList().observe(getActivity(), restaurants -> {
+//            mMap.clear();
+//            initRestaurantsList(restaurants);
+        //});
+//
+//        sharedViewModel.getRestaurantsList().observe(requireActivity(), restaurants1 -> {
+//            initRestaurantsList(restaurants);
+//        });
 
-        placesViewModel.getFilteredRestaurantsList().observe(getActivity(), restaurants -> {
-            mMap.clear();
-            initRestaurantsList(restaurants);
-        });
     }
 
 
     private void initRestaurantsList(List<Restaurant> mRestaurants) {
-        restaurantsList = new ArrayList<>();
+        restaurantsList2 = new ArrayList<>();
         for (Restaurant restaurant : mRestaurants) {
-            userViewModel.addUserToLiveData(restaurant.getUid()).observe(getActivity(), users -> {
+            userViewModel.addUserToLiveData(restaurant.getUid()).observe(requireActivity(), users -> {
                 if (users.size() > 0) {
                     // restaurantsMatesList.add(restaurant);
                 } else {
-                    restaurantsList.add(restaurant);
+                    restaurantsList2.add(restaurant);
                 }
             });
         }
@@ -305,13 +315,10 @@ public class MapFragment extends Fragment {
         searchView.setIconifiedByDefault(false);
 
         searchView.findViewById(R.id.search_close_btn)
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Log.d("called", "this is called.");
-                        initRestaurantsList(restaurants);
-                        searchView.setIconified(true);
-                    }
+                .setOnClickListener(v -> {
+                    Log.d("called", "this is called.");
+                    initRestaurantsList(restaurants);
+                    searchView.setIconified(true);
                 });
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -372,14 +379,14 @@ public class MapFragment extends Fragment {
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(mLastKnownLocation.getLatitude(),
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-                            locationViewModel.setUserLocation(mLastKnownLocation.getLatitude(),
-                                    mLastKnownLocation.getLongitude());
+                            // locationViewModel.setUserLocation(mLastKnownLocation.getLatitude(),
+                            // mLastKnownLocation.getLongitude());
                             build_retrofit_and_get_response(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
                         } else {
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(mDefaultLocation.latitude, mDefaultLocation.longitude), DEFAULT_ZOOM));
-                            locationViewModel.setUserLocation(mDefaultLocation.latitude, mDefaultLocation.longitude
-                            );
+                            //  locationViewModel.setUserLocation(mDefaultLocation.latitude, mDefaultLocation.longitude
+                            //   );
                             build_retrofit_and_get_response(mDefaultLocation.latitude, mDefaultLocation.longitude);
                         }
                     } else {
@@ -388,8 +395,8 @@ public class MapFragment extends Fragment {
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
                         mMap.getUiSettings().setMyLocationButtonEnabled(false);
                         build_retrofit_and_get_response(mDefaultLocation.latitude, mDefaultLocation.longitude);
-                        locationViewModel.setUserLocation(mDefaultLocation.latitude,
-                                mDefaultLocation.longitude);
+                        //locationViewModel.setUserLocation(mDefaultLocation.latitude,
+                        //  mDefaultLocation.longitude);
                     }
                     mMap.setMyLocationEnabled(true);
                     mMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -426,20 +433,17 @@ public class MapFragment extends Fragment {
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         mLocationPermissionGranted = false;
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mLocationPermissionGranted = true;
-                }
+        if (requestCode == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {// If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mLocationPermissionGranted = true;
             }
         }
         updateLocationUI();
     }
 
     private void build_retrofit_and_get_response(double latitude, double longitude) {
-        placesViewModel.setRestaurants(latitude + "," + longitude, PROXIMITY_RADIUS);
+        sharedViewModel.setRestaurants(latitude + "," + longitude, PROXIMITY_RADIUS).observe(requireActivity(), this::initRestaurantsList);
         locationViewModel.setUserLocation(latitude, longitude);
     }
 
@@ -450,45 +454,45 @@ public class MapFragment extends Fragment {
         context.startActivity(intent);
     }
 
-    private void setUpLocationListener() {
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        LocationRequest locationRequest = new LocationRequest().setInterval(2000).setFastestInterval(2000)
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        if (ActivityCompat.checkSelfPermission(this.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        LocationCallback locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-                for (Location location : locationResult.getLocations()) {
-                    if (currentLocation != null) {
-                        if (location.getLatitude() != currentLocation.latitude && location.getLongitude() != currentLocation.longitude)
-                            locationViewModel.setUserLocation(mLastKnownLocation.getLatitude(),
-                                    mLastKnownLocation.getLongitude());
-                    }
-                }
-
-            }
-        };
-
-        mFusedLocationProviderClient.requestLocationUpdates(
-                locationRequest, locationCallback,
-                Looper.getMainLooper());
-    }
+//    private void setUpLocationListener() {
+//        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
+//        LocationRequest locationRequest = new LocationRequest().setInterval(2000).setFastestInterval(2000)
+//                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//
+//        if (ActivityCompat.checkSelfPermission(this.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return;
+//        }
+//        LocationCallback locationCallback = new LocationCallback() {
+//            @Override
+//            public void onLocationResult(LocationResult locationResult) {
+//                super.onLocationResult(locationResult);
+//                for (Location location : locationResult.getLocations()) {
+//                    if (currentLocation != null) {
+//                        if (location.getLatitude() != currentLocation.latitude && location.getLongitude() != currentLocation.longitude)
+//                            locationViewModel.setUserLocation(mLastKnownLocation.getLatitude(),
+//                                    mLastKnownLocation.getLongitude());
+//                    }
+//                }
+//
+//            }
+//        };
+//
+//        mFusedLocationProviderClient.requestLocationUpdates(
+//                locationRequest, locationCallback,
+//                Looper.getMainLooper());
+//    }
 
     @Override
     public void onPause() {
         super.onPause();
-        stopLocationUpdates();
+        //stopLocationUpdates();
     }
 
     private void stopLocationUpdates() {

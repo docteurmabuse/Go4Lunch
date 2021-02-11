@@ -2,12 +2,17 @@ package com.tizzone.go4lunch;
 
 import android.app.Application;
 
+import androidx.lifecycle.MutableLiveData;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.tizzone.go4lunch.adapters.UsersListAdapter;
+import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.utils.FirebaseDataSource;
+
+import java.util.List;
 
 import javax.inject.Singleton;
 
@@ -61,11 +66,11 @@ public class AppModule {
 //    }
 
 
-    @Singleton
-    @Provides
-    static String provideString(String string) {
-        return string;
-    }
+//    @Singleton
+//    @Provides
+//    String provideString() {
+//        return "Helloo this inject working";
+//    }
 
     @Singleton
     @Provides
@@ -78,4 +83,12 @@ public class AppModule {
     static UsersListAdapter.Listener provideListener(UsersListAdapter.Listener callback) {
         return callback;
     }
+
+    @Singleton
+    @Provides
+    static MutableLiveData<List<Restaurant>> provideRestaurantList() {
+        return new MutableLiveData<List<Restaurant>>();
+    }
+
+
 }

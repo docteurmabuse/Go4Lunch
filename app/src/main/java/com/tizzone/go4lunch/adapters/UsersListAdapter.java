@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,8 +15,6 @@ import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.UsersListItemBinding;
 import com.tizzone.go4lunch.models.Restaurant;
@@ -63,12 +60,9 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User user) {
         if (user.getLunchSpot() != null) {
-            RestaurantHelper.getRestaurantsById(user.getLunchSpot()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    restaurant = documentSnapshot.toObject(Restaurant.class);
-                    setHolder(holder, user, restaurant);
-                }
+            RestaurantHelper.getRestaurantsById(user.getLunchSpot()).addOnSuccessListener(documentSnapshot -> {
+                restaurant = documentSnapshot.toObject(Restaurant.class);
+                setHolder(holder, user, restaurant);
             });
         } else {
             holder.updateWithUser(user, this.idCurrentUser, this.glide, this.isWorkmatesView, restaurant);
@@ -78,14 +72,11 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     private void setHolder(UserViewHolder holder, User user, Restaurant restaurant) {
         holder.updateWithUser(user, this.idCurrentUser, this.glide, this.isWorkmatesView, restaurant);
         if (isWorkmatesView) {
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    final Context context = holder.itemView.getContext();
-                    Intent intent = new Intent(context, PlaceDetailActivity.class);
-                    intent.putExtra("RESTAURANT", restaurant.getUid());
-                    context.startActivity(intent);
-                }
+            holder.itemView.setOnClickListener(view -> {
+                final Context context = holder.itemView.getContext();
+                Intent intent = new Intent(context, PlaceDetailActivity.class);
+                intent.putExtra("RESTAURANT", restaurant.getUid());
+                context.startActivity(intent);
             });
         }
     }

@@ -9,13 +9,13 @@ import java.util.List;
 public class PlacesResults {
     @SerializedName("html_attributions")
     @Expose
-    private List<Object> htmlAttributions = new ArrayList<Object>();
+    private List<Object> htmlAttributions = new ArrayList<>();
     @SerializedName("next_page_token")
     @Expose
     private String nextPageToken;
     @SerializedName("results")
     @Expose
-    private List<Result> results = new ArrayList<Result>();
+    private List<Result> results = new ArrayList<>();
     @SerializedName("status")
     @Expose
     private String status;

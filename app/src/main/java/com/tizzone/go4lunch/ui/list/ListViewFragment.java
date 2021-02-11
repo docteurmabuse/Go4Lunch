@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.hilt.navigation.HiltViewModelFactory;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
@@ -26,12 +27,13 @@ import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.ui.MainNavHostFragment;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
+import com.tizzone.go4lunch.viewmodels.SharedViewModel;
 
 import java.util.List;
 
-import dagger.hilt.android.AndroidEntryPoint;
+import javax.inject.Inject;
 
-import static android.content.ContentValues.TAG;
+import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class ListViewFragment extends Fragment {
 
@@ -45,10 +47,21 @@ public class ListViewFragment extends Fragment {
 
     public PlacesViewModel placesViewModel;
 
-
     private List<Restaurant> restaurants;
     private String key;
     private LatLng currentLocation;
+
+    @Inject
+    public MutableLiveData<List<Restaurant>> restaurantsList;
+    @Inject
+    public String randomString;
+    private SharedViewModel sharedViewModel;
+
+    public ListViewFragment(String randomString, MutableLiveData<List<Restaurant>> restaurantsList) {
+        this.randomString = randomString;
+        this.restaurantsList = restaurantsList;
+
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,10 +74,12 @@ public class ListViewFragment extends Fragment {
         NavController navController = navHostFragment.getNavController();
         NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.my_graph);
         placesViewModel = new ViewModelProvider(backStackEntry,
-                HiltViewModelFactory.create(getContext(), backStackEntry)).get(PlacesViewModel.class);
+                HiltViewModelFactory.create(requireActivity(), backStackEntry)).get(PlacesViewModel.class);
         //  placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
+        sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
+        System.out.println("ListFragment test" + sharedViewModel);
         setHasOptionsMenu(true);
         // System.out.println(placesViewModel.getRestaurantsList().getValue().get(0));
     }
@@ -79,7 +94,6 @@ public class ListViewFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //Init ViewModels
-
         initRecycleView();
     }
 
@@ -91,14 +105,17 @@ public class ListViewFragment extends Fragment {
             }
         });
 
-        placesViewModel.getRestaurantsList().observe(requireActivity(), restaurantsList -> {
-            Log.e(TAG, "onChanged: " + restaurantsList.size());
-            placesListAdapter.setPlaces(restaurantsList, currentLocation);
-            //restaurants = new ArrayList<>();
-            restaurants.addAll(restaurantsList);
-        });
+//        placesViewModel.getRestaurantsList().observe(requireActivity(), restaurantsList -> {
+//            Log.e(TAG, "onChanged: " + restaurantsList.size());
+//            placesListAdapter.setPlaces(restaurantsList, currentLocation);
+//            //restaurants = new ArrayList<>();
+//            restaurants.addAll(restaurantsList);
+//        });
 
-        placesViewModel.getFilteredRestaurantsList().observe(getViewLifecycleOwner(), restaurants -> {
+        placesViewModel.getFilteredRestaurantsList().observe(getViewLifecycleOwner(), restaurants -> placesListAdapter.setPlaces(restaurants, currentLocation));
+
+
+        sharedViewModel.getRestaurantsList().observe(requireActivity(), restaurants1 -> {
             placesListAdapter.setPlaces(restaurants, currentLocation);
         });
     }
@@ -146,13 +163,10 @@ public class ListViewFragment extends Fragment {
         // searchView.setBackgroundColor(Color.WHITE);
 
         searchView.findViewById(R.id.search_close_btn)
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Log.d("called", "this is called.");
-                        searchView.setIconified(true);
-                        placesListAdapter.setPlaces(restaurants, currentLocation);
-                    }
+                .setOnClickListener(v -> {
+                    Log.d("called", "this is called.");
+                    searchView.setIconified(true);
+                    placesListAdapter.setPlaces(restaurants, currentLocation);
                 });
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {

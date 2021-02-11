@@ -5,22 +5,17 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.maps.android.SphericalUtil;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.PlaceItemBinding;
@@ -82,30 +77,24 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
                 .load(imageUrl)
                 .into(holder.imageViewPhoto);
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final Context context = holder.itemView.getContext();
-                Intent intent = new Intent(context, PlaceDetailActivity.class);
-                intent.putExtra("RESTAURANT", place.getUid());
-                context.startActivity(intent);
-            }
+        holder.itemView.setOnClickListener(view -> {
+            final Context context = holder.itemView.getContext();
+            Intent intent = new Intent(context, PlaceDetailActivity.class);
+            intent.putExtra("RESTAURANT", place.getUid());
+            context.startActivity(intent);
         });
     }
 
 
     private void getUsersCountFromFirestore(String placeId, ViewHolder holder) {
-        UserHelper.getUsersLunchSpot(placeId).addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    Log.w(TAG, "Listener failed.", error);
-                    return;
-                }
-                assert value != null;
-                int usersCount = value.size();
-                holder.workmatesCount.setText("(" + usersCount + ")");
+        UserHelper.getUsersLunchSpot(placeId).addSnapshotListener((value, error) -> {
+            if (error != null) {
+                Log.w(TAG, "Listener failed.", error);
+                return;
             }
+            assert value != null;
+            int usersCount = value.size();
+            holder.workmatesCount.setText("(" + usersCount + ")");
         });
     }
 
@@ -128,7 +117,7 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     }
 
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView workmatesCount;
         public TextView textViewName;
         public TextView textViewAddress;

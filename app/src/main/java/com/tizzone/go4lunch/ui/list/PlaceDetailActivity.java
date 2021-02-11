@@ -21,7 +21,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -132,7 +131,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         restaurant = new Restaurant();
         placeDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_place_detail);
         createNotificationChannel();
-        favouriteRestaurantsList = new ArrayList<String>();
+        favouriteRestaurantsList = new ArrayList<>();
 
         if (this.getCurrentUser() != null) {
             uid = this.getCurrentUser().getUid();
@@ -172,12 +171,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         call = placeDetailBinding.contentLayoutPlaceDetailActivity.callButton;
         addSpotLunch = placeDetailBinding.addSpotLunchButton;
 
-        placesViewModel.getRestaurant().observe(this, new Observer<Restaurant>() {
-            @Override
-            public void onChanged(Restaurant restaurantDetail) {
-                observeData(restaurantDetail);
-            }
-        });
+        placesViewModel.getRestaurant().observe(this, restaurantDetail -> observeData(restaurantDetail));
     }
 
     private void observeData(Restaurant restaurant) {
@@ -214,29 +208,26 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private void addOnOffsetChangedListener() {
 
         // Set title of Detail page
-        appbar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                if (Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() == 0) {
-                    // Collapsed
-                    // collapsingToolbar.setCollapsedTitleTextColor(0xffffff);
-                    toolbar.setTitle("placeName");
-                    toolbar.setSubtitle("placeAddress");
-                    placesDetailsTitle.setVisibility(View.VISIBLE);
-                    placesDetailsAddress.setVisibility(View.VISIBLE);
-                    placeAddress.setVisibility(View.INVISIBLE);
-                    placeName.setVisibility(View.INVISIBLE);
-                    findViewById(R.id.detail_title_layout).setVisibility(View.GONE);
-                } else {
-                    // Expanded
-                    collapsingToolbar.setTitle("");
-                    // mDetailAddress = intent.getStringExtra("placeAddress");
-                    placeAddress.setVisibility(View.VISIBLE);
-                    placeName.setVisibility(View.VISIBLE);
-                    findViewById(R.id.detail_title_layout).setVisibility(View.VISIBLE);
-                    placesDetailsTitle.setVisibility(View.INVISIBLE);
-                    placesDetailsAddress.setVisibility(View.INVISIBLE);
-                }
+        appbar.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
+            if (Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() == 0) {
+                // Collapsed
+                // collapsingToolbar.setCollapsedTitleTextColor(0xffffff);
+                toolbar.setTitle("placeName");
+                toolbar.setSubtitle("placeAddress");
+                placesDetailsTitle.setVisibility(View.VISIBLE);
+                placesDetailsAddress.setVisibility(View.VISIBLE);
+                placeAddress.setVisibility(View.INVISIBLE);
+                placeName.setVisibility(View.INVISIBLE);
+                findViewById(R.id.detail_title_layout).setVisibility(View.GONE);
+            } else {
+                // Expanded
+                collapsingToolbar.setTitle("");
+                // mDetailAddress = intent.getStringExtra("placeAddress");
+                placeAddress.setVisibility(View.VISIBLE);
+                placeName.setVisibility(View.VISIBLE);
+                findViewById(R.id.detail_title_layout).setVisibility(View.VISIBLE);
+                placesDetailsTitle.setVisibility(View.INVISIBLE);
+                placesDetailsAddress.setVisibility(View.INVISIBLE);
             }
         });
     }
@@ -244,27 +235,24 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private void fabOnClickListener() {
         getUserDataFromFirestore();
 
-        addSpotLunch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!isLunchSpot) {
-                    addLunchSpotInFirebase();
-                    sendUsersNotification();
-                    addSpotLunchInSharedPreferences(restaurant.getUid());
-                    RestaurantHelper.incrementCounter(restaurant.getUid(), 1);
-                    addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
-                    isLunchSpot = true;
-                    Snackbar.make(view, "You're going to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                } else {
-                    addSpotLunchInSharedPreferences(null);
-                    addLunchSpotInFirebase();
-                    addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
-                    RestaurantHelper.incrementCounter(restaurant.getUid(), -1);
-                    isLunchSpot = false;
-                    Snackbar.make(view, "You're not going anymore to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                }
+        addSpotLunch.setOnClickListener(view -> {
+            if (!isLunchSpot) {
+                addLunchSpotInFirebase();
+                sendUsersNotification();
+                addSpotLunchInSharedPreferences(restaurant.getUid());
+                RestaurantHelper.incrementCounter(restaurant.getUid(), 1);
+                addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
+                isLunchSpot = true;
+                Snackbar.make(view, "You're going to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            } else {
+                addSpotLunchInSharedPreferences(null);
+                addLunchSpotInFirebase();
+                addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
+                RestaurantHelper.incrementCounter(restaurant.getUid(), -1);
+                isLunchSpot = false;
+                Snackbar.make(view, "You're not going anymore to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             }
         });
     }

@@ -20,6 +20,7 @@ import com.tizzone.go4lunch.utils.UserHelper;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class AuthActivity extends BaseActivity {
     private static final int RC_SIGN_IN = 9903;
@@ -134,7 +135,7 @@ public class AuthActivity extends BaseActivity {
             } else { // ERRORS
                 if (response == null) {
                     showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));
-                } else if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
+                } else if (Objects.requireNonNull(response.getError()).getErrorCode() == ErrorCodes.NO_NETWORK) {
                     showSnackBar(this.coordinatorLayout, getString(R.string.error_no_internet));
                 } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
                     showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));

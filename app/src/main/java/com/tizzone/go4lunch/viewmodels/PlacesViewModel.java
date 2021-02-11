@@ -8,11 +8,8 @@ import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
 import com.tizzone.go4lunch.models.Restaurant;
-import com.tizzone.go4lunch.models.detail.PlaceDetail;
 import com.tizzone.go4lunch.models.detail.Result;
-import com.tizzone.go4lunch.models.places.PlacesResults;
 import com.tizzone.go4lunch.models.prediction.Prediction;
-import com.tizzone.go4lunch.models.prediction.Predictions;
 import com.tizzone.go4lunch.repositories.PlaceRepository;
 
 import java.util.ArrayList;
@@ -23,21 +20,23 @@ import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.functions.Function;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 
 @HiltViewModel
 public class PlacesViewModel extends ViewModel {
-    private static final String TAG = "RestaurantViewModel";
+    private static final String TAG = "PlacesViewModel";
+    public String location;
+    public String key;
 
     private final PlaceRepository placeRepository;
     private final SavedStateHandle savedStateHandle;
 
     public MutableLiveData<List<Restaurant>> matesRestaurantsList = new MutableLiveData<>();
-    public String location;
-    public String key;
+
+
     public MutableLiveData<List<Restaurant>> restaurantsList = new MutableLiveData<>();
+
     private UserViewModel userViewModel;
 
     private final MutableLiveData<List<Restaurant>> filteredRestaurants = new MutableLiveData<>();
@@ -52,7 +51,7 @@ public class PlacesViewModel extends ViewModel {
 
     public MutableLiveData<List<Restaurant>> getRestaurantsList() {
         if (restaurantsList == null) {
-            restaurantsList = new MutableLiveData<List<Restaurant>>();
+            restaurantsList = new MutableLiveData<>();
         }
         return restaurantsList;
     }
@@ -75,25 +74,21 @@ public class PlacesViewModel extends ViewModel {
         List<com.tizzone.go4lunch.models.places.Result> placesResultsList;
         placeRepository.getNearByPlacesApi(location, radius)
                 .subscribeOn(Schedulers.io())
-                .map(new Function<PlacesResults, List<Restaurant>>() {
-                    @Override
-                    public List<Restaurant> apply(PlacesResults placesResults) throws Throwable {
-                        List<com.tizzone.go4lunch.models.places.Result> placesResultsList = placesResults.getResults();
-                        List<Restaurant> restaurants = new ArrayList<>();
+                .map(placesResults -> {
+                    List<com.tizzone.go4lunch.models.places.Result> placesResultsList1 = placesResults.getResults();
+                    List<Restaurant> restaurants = new ArrayList<>();
 
-                        for (com.tizzone.go4lunch.models.places.Result result : placesResultsList) {
-                            Boolean isOpen = null;
-                            if (result.getOpeningHours() != null)
-                                isOpen = result.getOpeningHours().getOpenNow();
+                    for (com.tizzone.go4lunch.models.places.Result result : placesResultsList1) {
+                        Boolean isOpen = null;
+                        if (result.getOpeningHours() != null)
+                            isOpen = result.getOpeningHours().getOpenNow();
 
-                            Restaurant restaurant = new Restaurant(result.getPlaceId(), result.getName(), result.getVicinity(), result.getPhotoUrl(), result.getRating(), 0,
-                                    isOpen, result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng(), null, null);
-                            restaurants.add(restaurant);
-                        }
-                        Log.e(TAG, "apply: " + placesResultsList.get(0).getName());
-                        return restaurants;
+                        Restaurant restaurant = new Restaurant(result.getPlaceId(), result.getName(), result.getVicinity(), result.getPhotoUrl(), result.getRating(), 0,
+                                isOpen, result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng(), null, null);
+                        restaurants.add(restaurant);
                     }
-
+                    Log.e(TAG, "apply: " + placesResultsList1.get(0).getName());
+                    return restaurants;
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(result -> {
@@ -108,20 +103,17 @@ public class PlacesViewModel extends ViewModel {
     public MutableLiveData<Restaurant> setRestaurant(String uid) {
         placeRepository.getDetailByPlaceId(uid)
                 .subscribeOn(Schedulers.io())
-                .map(new Function<PlaceDetail, Restaurant>() {
-                    @Override
-                    public Restaurant apply(PlaceDetail placeDetail) throws Throwable {
-                        Result result = placeDetail.getResult();
-                        Restaurant restaurant = new Restaurant();
-                        Float rating = null;
-                        if (placeDetail.getResult() != null) {
-                            Log.e(TAG, "apply: " + result.getName());
-                            rating = result.getRating();
-                            restaurant = new Restaurant(uid, result.getName(), result.getFormattedAddress(), result.getPhotoUrl(), rating, 0,
-                                    null, result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng(), result.getWebsite(), result.getInternationalPhoneNumber());
-                        }
-                        return restaurant;
+                .map(placeDetail -> {
+                    Result result = placeDetail.getResult();
+                    Restaurant restaurant = new Restaurant();
+                    Float rating = null;
+                    if (placeDetail.getResult() != null) {
+                        Log.e(TAG, "apply: " + result.getName());
+                        rating = result.getRating();
+                        restaurant = new Restaurant(uid, result.getName(), result.getFormattedAddress(), result.getPhotoUrl(), rating, 0,
+                                null, result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng(), result.getWebsite(), result.getInternationalPhoneNumber());
                     }
+                    return restaurant;
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(restaurantMutableLiveData::setValue);
@@ -131,34 +123,28 @@ public class PlacesViewModel extends ViewModel {
     public void setPredictions(String input, String location, int radius, int sessiontoken, String key) {
         placeRepository.getPredictionsApi(input, location, radius, sessiontoken)
                 .subscribeOn(Schedulers.io())
-                .map(new Function<Predictions, List<Prediction>>() {
-                    @Override
-                    public List<Prediction> apply(Predictions apiPredictions) throws Throwable {
-                        Log.e(TAG, "apply: " + apiPredictions.getPredictions().get(0).getPlaceId());
-                        return apiPredictions.getPredictions();
-                    }
+                .map(apiPredictions -> {
+                    Log.e(TAG, "apply: " + apiPredictions.getPredictions().get(0).getPlaceId());
+                    return apiPredictions.getPredictions();
                 })
-                .map(new Function<List<Prediction>, List<Restaurant>>() {
-                    @Override
-                    public List<Restaurant> apply(List<Prediction> predictions) throws Throwable {
-                        List<Restaurant> filtered = new ArrayList<>();
-                        List<Restaurant> restaurants = new ArrayList<>(Objects.requireNonNull(restaurantsList.getValue()));
-                        if (predictions.size() > 0) {
-                            for (Prediction prediction : predictions) {
-                                String idPrediction = prediction.getPlaceId();
-                                for (Restaurant restaurant : restaurants) {
-                                    String idRestaurant = restaurant.getUid();
-                                    if (idPrediction.matches(idRestaurant)) {
-                                        filtered.add(restaurant);
-                                    }
+                .map(predictions -> {
+                    List<Restaurant> filtered = new ArrayList<>();
+                    List<Restaurant> restaurants = new ArrayList<>(Objects.requireNonNull(restaurantsList.getValue()));
+                    if (predictions.size() > 0) {
+                        for (Prediction prediction : predictions) {
+                            String idPrediction = prediction.getPlaceId();
+                            for (Restaurant restaurant : restaurants) {
+                                String idRestaurant = restaurant.getUid();
+                                if (idPrediction.matches(idRestaurant)) {
+                                    filtered.add(restaurant);
                                 }
                             }
-                        } else {
-                            filtered.addAll(restaurants);
                         }
-
-                        return filtered;
+                    } else {
+                        filtered.addAll(restaurants);
                     }
+
+                    return filtered;
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(filteredRestaurants::setValue,

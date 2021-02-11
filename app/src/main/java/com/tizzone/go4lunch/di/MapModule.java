@@ -18,7 +18,12 @@ import dagger.hilt.components.SingletonComponent;
 
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
-@interface gMap {
+@interface AuthInterceptorOkHttpClient {
+}
+
+@Qualifier
+@Retention(RetentionPolicy.RUNTIME)
+@interface SomeString {
 }
 
 @Module
@@ -39,5 +44,12 @@ public class MapModule {
     static OnMapReadyCallback provideOnMapReadyCallback(OnMapReadyCallback callback) {
         return callback;
     }
+
+    @Singleton
+    @Provides
+    static String provideRandomString() {
+        return "Hey look random string work with injection";
+    }
+
 
 }

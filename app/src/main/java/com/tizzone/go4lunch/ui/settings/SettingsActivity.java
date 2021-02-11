@@ -20,12 +20,9 @@ public class SettingsActivity extends AppCompatActivity implements
 
     private static final String TITLE_TAG = "settingsActivityTitle";
     private SettingsActivityBinding mBinding;
-    private static final Preference.OnPreferenceChangeListener sBindPreferences = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(Preference preference, Object newValue) {
-            String stringValue = newValue.toString();
-            return true;
-        }
+    private static final Preference.OnPreferenceChangeListener sBindPreferences = (preference, newValue) -> {
+        String stringValue = newValue.toString();
+        return true;
     };
 
     @Override
@@ -45,9 +42,7 @@ public class SettingsActivity extends AppCompatActivity implements
         setContentView(view);
 
         Toolbar toolbar = mBinding.toolbar;
-        toolbar.setNavigationOnClickListener(mView -> {
-            onBackPressed();
-        });
+        toolbar.setNavigationOnClickListener(mView -> onBackPressed());
 
         setSupportActionBar(toolbar);
 

@@ -12,7 +12,7 @@ public class OpeningHours {
     private Boolean openNow;
     @SerializedName("weekday_text")
     @Expose
-    private List<Object> weekdayText = new ArrayList<Object>();
+    private List<Object> weekdayText = new ArrayList<>();
 
     /**
      * @return The openNow

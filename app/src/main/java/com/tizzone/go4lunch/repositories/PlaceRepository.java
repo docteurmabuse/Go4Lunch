@@ -17,9 +17,7 @@ public class PlaceRepository {
 
     @Inject
     public PlaceRepository(PlacesApiService placesApiService) {
-
         this.placesApiService = placesApiService;
-
     }
 
     public Flowable<PlacesResults> getNearByPlacesApi(String location, int radius) {
@@ -33,5 +31,6 @@ public class PlaceRepository {
     public Flowable<Predictions> getPredictionsApi(String input, String location, int radius, int sessionToken) {
         return placesApiService.getPredictionsApi(input, location, radius, sessionToken);
     }
+
 }
 

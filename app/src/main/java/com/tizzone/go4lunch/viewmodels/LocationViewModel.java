@@ -8,9 +8,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.tizzone.go4lunch.models.LocationModel;
 
 public class LocationViewModel extends ViewModel {
-    public MutableLiveData<LocationModel> userLocation = new MutableLiveData<LocationModel>();
+    public final MutableLiveData<LocationModel> userLocation = new MutableLiveData<>();
     public MutableLiveData<String> userId;
-
 
     public void setUserLocation(double latitude, double longitude) {
         userLocation.postValue(new LocationModel(new LatLng(latitude, longitude)));
@@ -25,7 +24,7 @@ public class LocationViewModel extends ViewModel {
     }
 
     public void setUserId(String uid) {
-        userId = new MutableLiveData<String>();
+        userId = new MutableLiveData<>();
         userId.postValue(uid);
     }
 
