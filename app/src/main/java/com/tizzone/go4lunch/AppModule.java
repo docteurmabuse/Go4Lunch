@@ -2,6 +2,8 @@ package com.tizzone.go4lunch;
 
 import android.app.Application;
 
+import androidx.fragment.app.FragmentFactory;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.bumptech.glide.Glide;
@@ -10,8 +12,10 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.tizzone.go4lunch.adapters.UsersListAdapter;
 import com.tizzone.go4lunch.models.Restaurant;
+import com.tizzone.go4lunch.ui.MainFragmentFactory;
 import com.tizzone.go4lunch.utils.FirebaseDataSource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Singleton;
@@ -86,9 +90,29 @@ public class AppModule {
 
     @Singleton
     @Provides
-    static MutableLiveData<List<Restaurant>> provideRestaurantList() {
-        return new MutableLiveData<List<Restaurant>>();
+    static FragmentFactory provideMainFragmentFactory(String randomString, LiveData<List<Restaurant>> restaurantList) {
+        return new MainFragmentFactory(randomString, restaurantList);
     }
 
+    @Singleton
+    @Provides
+    static LiveData<List<Restaurant>> provideLiveData() {
+        return new MutableLiveData<>();
+    }
 
+    @Singleton
+    @Provides
+    static MutableLiveData<List<Restaurant>> provideMutableLiveData() {
+        return new MutableLiveData<>();
+    }
+
+    @Provides
+    static List<Restaurant> provideRestaurantList() {
+        return new ArrayList<>();
+    }
+
+    @Provides
+    static Restaurant provideRestaurant() {
+        return new Restaurant();
+    }
 }

@@ -3,7 +3,7 @@ package com.tizzone.go4lunch.ui;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.LiveData;
 
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.ui.list.ListViewFragment;
@@ -17,10 +17,10 @@ import javax.inject.Inject;
 public class MainFragmentFactory extends FragmentFactory {
 
     private final String randomString;
-    private final MutableLiveData<List<Restaurant>> restaurantsList;
+    private final LiveData<List<Restaurant>> restaurantsList;
 
     @Inject
-    public MainFragmentFactory(String randomString, MutableLiveData<List<Restaurant>> restaurantsList) {
+    public MainFragmentFactory(String randomString, LiveData<List<Restaurant>> restaurantsList) {
         super();
         this.randomString = randomString;
         this.restaurantsList = restaurantsList;

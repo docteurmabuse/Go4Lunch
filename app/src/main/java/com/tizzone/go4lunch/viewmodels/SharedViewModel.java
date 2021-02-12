@@ -48,7 +48,6 @@ public class SharedViewModel extends ViewModel {
                 .map(placesResults -> {
                     List<com.tizzone.go4lunch.models.places.Result> placesResultsList1 = placesResults.getResults();
                     List<Restaurant> restaurants = new ArrayList<>();
-
                     for (com.tizzone.go4lunch.models.places.Result result : placesResultsList1) {
                         Boolean isOpen = null;
                         if (result.getOpeningHours() != null)

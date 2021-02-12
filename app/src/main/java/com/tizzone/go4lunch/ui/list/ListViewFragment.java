@@ -4,19 +4,18 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
-import androidx.hilt.navigation.HiltViewModelFactory;
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavBackStackEntry;
-import androidx.navigation.NavController;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -24,16 +23,19 @@ import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.adapters.PlacesListAdapter;
 import com.tizzone.go4lunch.databinding.FragmentListBinding;
 import com.tizzone.go4lunch.models.Restaurant;
-import com.tizzone.go4lunch.ui.MainNavHostFragment;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import com.tizzone.go4lunch.viewmodels.SharedViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
+
+import static android.content.ContentValues.TAG;
+
 @AndroidEntryPoint
 public class ListViewFragment extends Fragment {
 
@@ -52,48 +54,37 @@ public class ListViewFragment extends Fragment {
     private LatLng currentLocation;
 
     @Inject
-    public MutableLiveData<List<Restaurant>> restaurantsList;
+    public LiveData<List<Restaurant>> restaurantsList;
     @Inject
     public String randomString;
     private SharedViewModel sharedViewModel;
 
-    public ListViewFragment(String randomString, MutableLiveData<List<Restaurant>> restaurantsList) {
+    public ListViewFragment(String randomString, LiveData<List<Restaurant>> restaurantsList) {
         this.randomString = randomString;
         this.restaurantsList = restaurantsList;
 
     }
 
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         key = getText(R.string.google_maps_key).toString();
-        // Init  ViewModels
-        MainNavHostFragment navHostFragment =
-                (MainNavHostFragment) getActivity().getSupportFragmentManager()
-                        .findFragmentById(R.id.nav_host_fragment);
-        NavController navController = navHostFragment.getNavController();
-        NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.my_graph);
-        placesViewModel = new ViewModelProvider(backStackEntry,
-                HiltViewModelFactory.create(requireActivity(), backStackEntry)).get(PlacesViewModel.class);
-        //  placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
-        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
-        sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-
-        System.out.println("ListFragment test" + sharedViewModel);
         setHasOptionsMenu(true);
-        // System.out.println(placesViewModel.getRestaurantsList().getValue().get(0));
     }
 
-//    public View onCreateView(@NonNull LayoutInflater inflater,
-//                             ViewGroup container, Bundle savedInstanceState) {
-//       // fragmentListBinding = FragmentListBinding.inflate(inflater, container, false);
-//       // return fragmentListBinding.getRoot();
-//    }
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+        fragmentListBinding = FragmentListBinding.inflate(inflater, container, false);
+        return fragmentListBinding.getRoot();
+    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //Init ViewModels
+        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
+        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         initRecycleView();
     }
 
@@ -105,17 +96,14 @@ public class ListViewFragment extends Fragment {
             }
         });
 
-//        placesViewModel.getRestaurantsList().observe(requireActivity(), restaurantsList -> {
-//            Log.e(TAG, "onChanged: " + restaurantsList.size());
-//            placesListAdapter.setPlaces(restaurantsList, currentLocation);
-//            //restaurants = new ArrayList<>();
-//            restaurants.addAll(restaurantsList);
-//        });
+        placesViewModel.getRestaurantsList().observe(requireActivity(), restaurantsList -> {
+            Log.e(TAG, "onChanged: " + restaurantsList.size());
+            placesListAdapter.setPlaces(restaurantsList, currentLocation);
+            restaurants = new ArrayList<>();
+            restaurants.addAll(restaurantsList);
+        });
 
-        placesViewModel.getFilteredRestaurantsList().observe(getViewLifecycleOwner(), restaurants -> placesListAdapter.setPlaces(restaurants, currentLocation));
-
-
-        sharedViewModel.getRestaurantsList().observe(requireActivity(), restaurants1 -> {
+        placesViewModel.getFilteredRestaurantsList().observe(getViewLifecycleOwner(), restaurants -> {
             placesListAdapter.setPlaces(restaurants, currentLocation);
         });
     }
@@ -127,22 +115,22 @@ public class ListViewFragment extends Fragment {
         observeData();
     }
 
-//
-//    public void onResume() {
-//        super.onResume();
-//        locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
-//            if (locationModel != null) {
-//                placesListAdapter.setCurrentLocation(locationModel.getLocation());
-//                this.currentLocation = locationModel.getLocation();
-//            }
-//        });
-//    }
-//
-//    @Override
-//    public void onDestroyView() {
-//        super.onDestroyView();
-//        fragmentListBinding = null;
-//    }
+
+    public void onResume() {
+        super.onResume();
+        locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
+            if (locationModel != null) {
+                placesListAdapter.setCurrentLocation(locationModel.getLocation());
+                this.currentLocation = locationModel.getLocation();
+            }
+        });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        fragmentListBinding = null;
+    }
 
 
     @Override
@@ -163,10 +151,13 @@ public class ListViewFragment extends Fragment {
         // searchView.setBackgroundColor(Color.WHITE);
 
         searchView.findViewById(R.id.search_close_btn)
-                .setOnClickListener(v -> {
-                    Log.d("called", "this is called.");
-                    searchView.setIconified(true);
-                    placesListAdapter.setPlaces(restaurants, currentLocation);
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.d("called", "this is called.");
+                        searchView.setIconified(true);
+                        placesListAdapter.setPlaces(restaurants, currentLocation);
+                    }
                 });
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -186,5 +177,6 @@ public class ListViewFragment extends Fragment {
             }
         });
     }
+
 
 }

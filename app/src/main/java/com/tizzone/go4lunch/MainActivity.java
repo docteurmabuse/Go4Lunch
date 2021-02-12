@@ -124,7 +124,7 @@ public class MainActivity extends BaseActivity {
                 Bundle bundle = new Bundle();
                 bundle.putString("userId", uid);
                 navController.navigate(id, bundle);
-                getSupportFragmentManager().setFragmentFactory(fragmentFactory);
+             //   getSupportFragmentManager().setFragmentFactory(fragmentFactory);
 //                    getSupportFragmentManager().beginTransaction()
 //                            .replace(R.id.nav_host_fragment, WorkmatesFragment.class, null)
 //                            .commit();
