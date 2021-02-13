@@ -31,6 +31,7 @@ public class UserHelper {
         return UserHelper.getUsersCollection().document(uid).get();
     }
 
+
     public static Task<QuerySnapshot> getUsers() {
         return UserHelper.getUsersCollection().get();
     }

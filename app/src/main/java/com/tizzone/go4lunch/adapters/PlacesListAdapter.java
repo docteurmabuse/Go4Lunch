@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.SphericalUtil;
 import com.tizzone.go4lunch.R;
@@ -70,12 +69,12 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
             holder.distance.setText(resources.getString(R.string.distance, mDistance));
         }
 
-        mKey = context.getString(R.string.google_maps_key);
-        String imageUrl = place.getPhotoUrl() + mKey;
-
-        Glide.with(holder.itemView)
-                .load(imageUrl)
-                .into(holder.imageViewPhoto);
+//        mKey = context.getString(R.string.google_maps_key);
+//        String imageUrl = place.getPhotoUrl() + mKey;
+//
+//        Glide.with(holder.itemView)
+//                .load(imageUrl)
+//                .into(holder.imageViewPhoto);
 
         holder.itemView.setOnClickListener(view -> {
             final Context context = holder.itemView.getContext();

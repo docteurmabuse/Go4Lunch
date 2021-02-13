@@ -21,6 +21,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.common.util.ArrayUtils;
@@ -201,13 +202,13 @@ public class MapFragment extends Fragment {
         placesViewModel.getFilteredRestaurantsList().observe(requireActivity(), this::initRestaurantsList);
 
         userViewModel.getFirebaseUsers().observe(requireActivity(), this::initWorkmatesList);
-//        placesViewModel.getFilteredRestaurantsList().observe(getActivity(), new Observer<List<Restaurant>>() {
-//            @Override
-//            public void onChanged(List<Restaurant> restaurants) {
-//                mMap.clear();
-//                setMarkers(restaurants);
-//            }
-//        });
+        placesViewModel.getFilteredRestaurantsList().observe(getActivity(), new Observer<List<Restaurant>>() {
+            @Override
+            public void onChanged(List<Restaurant> restaurants) {
+                mMap.clear();
+                initRestaurantsList(restaurants);
+            }
+        });
     }
 
     private void initWorkmatesList(List<User> users) {
@@ -268,64 +269,6 @@ public class MapFragment extends Fragment {
             }
         });
     }
-
-//    private void setMarkers(List<Restaurant> restaurants) {
-//        if (restaurants.size() > 0) {
-//            for (Restaurant restaurant : restaurants) {
-//                MarkerOptions markerOptions = new MarkerOptions();
-//                LatLng latLng = restaurant.getLocation();
-//                // Position of Marker on Map
-//                markerOptions.position(latLng);
-//                // Adding Title to the Marker
-//                markerOptions.title(restaurant.getName() + " : " + restaurant.getAddress());
-//                Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_red, mContext);
-//                BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
-//                UserHelper.getUsersLunchSpot(restaurant.getUid()).addSnapshotListener(new EventListener<QuerySnapshot>() {
-//                    @Override
-//                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-//                        if (error != null) {
-//                            Log.w(TAG, "Listener failed.", error);
-//                            Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_red, mContext);
-//                            BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
-//                            // Adding No Workmates Restaurant Marker to the Camera.
-//                            emptyRestaurant = mMap.addMarker(new MarkerOptions()
-//                                    .position(latLng)
-//                                    .title(restaurant.getName())
-//                                    .snippet(restaurant.getAddress())
-//                                    .icon(mapIcon));
-//                            emptyRestaurant.setTag(restaurant);
-//                        } else {
-//                            int usersCount = value.size();
-//                            if (usersCount > 0) {
-//                                Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_green, mContext);
-//                                BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
-//                                // Adding Workmates Restaurant's Marker to the Camera.
-//
-//                                workmatesRestaurant = mMap.addMarker(new MarkerOptions()
-//                                        .position(latLng)
-//                                        .title(restaurant.getName())
-//                                        .snippet(restaurant.getAddress())
-//                                        .icon(mapIcon));
-//                                workmatesRestaurant.setTag(restaurant);
-//                            } else {
-//                                Bitmap bitmap = getBitmapFromVectorDrawable(R.drawable.ic_restaurant_pin_red, mContext);
-//                                BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
-//                                // Adding No Workmates Restaurant Marker to the Camera.
-//                                emptyRestaurant = mMap.addMarker(new MarkerOptions()
-//                                        .position(latLng)
-//                                        .title(restaurant.getName())
-//                                        .snippet(restaurant.getAddress())
-//                                        .icon(mapIcon));
-//                                emptyRestaurant.setTag(restaurant);
-//                            }
-//                        }
-//
-//                    }
-//                });
-//            }
-//        }
-//
-//    }
 
     private void initRestaurantsList(List<Restaurant> mRestaurants) {
         restaurantsMapList = new ArrayList<>();

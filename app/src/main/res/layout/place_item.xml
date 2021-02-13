@@ -128,6 +128,8 @@
                 android:scaleType="centerCrop"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                app:imageFromUrl="@{restaurant.photoUrl}"
+                app:placeholder="@{@drawable/ic_baseline_lunch_menu_24}"
                 app:srcCompat="@drawable/ic_baseline_lunch_menu_24" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

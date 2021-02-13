@@ -30,6 +30,7 @@ public class PlacesViewModel extends ViewModel {
     public String key;
 
     private final PlaceRepository placeRepository;
+
     private final SavedStateHandle savedStateHandle;
 
     public MutableLiveData<List<Restaurant>> matesRestaurantsList = new MutableLiveData<>();

@@ -143,9 +143,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         if (extras != null) {
             currentPlaceId = extras.getString("RESTAURANT");
             placesViewModel.setRestaurant(currentPlaceId);
-
-            getUserDataFromFirestore();
-
             addOnOffsetChangedListener();
 
         }
@@ -175,6 +172,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     }
 
     private void observeData(Restaurant restaurant) {
+        getUserDataFromFirestore();
         placeDetailBinding.setRestaurant(restaurant);
         this.restaurant = restaurant;
         placePhone = restaurant.getPhone();
@@ -294,8 +292,8 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         //Add restaurant to user in Firebase
         UserHelper.updateLunchSpot(restaurant.getUid(), uid).addOnFailureListener(this.onFailureListener());
         String website = null;
-        if (restaurant.getPhone() != null) {
-            website = (restaurant.getPhone());
+        if (restaurant.getWebsiteUrl() != null) {
+            website = (restaurant.getWebsiteUrl());
         }
         if (currentPlaceId != null) {
             //Add restaurant in firebase

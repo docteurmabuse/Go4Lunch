@@ -1,20 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment_list_relative_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.list.ListViewFragment">
+    xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
 
-<androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/listViewPlaces"
+        <variable
+            name="placesViewModel"
+            type="com.tizzone.go4lunch.viewmodels.PlacesViewModel" />
+
+        <variable
+            name="placesListAdapter"
+            type="com.tizzone.go4lunch.adapters.PlacesListAdapter" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fragment_list_relative_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        tools:context=".ui.list.ListViewFragment">
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/listViewPlaces"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="16dp"
+
         tools:listitem="@layout/place_item" />
 
     <TextView
@@ -29,4 +43,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-</RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
