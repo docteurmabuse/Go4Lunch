@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,26 +20,13 @@ import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.utils.RestaurantHelper;
 
 public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAdapter.UserViewHolder> {
-    private UsersListItemBinding userBinding;
-    private String userLunch;
 
-    //FOR DATA
-    private final String idCurrentUser;
-    private final boolean isWorkmatesView;
     private Context context;
-    //FOR COMMUNICATION
-    private Listener callback;
     private Restaurant restaurant;
-    private UsersListItemBinding binding;
 
     public UsersListAdapter(FirestoreRecyclerOptions<User> options
-                            //, RequestManager glide
-                            //, Listener callback, String idCurrentUser, boolean isWorkmatesView
     ) {
         super(options);
-        this.idCurrentUser = "idCurrentUser";
-        this.callback = callback;
-        this.isWorkmatesView = true;
         notifyDataSetChanged();
     }
 
@@ -49,11 +35,7 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
         super.onDataChanged();
     }
 
-    /**
-     * @param holder   The ViewHolder which should be updated to represent the contents of the
-     *                 item at the given position in the data set.
-     * @param position The position of the item within the adapter's data set.
-     */
+
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User user) {
         holder.userBinding.setWorkmates(user);
@@ -63,20 +45,12 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
                 setHolder(holder, user, restaurant);
             });
         } else {
-            holder.updateWithUser(user, this.isWorkmatesView, restaurant);
+            holder.updateWithUser(user, restaurant);
         }
     }
 
     private void setHolder(UserViewHolder holder, User user, Restaurant restaurant) {
-        holder.updateWithUser(user, this.isWorkmatesView, restaurant);
-        if (isWorkmatesView) {
-            holder.itemView.setOnClickListener(view -> {
-                final Context context = holder.itemView.getContext();
-                Intent intent = new Intent(context, PlaceDetailActivity.class);
-                intent.putExtra("RESTAURANT", restaurant.getUid());
-                context.startActivity(intent);
-            });
-        }
+        holder.updateWithUser(user, restaurant);
     }
 
     @NonNull
@@ -84,7 +58,7 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        userBinding = UsersListItemBinding.inflate(inflater, parent, false);
+        com.tizzone.go4lunch.databinding.UsersListItemBinding userBinding = UsersListItemBinding.inflate(inflater, parent, false);
         return new UserViewHolder(userBinding);
     }
 
@@ -94,21 +68,18 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     }
 
     public class UserViewHolder extends RecyclerView.ViewHolder {
-        private final ImageView avatarView;
         private final TextView userText;
         private final UsersListItemBinding userBinding;
-        private Restaurant restaurant;
 
         public UserViewHolder(@NonNull UsersListItemBinding userBinding) {
             super(userBinding.getRoot());
-            avatarView = userBinding.avatarView;
             userText = userBinding.avatarTextView;
             this.userBinding = userBinding;
         }
 
-        public void updateWithUser(User user, boolean isWorkmatesView, Restaurant restaurant) {
+        public void updateWithUser(User user, Restaurant restaurant) {
             // Check if current user is the sender
-            if (!isWorkmatesView) {
+            if (itemView.getContext() instanceof PlaceDetailActivity) {
                 String joiningText = context.getResources().getString(R.string.joining_text, user.getUserName());
                 this.userText.setText(joiningText);
             } else {
@@ -121,6 +92,13 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
                     String notDecidedYet = String.format(resources.getString(R.string.not_decided), user.getUserName());
                     userText.setText(notDecidedYet);
                 }
+
+                itemView.setOnClickListener(view -> {
+                    final Context context = itemView.getContext();
+                    Intent intent = new Intent(context, PlaceDetailActivity.class);
+                    intent.putExtra("RESTAURANT", restaurant.getUid());
+                    context.startActivity(intent);
+                });
 
             }
         }

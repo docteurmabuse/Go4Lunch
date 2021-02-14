@@ -2,11 +2,13 @@ package com.tizzone.go4lunch.models;
 
 
 import androidx.annotation.Nullable;
+import androidx.databinding.BaseObservable;
+import androidx.databinding.Bindable;
 
 import java.io.Serializable;
 import java.util.List;
 
-public class User implements Serializable {
+public class User extends BaseObservable implements Serializable {
 
     private String uid;
     private String userName;
@@ -68,6 +70,7 @@ public class User implements Serializable {
         this.photoUrl = photoUrl;
     }
 
+    @Bindable
     @org.jetbrains.annotations.Nullable
     public List<String> getFavoriteRestaurants() {
         return favoriteRestaurants;
@@ -77,6 +80,7 @@ public class User implements Serializable {
         this.favoriteRestaurants = favoriteRestaurants;
     }
 
+    @Bindable
     @org.jetbrains.annotations.Nullable
     public String getLunchSpot() {
         return lunchSpot;

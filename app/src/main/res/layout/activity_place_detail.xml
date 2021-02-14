@@ -44,7 +44,7 @@
                     app:imageFromUrl="@{restaurant.photoUrl}"
                     app:placeholder="@{@drawable/ic_baseline_restaurant_24}"
                     app:layout_collapseMode="parallax"
-                    tools:srcCompat="@drawable/ic_logo_go4lunch" />
+                    tools:srcCompat="@drawable/ic_baseline_restaurant_24" />
 
                 <androidx.appcompat.widget.Toolbar
                     android:id="@+id/detail_toolbar"
