@@ -25,7 +25,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.libraries.places.api.net.PlacesClient;
@@ -193,11 +192,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
         website.setOnClickListener(view12 -> openWebPage(placeWebsite));
 
-        mDetailPhotoUrl = restaurant.getPhotoUrl();
-        Glide.with(detailImage.getContext())
-                .load(mDetailPhotoUrl)
-                .into(detailImage);
-
         fabOnClickListener();
         configureRecyclerView(currentPlaceId);
     }
@@ -343,17 +337,18 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 favouriteRestaurantsList = documentSnapshot.toObject(User.class).getFavoriteRestaurants();
                 if (favouriteRestaurantsList != null) {
                     addFavorite(favouriteRestaurantsList);
-                    if (lunchSpot != null) {
-                        isLunchSpot = lunchSpot.equals(currentPlaceId);
-                        if (!isLunchSpot) {
-                            addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
-                        } else {
-                            addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
-                        }
-                    } else {
-                        isLunchSpot = false;
+                }
+
+                if (lunchSpot != null) {
+                    isLunchSpot = lunchSpot.equals(currentPlaceId);
+                    if (!isLunchSpot) {
                         addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
+                    } else {
+                        addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
                     }
+                } else {
+                    isLunchSpot = false;
+                    addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
                 }
             }
         });
@@ -364,14 +359,17 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     // --------------------
     // 5 - Configure RecyclerView with a Query
     private void configureRecyclerView(String placeId) {
-        //this.usersListAdapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersLunchSpotWithoutCurrentUser(placeId, uid)), Glide.with(this), this, this.getCurrentUser().getUid(), false);
-//        usersListAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-//            @Override
-//            public void onItemRangeInserted(int positionStart, int itemCount) {
-//                usersRecyclerView.smoothScrollToPosition(usersListAdapter.getItemCount()); // Scroll to bottom on new messages
-//            }
-//        });
-        // usersListAdapter.setClickListener(this);
+        this.usersListAdapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersLunchSpotWithoutCurrentUser(placeId, uid))
+                //, Glide.with(this), this, this.getCurrentUser().getUid(),
+        );
+        usersListAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                usersRecyclerView.smoothScrollToPosition(usersListAdapter.getItemCount()); // Scroll to bottom on new messages
+            }
+        });
+        //  usersListAdapter.setClickListener(this);
+
         usersRecyclerView.setHasFixedSize(true);
         usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         usersRecyclerView.setAdapter(usersListAdapter);

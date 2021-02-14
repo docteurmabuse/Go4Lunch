@@ -120,7 +120,7 @@
                 app:layout_constraintTop_toBottomOf="@id/workmates_count" />
 
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/imageViewPhoto"
                 android:layout_width="80dp"
                 android:layout_height="60dp"
@@ -129,8 +129,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:imageFromUrl="@{restaurant.photoUrl}"
-                app:placeholder="@{@drawable/ic_baseline_lunch_menu_24}"
-                app:srcCompat="@drawable/ic_baseline_lunch_menu_24" />
+                app:placeholder="@{@drawable/ic_baseline_restaurant_24}"
+                app:srcCompat="@drawable/ic_baseline_restaurant_24" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>

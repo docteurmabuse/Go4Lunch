@@ -32,23 +32,20 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     private String mKey;
     private List<Restaurant> mPlaces;
     public static final String DETAIL_PLACE = "detailPlace";
-    private final Context mContext;
     private PlaceItemBinding binding;
     private LatLng currentLocation;
     private Context context;
 
 
-    public PlacesListAdapter(List<Restaurant> mPlaces, LatLng currentLocation, Context mContext) {
+    public PlacesListAdapter(List<Restaurant> mPlaces) {
         this.mPlaces = mPlaces;
-        this.mContext = mContext;
-        this.currentLocation = currentLocation;
         notifyDataSetChanged();
     }
 
     @NotNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(mContext);
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         binding = DataBindingUtil.inflate(inflater, R.layout.place_item, parent, false);
         context = parent.getContext();
         return new ViewHolder(binding);
@@ -69,12 +66,6 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
             holder.distance.setText(resources.getString(R.string.distance, mDistance));
         }
 
-//        mKey = context.getString(R.string.google_maps_key);
-//        String imageUrl = place.getPhotoUrl() + mKey;
-//
-//        Glide.with(holder.itemView)
-//                .load(imageUrl)
-//                .into(holder.imageViewPhoto);
 
         holder.itemView.setOnClickListener(view -> {
             final Context context = holder.itemView.getContext();

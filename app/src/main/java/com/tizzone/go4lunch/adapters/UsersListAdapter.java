@@ -11,8 +11,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.RequestManager;
-import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.tizzone.go4lunch.R;
@@ -27,19 +25,19 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     private String userLunch;
 
     //FOR DATA
-    private final RequestManager glide;
     private final String idCurrentUser;
     private final boolean isWorkmatesView;
     private Context context;
     //FOR COMMUNICATION
     private Listener callback;
     private Restaurant restaurant;
+    private UsersListItemBinding binding;
 
-    public UsersListAdapter(FirestoreRecyclerOptions<User> options, RequestManager glide
+    public UsersListAdapter(FirestoreRecyclerOptions<User> options
+                            //, RequestManager glide
                             //, Listener callback, String idCurrentUser, boolean isWorkmatesView
     ) {
         super(options);
-        this.glide = glide;
         this.idCurrentUser = "idCurrentUser";
         this.callback = callback;
         this.isWorkmatesView = true;
@@ -49,7 +47,6 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     @Override
     public void onDataChanged() {
         super.onDataChanged();
-        // this.callback.onDataChanged();
     }
 
     /**
@@ -59,18 +56,19 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
      */
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User user) {
+        holder.userBinding.setWorkmates(user);
         if (user.getLunchSpot() != null) {
             RestaurantHelper.getRestaurantsById(user.getLunchSpot()).addOnSuccessListener(documentSnapshot -> {
                 restaurant = documentSnapshot.toObject(Restaurant.class);
                 setHolder(holder, user, restaurant);
             });
         } else {
-            holder.updateWithUser(user, this.idCurrentUser, this.glide, this.isWorkmatesView, restaurant);
+            holder.updateWithUser(user, this.isWorkmatesView, restaurant);
         }
     }
 
     private void setHolder(UserViewHolder holder, User user, Restaurant restaurant) {
-        holder.updateWithUser(user, this.idCurrentUser, this.glide, this.isWorkmatesView, restaurant);
+        holder.updateWithUser(user, this.isWorkmatesView, restaurant);
         if (isWorkmatesView) {
             holder.itemView.setOnClickListener(view -> {
                 final Context context = holder.itemView.getContext();
@@ -98,15 +96,17 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     public class UserViewHolder extends RecyclerView.ViewHolder {
         private final ImageView avatarView;
         private final TextView userText;
+        private final UsersListItemBinding userBinding;
         private Restaurant restaurant;
 
         public UserViewHolder(@NonNull UsersListItemBinding userBinding) {
             super(userBinding.getRoot());
             avatarView = userBinding.avatarView;
             userText = userBinding.avatarTextView;
+            this.userBinding = userBinding;
         }
 
-        public void updateWithUser(User user, String idCurrentUser, RequestManager glide, boolean isWorkmatesView, Restaurant restaurant) {
+        public void updateWithUser(User user, boolean isWorkmatesView, Restaurant restaurant) {
             // Check if current user is the sender
             if (!isWorkmatesView) {
                 String joiningText = context.getResources().getString(R.string.joining_text, user.getUserName());
@@ -122,15 +122,6 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
                     userText.setText(notDecidedYet);
                 }
 
-            }
-            if (user.getPhotoUrl() != null) {
-                glide.load(user.getPhotoUrl())
-                        .apply(RequestOptions.circleCropTransform())
-                        .into(avatarView);
-            } else {
-                glide.load(R.mipmap.ic_workmates)
-                        .apply(RequestOptions.circleCropTransform())
-                        .into(avatarView);
             }
         }
 

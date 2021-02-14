@@ -3,6 +3,8 @@ package com.tizzone.go4lunch.viewmodels;
 
 import android.util.Log;
 
+import androidx.databinding.ObservableBoolean;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
@@ -42,6 +44,7 @@ public class PlacesViewModel extends ViewModel {
 
     private final MutableLiveData<List<Restaurant>> filteredRestaurants = new MutableLiveData<>();
     private final MutableLiveData<Restaurant> restaurantMutableLiveData = new MutableLiveData<>();
+    public ObservableBoolean isLoading = new ObservableBoolean(false);
 
     @Inject
     public PlacesViewModel(SavedStateHandle savedStateHandle, PlaceRepository placeRepository) {
@@ -50,7 +53,7 @@ public class PlacesViewModel extends ViewModel {
     }
 
 
-    public MutableLiveData<List<Restaurant>> getRestaurantsList() {
+    public LiveData<List<Restaurant>> getRestaurantsList() {
         if (restaurantsList == null) {
             restaurantsList = new MutableLiveData<>();
         }
@@ -76,6 +79,7 @@ public class PlacesViewModel extends ViewModel {
         placeRepository.getNearByPlacesApi(location, radius)
                 .subscribeOn(Schedulers.io())
                 .map(placesResults -> {
+                    isLoading.set(true);
                     List<com.tizzone.go4lunch.models.places.Result> placesResultsList1 = placesResults.getResults();
                     List<Restaurant> restaurants = new ArrayList<>();
 
@@ -95,6 +99,7 @@ public class PlacesViewModel extends ViewModel {
                 .subscribe(result -> {
                           //  restaurantsList.setValue(new ArrayList<>());
                             restaurantsList.setValue(result);
+                            isLoading.set(false);
                         },
                         error -> Log.e(TAG, "setRestaurants:" + error.getMessage())
                 );

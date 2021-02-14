@@ -28,7 +28,7 @@ public class UserModule {
     static UsersListAdapter provideAdapter(FirestoreRecyclerOptions<User> options, RequestManager glide
                                            //, UsersListAdapter.Listener callback, String idCurrentUser, Boolean isWorkmate
     ) {
-        return new UsersListAdapter(options, glide
+        return new UsersListAdapter(options
                 //, callback, idCurrentUser, isWorkmate
         );
     }

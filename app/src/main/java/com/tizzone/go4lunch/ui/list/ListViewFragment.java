@@ -110,7 +110,7 @@ public class ListViewFragment extends Fragment {
 
     private void initRecycleView() {
         fragmentListBinding.listViewPlaces.setLayoutManager(new LinearLayoutManager(getContext()));
-        placesListAdapter = new PlacesListAdapter(restaurants, currentLocation, getContext());
+        placesListAdapter = new PlacesListAdapter(restaurants);
         fragmentListBinding.listViewPlaces.setAdapter(placesListAdapter);
         observeData();
     }

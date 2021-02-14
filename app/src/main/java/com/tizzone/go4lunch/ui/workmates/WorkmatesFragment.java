@@ -13,7 +13,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.Query;
 import com.tizzone.go4lunch.adapters.UsersListAdapter;
@@ -85,7 +84,7 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
 
             //Log.e("Workmates User name is", user.getUserName());
         }
-        adapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getWorkmates(uid)), Glide.with(this)
+        adapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getWorkmates(uid))
                 //, this, "hFwyQ2wqySd5qpFcUSe9FiCClyC2", true
         );
 
