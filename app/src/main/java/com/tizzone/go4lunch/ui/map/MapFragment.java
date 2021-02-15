@@ -65,7 +65,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
 
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 546;
     private static final float DEFAULT_ZOOM = 15;
-    private int radius = 1000;
+    private int radius;
     private final int SESSION_TOKEN = 54784;
     private GoogleMap mMap;
     private boolean mLocationPermissionGranted;
@@ -121,23 +121,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
             });
         }
     };
-    SharedPreferences.OnSharedPreferenceChangeListener listener =
-            new SharedPreferences.OnSharedPreferenceChangeListener() {
-                @Override
-                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-                    Log.i(TAG, "Preference value was updated to: " + sharedPreferences.getString(key, ""));
 
-                    radius = sharedPreferences.getInt(key, Integer.parseInt(""));
-                    //    sharedPreferences.registerOnSharedPreferenceChangeListener(listener);
-                    build_retrofit_and_get_response(currentLocation.latitude, currentLocation.longitude);
-                }
-            };
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
-    }
 
     /**
      * Called when a fragment is first attached to its context.
@@ -156,41 +140,21 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         this.restaurantsListLiveData = restaurantsList;
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         setupSharedPreferences();
-
     }
 
     private void setupSharedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        radius = Integer.parseInt(sharedPreferences.getString("radius", ""));
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-        radius = Integer.parseInt(sharedPreferences.getString("radius", "1000"));
-        System.out.println("radius is" + radius);
-        SharedPreferences.OnSharedPreferenceChangeListener listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-
-            }
-        };
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        if (key.equals("radius")) {
-
-            sharedPreferences.registerOnSharedPreferenceChangeListener(listener);
-        }
-    }
 
     @Nullable
     @Override
@@ -476,4 +440,14 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     }
 
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        if (s.equals("radius")) {
+            Log.e(TAG, "Preference55 value was updated to: " + sharedPreferences.getString(s, ""));
+            //placesViewModel.setRadius(Integer.parseInt(sharedPreferences.getString(s, "")));
+            radius = Integer.parseInt(sharedPreferences.getString(s, ""));
+            mMap.clear();
+            placesViewModel.setRestaurants(currentLocation.latitude + "," + currentLocation.longitude, Integer.parseInt(sharedPreferences.getString(s, "")));
+        }
+    }
 }

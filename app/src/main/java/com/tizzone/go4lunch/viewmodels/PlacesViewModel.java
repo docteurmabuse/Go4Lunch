@@ -44,6 +44,8 @@ public class PlacesViewModel extends ViewModel {
 
     private final MutableLiveData<List<Restaurant>> filteredRestaurants = new MutableLiveData<>();
     private final MutableLiveData<Restaurant> restaurantMutableLiveData = new MutableLiveData<>();
+
+    private final MutableLiveData<Integer> radius = new MutableLiveData<>();
     public ObservableBoolean isLoading = new ObservableBoolean(false);
 
     @Inject
@@ -52,6 +54,14 @@ public class PlacesViewModel extends ViewModel {
         this.placeRepository = placeRepository;
     }
 
+    public MutableLiveData<Integer> setRadius(int mRadius) {
+        radius.setValue(mRadius);
+        return radius;
+    }
+
+    public LiveData<Integer> getRadius() {
+        return radius;
+    }
 
     public LiveData<List<Restaurant>> getRestaurantsList() {
         if (restaurantsList == null) {
@@ -97,7 +107,7 @@ public class PlacesViewModel extends ViewModel {
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(result -> {
-                          //  restaurantsList.setValue(new ArrayList<>());
+                            //  restaurantsList.setValue(new ArrayList<>());
                             restaurantsList.setValue(result);
                             isLoading.set(false);
                         },

@@ -17,9 +17,13 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.SettingsActivityBinding;
+import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
+
+import dagger.hilt.android.AndroidEntryPoint;
 
 import static android.content.ContentValues.TAG;
 
+@AndroidEntryPoint
 public class SettingsActivity extends AppCompatActivity implements
         PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
@@ -107,8 +111,10 @@ public class SettingsActivity extends AppCompatActivity implements
         return true;
     }
 
-
+    @AndroidEntryPoint
     public static class HeaderFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
+        private PlacesViewModel placesViewModel;
+
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.header_preferences, rootKey);
@@ -122,7 +128,6 @@ public class SettingsActivity extends AppCompatActivity implements
                 ListPreference radiusPref = findPreference(s);
                 //   radiusPref.setSummary(sharedPreferences.getString(s,""));
                 Log.e(TAG, "Preference value was updated to: " + sharedPreferences.getString(s, ""));
-
             }
         }
 
