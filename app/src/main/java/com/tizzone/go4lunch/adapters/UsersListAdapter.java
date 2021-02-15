@@ -26,6 +26,8 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     private final FirestoreRecyclerOptions<User> options;
     //FOR COMMUNICATION
     private final Listener callback;
+    private UsersListItemBinding userBinding;
+
 
     public UsersListAdapter(FirestoreRecyclerOptions<User> options, Listener callback
     ) {
@@ -47,18 +49,27 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User user) {
         holder.userBinding.setWorkmates(user);
+        Resources resources = holder.itemView.getContext().getResources();
         if (user.getLunchSpot() != null) {
-            RestaurantHelper.getRestaurantsById(user.getLunchSpot()).addOnSuccessListener(documentSnapshot -> {
-                restaurant = documentSnapshot.toObject(Restaurant.class);
-                setHolder(holder, user, restaurant);
-            });
+            if (holder.itemView.getContext() instanceof PlaceDetailActivity) {
+                String joiningText = resources.getString(R.string.joining_text, user.getUserName());
+                holder.userText.setText(joiningText);
+            } else {
+                RestaurantHelper.getRestaurantsById(user.getLunchSpot()).addOnSuccessListener(documentSnapshot -> {
+                    restaurant = documentSnapshot.toObject(Restaurant.class);
+                    String lunchingText = String.format(resources.getString(R.string.lunching_text), user.getUserName(), restaurant.getName());
+                    holder.userText.setText(lunchingText);
+                });
+                holder.itemView.setOnClickListener(view -> {
+                    Intent intent = new Intent(context, PlaceDetailActivity.class);
+                    intent.putExtra("RESTAURANT", restaurant.getUid());
+                    context.startActivity(intent);
+                });
+            }
         } else {
-            holder.updateWithUser(user, restaurant);
+            String notDecidedYet = String.format(resources.getString(R.string.not_decided), user.getUserName());
+            holder.userText.setText(notDecidedYet);
         }
-    }
-
-    private void setHolder(UserViewHolder holder, User user, Restaurant restaurant) {
-        holder.updateWithUser(user, restaurant);
     }
 
     @NonNull
@@ -66,7 +77,7 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        com.tizzone.go4lunch.databinding.UsersListItemBinding userBinding = UsersListItemBinding.inflate(inflater, parent, false);
+        userBinding = UsersListItemBinding.inflate(inflater, parent, false);
         return new UserViewHolder(userBinding);
     }
 
@@ -76,27 +87,27 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     }
 
     public class UserViewHolder extends RecyclerView.ViewHolder {
-        private final TextView userText;
-        private final UsersListItemBinding userBinding;
+        public TextView userText;
+        public UsersListItemBinding userBinding;
 
         public UserViewHolder(@NonNull UsersListItemBinding userBinding) {
             super(userBinding.getRoot());
-            userText = userBinding.avatarTextView;
             this.userBinding = userBinding;
+            userText = userBinding.avatarTextView;
         }
 
         public void updateWithUser(User user, Restaurant restaurant) {
             // Check if current user is the sender
+            Resources resources = itemView.getContext().getResources();
+
             if (itemView.getContext() instanceof PlaceDetailActivity) {
-                String joiningText = context.getResources().getString(R.string.joining_text, user.getUserName());
+                String joiningText = resources.getString(R.string.joining_text, user.getUserName());
                 this.userText.setText(joiningText);
             } else {
                 if (restaurant != null) {
-                    Resources resources = context.getResources();
                     String lunchingText = String.format(resources.getString(R.string.lunching_text), user.getUserName(), restaurant.getName());
                     userText.setText(lunchingText);
                 } else {
-                    Resources resources = context.getResources();
                     String notDecidedYet = String.format(resources.getString(R.string.not_decided), user.getUserName());
                     userText.setText(notDecidedYet);
                 }

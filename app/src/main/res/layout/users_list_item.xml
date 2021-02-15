@@ -8,6 +8,10 @@
         <variable
             name="workmates"
             type="com.tizzone.go4lunch.models.User" />
+
+        <variable
+            name="restaurant"
+            type="com.tizzone.go4lunch.models.Restaurant" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -40,10 +44,10 @@
                 style="@style/TextAppearance.MaterialComponents.Body2"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:text="@{workmates.userName}"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="5dp"
                 android:maxLines="2"
-                android:text="User is eating french (Le Bouillon Chartier St Jacques  de Paris)"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

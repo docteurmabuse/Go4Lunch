@@ -51,8 +51,11 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 import static com.tizzone.go4lunch.MainActivity.myPreference;
 
+@AndroidEntryPoint
 public class PlaceDetailActivity extends BaseActivity implements UsersListAdapter.Listener {
     private static final String TAG = "1543";
     private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 5873;
