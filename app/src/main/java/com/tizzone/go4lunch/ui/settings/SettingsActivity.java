@@ -1,6 +1,8 @@
 package com.tizzone.go4lunch.ui.settings;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -9,21 +11,24 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.SettingsActivityBinding;
 
+import static android.content.ContentValues.TAG;
+
 public class SettingsActivity extends AppCompatActivity implements
         PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
-    private static final String TITLE_TAG = "settingsActivityTitle";
-    private SettingsActivityBinding mBinding;
-    private static final Preference.OnPreferenceChangeListener sBindPreferences = (preference, newValue) -> {
+    public static final Preference.OnPreferenceChangeListener sBindPreferences = (preference, newValue) -> {
         String stringValue = newValue.toString();
         return true;
     };
+    private SettingsActivityBinding mBinding;
+    private static final String TITLE_TAG = "Settings";
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -65,6 +70,7 @@ public class SettingsActivity extends AppCompatActivity implements
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+
     }
 
     @Override
@@ -90,21 +96,48 @@ public class SettingsActivity extends AppCompatActivity implements
                 getClassLoader(),
                 pref.getFragment());
         fragment.setArguments(args);
-        fragment.setTargetFragment(caller, 0);
+        //fragment.setTargetFragment(caller, 0);
         // Replace the existing Fragment with the new Fragment
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.settings, fragment)
                 .addToBackStack(null)
                 .commit();
         setTitle(pref.getTitle());
+        pref.setOnPreferenceChangeListener(sBindPreferences);
         return true;
     }
 
-    public static class HeaderFragment extends PreferenceFragmentCompat {
 
+    public static class HeaderFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.header_preferences, rootKey);
+            getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+        }
+
+
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+            if (s.equals("radius")) {
+                ListPreference radiusPref = findPreference(s);
+                //   radiusPref.setSummary(sharedPreferences.getString(s,""));
+                Log.e(TAG, "Preference value was updated to: " + sharedPreferences.getString(s, ""));
+
+            }
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            getPreferenceScreen().getSharedPreferences()
+                    .registerOnSharedPreferenceChangeListener(this);
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+            getPreferenceScreen().getSharedPreferences()
+                    .unregisterOnSharedPreferenceChangeListener(this);
         }
     }
 
@@ -123,4 +156,5 @@ public class SettingsActivity extends AppCompatActivity implements
             setPreferencesFromResource(R.xml.sync_preferences, rootKey);
         }
     }
+
 }

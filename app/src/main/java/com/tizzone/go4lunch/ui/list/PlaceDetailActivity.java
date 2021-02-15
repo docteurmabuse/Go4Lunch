@@ -49,8 +49,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import javax.inject.Inject;
-
 import dagger.hilt.android.AndroidEntryPoint;
 
 import static com.tizzone.go4lunch.MainActivity.myPreference;
@@ -109,7 +107,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
 
     UsersListAdapter usersListAdapter;
-    @Inject
     RequestManager requestManager;
 
 
@@ -141,9 +138,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             currentPlaceId = extras.getString("RESTAURANT");
             placesViewModel.setRestaurant(currentPlaceId);
             addOnOffsetChangedListener();
-
         }
-
     }
 
     private void initViews() {
@@ -200,8 +195,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         // Set title of Detail page
         appbar.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
             if (Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() == 0) {
-                // Collapsed
-                // collapsingToolbar.setCollapsedTitleTextColor(0xffffff);
+                //Collapsed
                 toolbar.setTitle("placeName");
                 toolbar.setSubtitle("placeAddress");
                 placesDetailsTitle.setVisibility(View.VISIBLE);
@@ -212,7 +206,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             } else {
                 // Expanded
                 collapsingToolbar.setTitle("");
-                // mDetailAddress = intent.getStringExtra("placeAddress");
                 placeAddress.setVisibility(View.VISIBLE);
                 placeName.setVisibility(View.VISIBLE);
                 findViewById(R.id.detail_title_layout).setVisibility(View.VISIBLE);

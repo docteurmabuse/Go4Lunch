@@ -3,6 +3,7 @@ package com.tizzone.go4lunch.ui.map;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
@@ -23,6 +24,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.PreferenceManager;
 
 import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -59,11 +61,11 @@ import static android.content.ContentValues.TAG;
 import static com.tizzone.go4lunch.utils.Utils.getBitmapFromVectorDrawable;
 
 @AndroidEntryPoint
-public class MapFragment extends Fragment {
+public class MapFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 546;
     private static final float DEFAULT_ZOOM = 15;
-    private final int PROXIMITY_RADIUS = 1000;
+    private int radius = 1000;
     private final int SESSION_TOKEN = 54784;
     private GoogleMap mMap;
     private boolean mLocationPermissionGranted;
@@ -119,6 +121,23 @@ public class MapFragment extends Fragment {
             });
         }
     };
+    SharedPreferences.OnSharedPreferenceChangeListener listener =
+            new SharedPreferences.OnSharedPreferenceChangeListener() {
+                @Override
+                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+                    Log.i(TAG, "Preference value was updated to: " + sharedPreferences.getString(key, ""));
+
+                    radius = sharedPreferences.getInt(key, Integer.parseInt(""));
+                    //    sharedPreferences.registerOnSharedPreferenceChangeListener(listener);
+                    build_retrofit_and_get_response(currentLocation.latitude, currentLocation.longitude);
+                }
+            };
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
+    }
 
     /**
      * Called when a fragment is first attached to its context.
@@ -138,10 +157,39 @@ public class MapFragment extends Fragment {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        setupSharedPreferences();
 
+    }
+
+    private void setupSharedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
+        radius = Integer.parseInt(sharedPreferences.getString("radius", "1000"));
+        System.out.println("radius is" + radius);
+        SharedPreferences.OnSharedPreferenceChangeListener listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+
+            }
+        };
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        if (key.equals("radius")) {
+
+            sharedPreferences.registerOnSharedPreferenceChangeListener(listener);
+        }
     }
 
     @Nullable
@@ -175,11 +223,6 @@ public class MapFragment extends Fragment {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
     }
 
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-    }
 
     private void observeData() {
 //        placesViewModel.getRestaurantsList().observe(getActivity(), new Observer<List<Restaurant>>() {
@@ -262,7 +305,7 @@ public class MapFragment extends Fragment {
             public boolean onQueryTextChange(String newText) {
                 if (newText.length() > 2) {
                     searchView.setFocusable(false);
-                    placesViewModel.setPredictions(newText, currentLocation.latitude + "," + currentLocation.longitude, PROXIMITY_RADIUS, SESSION_TOKEN, key);
+                    placesViewModel.setPredictions(newText, currentLocation.latitude + "," + currentLocation.longitude, radius, SESSION_TOKEN, key);
                     return true;
                 }
                 return true;
@@ -421,7 +464,7 @@ public class MapFragment extends Fragment {
     }
 
     private void build_retrofit_and_get_response(double latitude, double longitude) {
-        placesViewModel.setRestaurants(latitude + "," + longitude, PROXIMITY_RADIUS);
+        placesViewModel.setRestaurants(latitude + "," + longitude, radius);
         locationViewModel.setUserLocation(latitude, longitude);
     }
 
@@ -431,4 +474,6 @@ public class MapFragment extends Fragment {
         intent.putExtra("RESTAURANT", restaurant.getUid());
         context.startActivity(intent);
     }
+
+
 }
