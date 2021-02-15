@@ -51,11 +51,8 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
-import dagger.hilt.android.AndroidEntryPoint;
-
 import static com.tizzone.go4lunch.MainActivity.myPreference;
 
-@AndroidEntryPoint
 public class PlaceDetailActivity extends BaseActivity implements UsersListAdapter.Listener {
     private static final String TAG = "1543";
     private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 5873;
@@ -108,7 +105,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private static final int notificationId = 1578;
 
 
-    @Inject
     UsersListAdapter usersListAdapter;
     @Inject
     RequestManager requestManager;
@@ -135,7 +131,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         if (this.getCurrentUser() != null) {
             uid = this.getCurrentUser().getUid();
         }
-        key = getText(R.string.google_maps_key).toString();
 
         initViews();
         Bundle extras = getIntent().getExtras();
@@ -360,8 +355,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     // 5 - Configure RecyclerView with a Query
     private void configureRecyclerView(String placeId) {
         this.usersListAdapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersLunchSpotWithoutCurrentUser(placeId, uid))
-                //, Glide.with(this), this, this.getCurrentUser().getUid(),
-        );
+                , this);
         usersListAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
@@ -370,11 +364,9 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         });
         //  usersListAdapter.setClickListener(this);
 
-        usersRecyclerView.setHasFixedSize(true);
+        // usersRecyclerView.setHasFixedSize(true);
         usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        usersRecyclerView.setAdapter(usersListAdapter);
-        usersListAdapter.startListening();
-
+        usersRecyclerView.setAdapter(this.usersListAdapter);
     }
 
     // 6 - Create options for RecyclerView from a Query

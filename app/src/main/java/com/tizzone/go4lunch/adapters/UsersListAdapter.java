@@ -23,16 +23,24 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
 
     private Context context;
     private Restaurant restaurant;
+    private final FirestoreRecyclerOptions<User> options;
+    //FOR COMMUNICATION
+    private final Listener callback;
 
-    public UsersListAdapter(FirestoreRecyclerOptions<User> options
+    public UsersListAdapter(FirestoreRecyclerOptions<User> options, Listener callback
     ) {
         super(options);
+        this.options = options;
+        this.callback = callback;
         notifyDataSetChanged();
     }
+
 
     @Override
     public void onDataChanged() {
         super.onDataChanged();
+        this.callback.onDataChanged();
+
     }
 
 

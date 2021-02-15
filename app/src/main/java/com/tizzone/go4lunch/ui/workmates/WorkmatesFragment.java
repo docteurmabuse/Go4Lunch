@@ -74,19 +74,17 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
 
     private void getWorkmatesList(String uid) {
         List<User> usersTest = new ArrayList<>();
-        userViewModel.usersList.observe(getViewLifecycleOwner(),
-                usersTest::addAll);
+        userViewModel.getFirebaseUsers().observe(getViewLifecycleOwner(), users -> {
+            for (User user : users) {
+                System.out.println("ViewModel is working" + user.getUserName());
+            }
 
-        //new ArrayList<>(firebaseDataSource.getWorkmates(this.getArguments().getString("userId")));
-        // Log.e("Fragment si working", userViewModel.getUsersLiveData().getValue().addAll(User.class);
-        for (User user : usersTest) {
-            System.out.println("ViewModel is working" + user.getUserName());
+            //new ArrayList<>(firebaseDataSource.getWorkmates(this.getArguments().getString("userId")));
+            // Log.e("Fragment si working", userViewModel.getUsersLiveData().getValue().addAll(User.class);
 
             //Log.e("Workmates User name is", user.getUserName());
-        }
-        adapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getWorkmates(uid))
-                //, this, "hFwyQ2wqySd5qpFcUSe9FiCClyC2", true
-        );
+        });
+        adapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getWorkmates(uid).orderBy("uid").orderBy("userName")), this);
 
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override

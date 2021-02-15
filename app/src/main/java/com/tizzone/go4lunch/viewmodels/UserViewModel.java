@@ -80,7 +80,7 @@ public class UserViewModel extends ViewModel {
                     @Override
                     public void onNext(@NonNull QuerySnapshot queryDocumentSnapshots) {
                         List<User> users = queryDocumentSnapshots.getQuery().get().getResult().toObjects(User.class);
-                        System.out.println("ViewModel is working" + users.toString());
+                        System.out.println("Repository ViewModel is working" + users.toString());
                         usersList.setValue(users);
                     }
 
@@ -128,6 +128,10 @@ public class UserViewModel extends ViewModel {
                     firebaseUsersSpotList.setValue(usersSpot);
                 }
         );
+        return firebaseUsers;
+    }
+
+    public LiveData<List<User>> getFirebaseUsersLiveData() {
         return firebaseUsers;
     }
 

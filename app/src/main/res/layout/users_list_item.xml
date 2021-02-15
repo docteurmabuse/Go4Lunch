@@ -43,7 +43,7 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="5dp"
                 android:maxLines="2"
-                android:text="User is eating french (Le Bouillon Chartier St Jacque  de Paris)"
+                android:text="User is eating french (Le Bouillon Chartier St Jacques  de Paris)"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
