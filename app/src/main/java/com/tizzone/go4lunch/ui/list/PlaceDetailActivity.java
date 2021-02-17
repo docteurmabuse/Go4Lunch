@@ -2,11 +2,12 @@ package com.tizzone.go4lunch.ui.list;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -57,7 +58,11 @@ import static com.tizzone.go4lunch.MainActivity.myPreference;
 public class PlaceDetailActivity extends BaseActivity implements UsersListAdapter.Listener {
     private static final String TAG = "1543";
     private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 5873;
-    private static final String CHANNEL_ID = "4578";
+    private static final String PRIMARY_CHANNEL_ID = "primary_notification_channel";
+
+    private static final String CHANNEL_ID = "primary_notification_channel";
+    private static final int NOTIFICATION_ID = 0;
+
     private String mDetailAddress;
     private String mDetailName;
     private String placePhone;
@@ -99,11 +104,14 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private AppCompatImageButton website;
     private AppCompatImageButton call;
 
+    private NotificationManagerCompat managerCompat;
+    private NotificationCompat.Builder builder;
 
     private RecyclerView usersRecyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private Restaurant restaurant;
     private static final int notificationId = 1578;
+    private NotificationManager mNotifyManager;
 
 
     UsersListAdapter usersListAdapter;
@@ -122,10 +130,10 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        createNotificationChannel();
         placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
         restaurant = new Restaurant();
         placeDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_place_detail);
-        createNotificationChannel();
         favouriteRestaurantsList = new ArrayList<>();
 
         if (this.getCurrentUser() != null) {
@@ -187,6 +195,24 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
         fabOnClickListener();
         configureRecyclerView(currentPlaceId);
+
+
+        // Create an explicit intent for an Activity in your app
+        Intent intent = new Intent(this, PlaceDetailActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.id.logo_go4lunch)
+                .setContentTitle(getCurrentUser().getDisplayName() + "just choose a lunch spot")
+                .setContentText("He's lunching at" + restaurant.getName())
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText("Join" + getCurrentUser().getDisplayName() + "for lunch ..."))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+                // Set the intent that will fire when the user taps the notification
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
     }
 
 
@@ -221,13 +247,19 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         addSpotLunch.setOnClickListener(view -> {
             if (!isLunchSpot) {
                 addLunchSpotInFirebase();
-                sendUsersNotification();
+                //sendUsersNotification();
                 addSpotLunchInSharedPreferences(restaurant.getUid());
                 RestaurantHelper.incrementCounter(restaurant.getUid(), 1);
                 addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
                 isLunchSpot = true;
                 Snackbar.make(view, "You're going to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                sendUsersNotification();
+//                managerCompat = NotificationManagerCompat.from(this);
+//                managerCompat.notify(100, builder.build());
+                NotificationCompat.Builder notifyBuilder = getNotificationBuilder();
+                mNotifyManager.notify(NOTIFICATION_ID, notifyBuilder.build());
+
             } else {
                 addSpotLunchInSharedPreferences(null);
                 addLunchSpotInFirebase();
@@ -236,6 +268,8 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 isLunchSpot = false;
                 Snackbar.make(view, "You're not going anymore to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                sendUsersNotification();
+
             }
         });
     }
@@ -246,6 +280,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 .setSmallIcon(R.id.logo_go4lunch)
                 .setContentTitle(getCurrentUser().getDisplayName() + "just choose a lunch spot")
                 .setContentText("He's lunching at" + restaurant.getName())
+                .setChannelId(CHANNEL_ID)
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText("Much longer text that cannot fit one line..."))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
@@ -389,20 +424,36 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         placeDetailBinding = null;
     }
 
-    private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getString(R.string.channel_name);
-            String description = getString(R.string.channel_description);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
+    public void createNotificationChannel() {
+        mNotifyManager = (NotificationManager)
+                getSystemService(NOTIFICATION_SERVICE);
+        if (android.os.Build.VERSION.SDK_INT >=
+                android.os.Build.VERSION_CODES.O) {
+            // Create a NotificationChannel
+            NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID,
+                    "Go4Lunch Notification", NotificationManager
+                    .IMPORTANCE_HIGH);
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.RED);
+            notificationChannel.enableVibration(true);
+            notificationChannel.setDescription("Notification from Go4Lunch");
+            mNotifyManager.createNotificationChannel(notificationChannel);
         }
+    }
+
+    private NotificationCompat.Builder getNotificationBuilder() {
+        Intent notificationIntent = new Intent(this, PlaceDetailActivity.class);
+        PendingIntent notificationPendingIntent = PendingIntent.getActivity(this,
+                NOTIFICATION_ID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        return new NotificationCompat.Builder(this, PRIMARY_CHANNEL_ID)
+                .setContentTitle(getCurrentUser().getDisplayName() + " just choose a lunch spot")
+                .setContentText("He's lunching at " + restaurant.getName())
+                .setContentIntent(notificationPendingIntent)
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setSmallIcon(R.drawable.ic_logo_go4lunch);
+
     }
 }
 

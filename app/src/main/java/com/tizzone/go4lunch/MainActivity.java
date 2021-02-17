@@ -1,14 +1,20 @@
 package com.tizzone.go4lunch;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -18,9 +24,12 @@ import androidx.navigation.ui.NavigationUI;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityMainBinding;
 import com.tizzone.go4lunch.databinding.NavHeaderMainBinding;
@@ -29,7 +38,7 @@ import com.tizzone.go4lunch.ui.MainNavHostFragment;
 import com.tizzone.go4lunch.ui.auth.AuthActivity;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.ui.settings.SettingsActivity;
-import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
+import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
 import javax.inject.Inject;
 
@@ -38,13 +47,16 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class MainActivity extends BaseActivity {
     private static final int SIGN_OUT_TASK = 25;
+    private static final String TAG = "MainActivity";
     private ActivityMainBinding mBinding;
     private AppBarConfiguration mAppBarConfiguration;
     private NavHeaderMainBinding navHeaderMainBinding;
     public static final String lunchSpotId = "lunchSpotId";
     public static final String myPreference = "mypref";
     private SharedPreferences sharedPreferences;
-    private PlacesViewModel placesViewModel;
+    private static final String CHANNEL_ID = "4578";
+    private UserViewModel userViewModel;
+
 
     @Inject
     public MainFragmentFactory fragmentFactory;
@@ -53,18 +65,18 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
-       // placesViewModel = new ViewModelProvider(backStackEntry).get(PlacesViewModel.class);
+        initNotifications();
+        // placesViewModel = new ViewModelProvider(backStackEntry).get(PlacesViewModel.class);
         // Declare a StorageReference and initialize it in the onCreate method
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         //  mBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
         mBinding.setNavigationItemSelectedListener(this);
-
+        createNotificationChannel();
         View view = mBinding.getRoot();
         setContentView(view);
 
 
-        //placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
 
         MainNavHostFragment navHostFragment =
@@ -161,6 +173,38 @@ public class MainActivity extends BaseActivity {
         updateProfileWhenCreating();
     }
 
+
+    private void initNotifications() {
+
+        // Handle possible data accompanying notification message.
+        // [START handle_data_extras]
+        if (getIntent().getExtras() != null) {
+            for (String key : getIntent().getExtras().keySet()) {
+                Object value = getIntent().getExtras().get(key);
+                Log.d(TAG, "Key: " + key + " Value: " + value);
+            }
+        }
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+
+                        // Log and toast
+                        String msg = getString(R.string.msg_token_fmt, token);
+                        Log.d(TAG, msg);
+                        //Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+    }
+
     private void launchSettingsActivity() {
         startActivity(new Intent(MainActivity.this, SettingsActivity.class));
     }
@@ -200,6 +244,23 @@ public class MainActivity extends BaseActivity {
     private void startMainActivity() {
         Intent intent = new Intent(this, AuthActivity.class);
         startActivity(intent);
+    }
+
+    private void createNotificationChannel() {
+
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 //
 //    @Override

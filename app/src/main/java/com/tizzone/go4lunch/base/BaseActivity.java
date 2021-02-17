@@ -2,6 +2,8 @@ package com.tizzone.go4lunch.base;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -13,6 +15,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.tizzone.go4lunch.R;
+
+import static com.tizzone.go4lunch.MainActivity.myPreference;
 
 public abstract class BaseActivity extends AppCompatActivity {
     private static final String CHANNEL_ID = "4578";
@@ -32,6 +36,14 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Nullable
     protected FirebaseUser getCurrentUser() {
         return FirebaseAuth.getInstance().getCurrentUser();
+    }
+
+    private void addCurrentUserIdInSharedPreferences(String userId) {
+        SharedPreferences sharedPref = getSharedPreferences(myPreference,
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(getString(R.string.currentUserId), userId);
+        editor.apply();
     }
 
     protected Boolean isCurrentUserLogged() {

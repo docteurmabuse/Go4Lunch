@@ -2,6 +2,7 @@ package com.tizzone.go4lunch.ui.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -10,6 +11,8 @@ import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.tizzone.go4lunch.MainActivity;
@@ -21,6 +24,8 @@ import com.tizzone.go4lunch.utils.UserHelper;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
+import static android.content.ContentValues.TAG;
 
 public class AuthActivity extends BaseActivity {
     private static final int RC_SIGN_IN = 9903;
@@ -46,13 +51,24 @@ public class AuthActivity extends BaseActivity {
             getSupportActionBar().hide();
         }
         coordinatorLayout = mBinding.mainLayout;
+        checkGooglePlayService();
+    }
+
+    private Boolean checkGooglePlayService() {
+        int status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
+        if (status != ConnectionResult.SUCCESS) {
+            Log.e(TAG, "Error");
+            return false;
+        } else {
+            Log.i(TAG, "Google play services updated");
+            return true;
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (this.isCurrentUserLogged()) {
-            updateUserIsAuthenticatedInFirestore();
             this.startMainActivity();
         } else {
             startSignInActivity();
@@ -112,12 +128,6 @@ public class AuthActivity extends BaseActivity {
         }
     }
 
-    private void updateUserIsAuthenticatedInFirestore() {
-        if (this.getCurrentUser() != null) {
-            String uid = this.getCurrentUser().getUid();
-            UserHelper.updateIsAuthenticated(true, uid).addOnFailureListener(this.onFailureListener());
-        }
-    }
 
     // --------------------
     // UTILS

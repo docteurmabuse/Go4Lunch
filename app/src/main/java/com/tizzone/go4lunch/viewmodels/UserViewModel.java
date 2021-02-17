@@ -45,7 +45,7 @@ public class UserViewModel extends ViewModel {
     MutableLiveData<List<User>> firebaseUsers = new MutableLiveData<>();
     MutableLiveData<List<String>> firebaseUsersSpotList = new MutableLiveData<>();
 
-    public MutableLiveData<List<User>> usersMutableLiveData = new MutableLiveData<>();
+    public MutableLiveData<String> userIdLiveData = new MutableLiveData<>();
 
     @Inject
     public UserViewModel(SavedStateHandle savedStateHandle, UserRepository userRepository) {
@@ -53,6 +53,13 @@ public class UserViewModel extends ViewModel {
         this.userRepository = userRepository;
     }
 
+    public void setUserId(String uid) {
+        userIdLiveData.setValue(uid);
+    }
+
+    public LiveData<String> getCurrentUserId() {
+        return userIdLiveData;
+    }
 //    public MutableLiveData<List<User>> addUserToLiveData(String restaurantId) {
 //        return userRepository.getFirebaseUsersLunch(restaurantId);
 //    }

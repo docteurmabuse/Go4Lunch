@@ -12,7 +12,6 @@ public class User extends BaseObservable implements Serializable {
 
     private String uid;
     private String userName;
-    @Nullable
     private String userEmail;
     @Nullable
     private String photoUrl;
@@ -25,10 +24,10 @@ public class User extends BaseObservable implements Serializable {
 
     }
 
-    public User(String uid, String userName, @org.jetbrains.annotations.Nullable String userEmail, @org.jetbrains.annotations.Nullable String photoUrl, @org.jetbrains.annotations.Nullable List<String> favoriteRestaurants, String lunchSpot) {
+    public User(String uid, String userEmail, String userName, @Nullable String photoUrl, @Nullable List<String> favoriteRestaurants, String lunchSpot) {
         this.uid = uid;
-        this.userName = userName;
         this.userEmail = userEmail;
+        this.userName = userName;
         this.photoUrl = photoUrl;
         this.favoriteRestaurants = favoriteRestaurants;
         this.lunchSpot = lunchSpot;
@@ -56,9 +55,8 @@ public class User extends BaseObservable implements Serializable {
         return userEmail;
     }
 
-    public User setUserEmail(@Nullable String userEmail) {
+    public void setUserEmail(@Nullable String userEmail) {
         this.userEmail = userEmail;
-        return this;
     }
 
     @org.jetbrains.annotations.Nullable

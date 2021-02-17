@@ -116,7 +116,7 @@ public class PlacesViewModel extends ViewModel {
         return restaurantsList;
     }
 
-    public MutableLiveData<Restaurant> setRestaurant(String uid) {
+    public void setRestaurant(String uid) {
         placeRepository.getDetailByPlaceId(uid)
                 .subscribeOn(Schedulers.io())
                 .map(placeDetail -> {
@@ -133,7 +133,6 @@ public class PlacesViewModel extends ViewModel {
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(restaurantMutableLiveData::setValue);
-        return restaurantMutableLiveData;
     }
 
     public void setPredictions(String input, String location, int radius, int sessiontoken, String key) {
