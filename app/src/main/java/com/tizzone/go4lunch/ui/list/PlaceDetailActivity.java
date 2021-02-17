@@ -9,11 +9,13 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,6 +30,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.RequestManager;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -35,6 +39,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.adapters.UsersListAdapter;
 import com.tizzone.go4lunch.base.BaseActivity;
@@ -260,6 +265,19 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 NotificationCompat.Builder notifyBuilder = getNotificationBuilder();
                 mNotifyManager.notify(NOTIFICATION_ID, notifyBuilder.build());
 
+                FirebaseMessaging.getInstance().subscribeToTopic("lunch")
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                String msg = getString(R.string.msg_subscribed);
+                                if (!task.isSuccessful()) {
+                                    msg = getString(R.string.msg_subscribe_failed);
+                                }
+                                Log.d(TAG, msg);
+                                Toast.makeText(PlaceDetailActivity.this, msg, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
             } else {
                 addSpotLunchInSharedPreferences(null);
                 addLunchSpotInFirebase();
@@ -268,7 +286,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 isLunchSpot = false;
                 Snackbar.make(view, "You're not going anymore to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                sendUsersNotification();
+                //  sendUsersNotification();
 
             }
         });
