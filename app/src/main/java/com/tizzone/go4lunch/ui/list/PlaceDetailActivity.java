@@ -274,6 +274,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                                     msg = getString(R.string.msg_subscribe_failed);
                                 }
                                 Log.d(TAG, msg);
+                                System.out.println(" tokens were subscribed successfully");
                                 Toast.makeText(PlaceDetailActivity.this, msg, Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -286,6 +287,14 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 isLunchSpot = false;
                 Snackbar.make(view, "You're not going anymore to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+
+                FirebaseMessaging.getInstance().unsubscribeFromTopic("lunch")
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                System.out.println(" tokens were unsubscribed successfully");
+                            }
+                        });
                 //  sendUsersNotification();
 
             }
