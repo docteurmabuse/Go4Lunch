@@ -11,9 +11,9 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/place_detail_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/place_detail_layout"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.core.widget.NestedScrollView
@@ -46,11 +46,11 @@
 
                         <TextView
                             android:id="@+id/detail_place_name"
-                            android:text="@{restaurantDetail.name}"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/activity_horizontal_margin"
                             android:layout_marginTop="@dimen/activity_vertical_margin"
+                            android:text="@{restaurantDetail.name}"
                             android:textColor="@color/white"
                             android:textSize="16sp" />
 
@@ -61,18 +61,18 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="5dp"
                             android:layout_marginTop="20dp"
-                            android:rating="@{restaurantDetail.rating}"
                             android:numStars="3"
+                            android:rating="@{restaurantDetail.rating}"
                             android:theme="@style/RatingBar" />
                     </LinearLayout>
 
                     <TextView
                         android:id="@+id/detail_place_address"
-                        android:text="@{restaurantDetail.address}"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/activity_horizontal_margin"
                         android:layout_marginBottom="@dimen/activity_vertical_margin"
+                        android:text="@{restaurantDetail.address}"
                         android:textColor="@color/white"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -94,8 +94,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="1dp"
                     android:color="@color/colorPrimary"
-                    android:tint="@color/colorPrimary"
                     android:text="@string/call"
+                    android:tint="@color/colorPrimary"
                     app:layout_constraintBottom_toTopOf="@+id/users_spot_list"
                     app:layout_constraintEnd_toEndOf="@+id/call_button"
                     app:layout_constraintStart_toStartOf="@+id/call_button" />
@@ -121,8 +121,8 @@
                     android:color="@color/red_500"
                     android:text="@string/like"
                     app:layout_constraintBottom_toTopOf="@+id/users_spot_list"
-                    app:layout_constraintStart_toStartOf="@+id/star_button"
                     app:layout_constraintEnd_toEndOf="@+id/star_button"
+                    app:layout_constraintStart_toStartOf="@+id/star_button"
 
                     app:layout_constraintTop_toBottomOf="@id/star_button" />
 
@@ -145,8 +145,8 @@
                     android:color="@color/red_500"
                     android:gravity="end"
                     android:text="@string/website"
-                    app:layout_constraintEnd_toEndOf="@+id/website_button"
                     app:layout_constraintBottom_toTopOf="@+id/users_spot_list"
+                    app:layout_constraintEnd_toEndOf="@+id/website_button"
                     app:layout_constraintStart_toStartOf="@+id/website_button" />
 
 
@@ -155,11 +155,11 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:fitsSystemWindows="true"
-                    tools:listitem="@layout/users_list_item"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:listitem="@layout/users_list_item" />
 
                 <TextView
                     android:id="@+id/no_workmates_text_view"

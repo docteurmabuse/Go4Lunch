@@ -49,6 +49,7 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User user) {
         holder.userBinding.setWorkmates(user);
+
         Resources resources = holder.itemView.getContext().getResources();
         if (user.getLunchSpot() != null) {
             if (holder.itemView.getContext() instanceof PlaceDetailActivity) {
@@ -57,8 +58,9 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
             } else {
                 RestaurantHelper.getRestaurantsById(user.getLunchSpot()).addOnSuccessListener(documentSnapshot -> {
                     restaurant = documentSnapshot.toObject(Restaurant.class);
-                    String lunchingText = String.format(resources.getString(R.string.lunching_text), user.getUserName(), restaurant.getName());
-                    holder.userText.setText(lunchingText);
+                    holder.userBinding.setRestaurant(restaurant);
+                    // String lunchingText = String.format(resources.getString(R.string.lunching_text), user.getUserName(), restaurant.getName());
+                    // holder.userText.setText(lunchingText);
                 });
                 holder.itemView.setOnClickListener(view -> {
                     Intent intent = new Intent(context, PlaceDetailActivity.class);
@@ -68,7 +70,7 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
             }
         } else {
             String notDecidedYet = String.format(resources.getString(R.string.not_decided), user.getUserName());
-            holder.userText.setText(notDecidedYet);
+            //holder.userText.setText(notDecidedYet);
         }
     }
 
@@ -93,7 +95,7 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
         public UserViewHolder(@NonNull UsersListItemBinding userBinding) {
             super(userBinding.getRoot());
             this.userBinding = userBinding;
-            userText = userBinding.avatarTextView;
+            // userText = userBinding.avatarTextView;
         }
 
         public void updateWithUser(User user, Restaurant restaurant) {

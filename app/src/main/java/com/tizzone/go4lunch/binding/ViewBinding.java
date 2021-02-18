@@ -1,12 +1,15 @@
 package com.tizzone.go4lunch.binding;
 
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.databinding.BindingAdapter;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.tizzone.go4lunch.R;
 
 public class ViewBinding {
     @BindingAdapter(value = {"imageFromUrl", "placeholder"}, requireAll = false)
@@ -31,6 +34,18 @@ public class ViewBinding {
                     .circleCrop()
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .into(imageView);
+        }
+    }
+
+    @BindingAdapter(value = {"userName", "restaurantName"}, requireAll = false)
+    public static void bindTextView(AppCompatTextView textView, String userName, String restaurantName) {
+        if (restaurantName == null) {
+            String notDecidedYet = String.format(textView.getResources().getString(R.string.not_decided), userName);
+            textView.setText(notDecidedYet);
+        } else {
+            String lunchingText = String.format(textView.getResources().getString(R.string.lunching_text), userName, restaurantName);
+            textView.setText(lunchingText);
+            textView.setTypeface(null, Typeface.BOLD);
         }
     }
 }

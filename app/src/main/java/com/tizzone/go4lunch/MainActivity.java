@@ -1,11 +1,8 @@
 package com.tizzone.go4lunch;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -66,18 +63,13 @@ public class MainActivity extends BaseActivity {
 
         super.onCreate(savedInstanceState);
         initNotifications();
-        // placesViewModel = new ViewModelProvider(backStackEntry).get(PlacesViewModel.class);
-        // Declare a StorageReference and initialize it in the onCreate method
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
-        //  mBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
         mBinding.setNavigationItemSelectedListener(this);
-        createNotificationChannel();
+       // createNotificationChannel();
         View view = mBinding.getRoot();
         setContentView(view);
 
-
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
-
 
         MainNavHostFragment navHostFragment =
                 (MainNavHostFragment) getSupportFragmentManager()
@@ -85,10 +77,8 @@ public class MainActivity extends BaseActivity {
         NavController navController = navHostFragment.getNavController();
         NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.my_graph);
 
-
         sharedPreferences = getSharedPreferences(myPreference,
                 Context.MODE_PRIVATE);
-
 
         Toolbar toolbar = mBinding.toolbar;
         setSupportActionBar(toolbar);
@@ -98,13 +88,6 @@ public class MainActivity extends BaseActivity {
 
         String uid = this.getCurrentUser().getUid();
 
-//        // Passing each menu ID as a set of Ids because each
-//        // menu should be considered as top level destinations.
-
-//        //NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-//
-//        Bundle bundle = new Bundle();
-//        bundle.putString("userId", uid);
         mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph())
                 .setOpenableLayout(drawer)
                 .build();
@@ -173,7 +156,6 @@ public class MainActivity extends BaseActivity {
         updateProfileWhenCreating();
     }
 
-
     private void initNotifications() {
 
         // Handle possible data accompanying notification message.
@@ -202,7 +184,6 @@ public class MainActivity extends BaseActivity {
                         //Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
                     }
                 });
-
     }
 
     private void launchSettingsActivity() {
@@ -246,32 +227,26 @@ public class MainActivity extends BaseActivity {
         startActivity(intent);
     }
 
-    private void createNotificationChannel() {
-
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getString(R.string.channel_name);
-            String description = getString(R.string.channel_description);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-    }
+//    private void createNotificationChannel() {
 //
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//       // mBinding = null;
+//        // Create the NotificationChannel, but only on API 26+ because
+//        // the NotificationChannel class is new and not in the support library
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            CharSequence name = getString(R.string.channel_name);
+//            String description = getString(R.string.channel_description);
+//            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+//            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+//            channel.setDescription(description);
+//            // Register the channel with the system; you can't change the importance
+//            // or other notification behaviors after this
+//            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+//            notificationManager.createNotificationChannel(channel);
+//        }
 //    }
 
-//    @Nullable
-//    @Override
-//    public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context, @NonNull AttributeSet attrs) {
-//        return super.onCreateView(parent, name, context, attrs);
-//    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
 }
