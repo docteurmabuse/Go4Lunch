@@ -2,39 +2,77 @@ package com.tizzone.go4lunch.binding;
 
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.view.View;
+import android.widget.ProgressBar;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.databinding.BindingAdapter;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 
 public class ViewBinding {
-    @BindingAdapter(value = {"imageFromUrl", "placeholder"}, requireAll = false)
-    public static void bindImageFromUrl(AppCompatImageView imageView, String imageUrl, Drawable placeHolder) {
-        if (imageUrl == null || imageUrl.isEmpty()) {
-            imageView.setImageDrawable(placeHolder);
-        } else {
+    @BindingAdapter(value = {"imageFromUrl", "placeHolder", "progressBar"}, requireAll = false)
+    public static void bindImageFromUrl(AppCompatImageView imageView, String imageFromUrl, Drawable placeHolder, ProgressBar progressBar) {
+        if (imageFromUrl != null) {
             Glide.with(imageView.getContext())
-                    .load(imageUrl)
+                    .load(imageFromUrl)
+                    .placeholder(placeHolder)
                     .transition(DrawableTransitionOptions.withCrossFade())
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                            progressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                            progressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+                    })
                     .into(imageView);
+        } else {
+            imageView.setImageDrawable(placeHolder);
+            progressBar.setVisibility(View.GONE);
         }
     }
 
-    @BindingAdapter(value = {"circleImageFromUrl", "circlePlaceholder"}, requireAll = false)
-    public static void bindRoundImageFromUrl(AppCompatImageView imageView, String imageUrl, Drawable placeHolder) {
-        if (imageUrl == null) {
-            imageView.setImageDrawable(placeHolder);
-        } else {
+
+    @BindingAdapter(value = {"circleImageFromUrl", "circlePlaceholder", "progressBar"}, requireAll = false)
+    public static void bindRoundImageFromUrl(AppCompatImageView imageView, String imageFromUrl, Drawable placeHolder, ProgressBar progressBar) {
+        if (imageFromUrl != null) {
             Glide.with(imageView.getContext())
-                    .load(imageUrl)
+                    .load(imageFromUrl)
                     .circleCrop()
+                    .placeholder(placeHolder)
                     .transition(DrawableTransitionOptions.withCrossFade())
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                            progressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                            progressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+                    })
                     .into(imageView);
+        } else {
+            progressBar.setVisibility(View.GONE);
+            imageView.setImageDrawable(placeHolder);
         }
     }
 

@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+        <import type="android.view.View" />
 
         <variable
             name="restaurant"
@@ -61,9 +62,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
+                android:text="@{restaurant.open_now ? @string/place_open : @string/place_close}"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
                 android:textSize="12sp"
-                android:text="@{restaurant.open_now ? @string/place_open : @string/place_close}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textViewAddress" />
@@ -117,6 +118,14 @@
                 app:layout_constraintEnd_toStartOf="@id/imageViewPhoto"
                 app:layout_constraintTop_toBottomOf="@id/workmates_count" />
 
+            <ProgressBar
+                android:id="@+id/progressBarImage"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="10dp"
+                android:visibility="@{restaurant.photoUrl  != null  ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/imageViewPhoto"
@@ -124,10 +133,11 @@
                 android:layout_height="60dp"
                 android:contentDescription="@string/google_place_image"
                 android:scaleType="centerCrop"
+                app:imageFromUrl="@{restaurant.photoUrl}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:imageFromUrl="@{restaurant.photoUrl}"
-                app:placeholder="@{@drawable/ic_baseline_restaurant_24}"
+                app:placeHolder="@{@drawable/ic_baseline_restaurant_24}"
+                app:progressBar="@{progressBarImage}"
                 app:srcCompat="@drawable/ic_baseline_restaurant_24" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

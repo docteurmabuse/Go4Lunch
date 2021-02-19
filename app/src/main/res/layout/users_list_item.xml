@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="workmates"
             type="com.tizzone.go4lunch.models.User" />
@@ -36,36 +38,30 @@
                 app:circlePlaceholder="@{@drawable/ic_baseline_workmates_black_circle_24}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                app:progressBar="@{progressBarImageUser}"
                 tools:srcCompat="@mipmap/ic_workmates" />
+
+            <ProgressBar
+                android:id="@+id/progressBarImageUser"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:layout_marginStart="10dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/isLunchingText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
                 android:layout_marginEnd="5dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginStart="10dp"
                 app:layout_constraintStart_toEndOf="@id/avatarView"
                 app:layout_constraintTop_toTopOf="@+id/avatarView"
                 app:restaurantName="@{restaurant.name}"
                 app:userName="@{workmates.userName}" />
-
-            <!--            <androidx.appcompat.widget.AppCompatTextView-->
-            <!--                android:id="@+id/avatarTextView"-->
-            <!--                style="@style/TextAppearance.MaterialComponents.Body2"-->
-            <!--                android:layout_width="0dp"-->
-            <!--                android:layout_height="match_parent"-->
-            <!--                android:text="@{workmates.userName}"-->
-            <!--                android:layout_marginStart="10dp"-->
-            <!--                android:layout_marginEnd="5dp"-->
-            <!--                android:maxLines="2"-->
-            <!--                android:textStyle="bold"-->
-            <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-            <!--                app:layout_constraintEnd_toEndOf="@id/isLunchingText"-->
-            <!--                app:layout_constraintStart_toEndOf="@+id/avatarView"-->
-            <!--                app:layout_constraintTop_toTopOf="@+id/avatarView" />-->
-
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
