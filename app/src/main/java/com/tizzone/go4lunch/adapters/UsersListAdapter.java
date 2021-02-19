@@ -53,8 +53,8 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
         Resources resources = holder.itemView.getContext().getResources();
         if (user.getLunchSpot() != null) {
             if (holder.itemView.getContext() instanceof PlaceDetailActivity) {
-                String joiningText = resources.getString(R.string.joining_text, user.getUserName());
-                holder.userText.setText(joiningText);
+//                String joiningText = resources.getString(R.string.joining_text, user.getUserName());
+//                holder.userText.setText(joiningText);
             } else {
                 RestaurantHelper.getRestaurantsById(user.getLunchSpot()).addOnSuccessListener(documentSnapshot -> {
                     restaurant = documentSnapshot.toObject(Restaurant.class);

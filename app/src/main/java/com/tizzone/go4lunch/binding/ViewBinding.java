@@ -10,6 +10,7 @@ import androidx.databinding.BindingAdapter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.tizzone.go4lunch.R;
+import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 
 public class ViewBinding {
     @BindingAdapter(value = {"imageFromUrl", "placeholder"}, requireAll = false)
@@ -39,13 +40,19 @@ public class ViewBinding {
 
     @BindingAdapter(value = {"userName", "restaurantName"}, requireAll = false)
     public static void bindTextView(AppCompatTextView textView, String userName, String restaurantName) {
-        if (restaurantName == null) {
-            String notDecidedYet = String.format(textView.getResources().getString(R.string.not_decided), userName);
-            textView.setText(notDecidedYet);
+        if (textView.getContext() instanceof PlaceDetailActivity) {
+            String joiningText = String.format(textView.getResources().getString(R.string.joining_text), userName);
+            textView.setText(joiningText);
         } else {
-            String lunchingText = String.format(textView.getResources().getString(R.string.lunching_text), userName, restaurantName);
-            textView.setText(lunchingText);
-            textView.setTypeface(null, Typeface.BOLD);
+            if (restaurantName == null) {
+                String notDecidedYet = String.format(textView.getResources().getString(R.string.not_decided), userName);
+                textView.setText(notDecidedYet);
+            } else {
+                String lunchingText = String.format(textView.getResources().getString(R.string.lunching_text), userName, restaurantName);
+                textView.setText(lunchingText);
+                textView.setTypeface(null, Typeface.BOLD);
+            }
         }
+
     }
 }

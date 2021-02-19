@@ -269,7 +269,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
             public boolean onQueryTextChange(String newText) {
                 if (newText.length() > 2) {
                     searchView.setFocusable(false);
-                    placesViewModel.setPredictions(newText, currentLocation.latitude + "," + currentLocation.longitude, radius, SESSION_TOKEN, key);
+                    placesViewModel.setPredictions(newText, currentLocation.latitude + "," + currentLocation.longitude, radius, SESSION_TOKEN);
                     return true;
                 }
                 return true;

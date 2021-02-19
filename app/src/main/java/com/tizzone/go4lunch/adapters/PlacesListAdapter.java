@@ -6,8 +6,6 @@ import android.content.res.Resources;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -29,16 +27,13 @@ import java.util.List;
 public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.ViewHolder> {
 
     private static final String TAG = "ERROR";
-    private String mKey;
     private List<Restaurant> mPlaces;
-    public static final String DETAIL_PLACE = "detailPlace";
     private PlaceItemBinding binding;
     private LatLng currentLocation;
     private Context context;
 
 
-    public PlacesListAdapter(List<Restaurant> mPlaces) {
-        this.mPlaces = mPlaces;
+    public PlacesListAdapter() {
         notifyDataSetChanged();
     }
 
@@ -58,8 +53,6 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
         Resources resources = context.getResources();
         holder.placeItemBinding.setRestaurant(place);
         getUsersCountFromFirestore(place.getUid(), holder);
-        holder.ratingBar.setRating(place.getRating());
-
 
         if (place.getLocation() != null) {
             int mDistance = (int) Math.floor(SphericalUtil.computeDistanceBetween(currentLocation, place.getLocation()));
@@ -94,7 +87,6 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     }
 
     public void setPlaces(List<Restaurant> restaurants, LatLng currentLocation) {
-        // this.mPlaces.clear();
         this.mPlaces = restaurants;
         this.currentLocation = currentLocation;
         notifyDataSetChanged();
@@ -109,22 +101,12 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView workmatesCount;
-        public TextView textViewName;
-        public TextView textViewAddress;
-        public TextView textViewOpeningHours;
         public TextView distance;
-        public ImageView imageViewPhoto;
-        public RatingBar ratingBar;
         private final PlaceItemBinding placeItemBinding;
 
         public ViewHolder(PlaceItemBinding placeItemBinding) {
             super(placeItemBinding.getRoot());
             this.placeItemBinding = placeItemBinding;
-            textViewName = placeItemBinding.textViewName;
-            textViewAddress = placeItemBinding.textViewAddress;
-            textViewOpeningHours = placeItemBinding.textViewOpeningHours;
-            imageViewPhoto = placeItemBinding.imageViewPhoto;
-            ratingBar = placeItemBinding.rating;
             distance = placeItemBinding.distanceTextView;
             workmatesCount = placeItemBinding.workmatesCount;
         }

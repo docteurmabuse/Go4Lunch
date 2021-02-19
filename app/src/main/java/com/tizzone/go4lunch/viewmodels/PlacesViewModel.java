@@ -135,8 +135,8 @@ public class PlacesViewModel extends ViewModel {
                 .subscribe(restaurantMutableLiveData::setValue);
     }
 
-    public void setPredictions(String input, String location, int radius, int sessiontoken, String key) {
-        placeRepository.getPredictionsApi(input, location, radius, sessiontoken)
+    public void setPredictions(String input, String location, int radius, int sessionToken) {
+        placeRepository.getPredictionsApi(input, location, radius, sessionToken)
                 .subscribeOn(Schedulers.io())
                 .map(apiPredictions -> {
                     Log.e(TAG, "apply: " + apiPredictions.getPredictions().get(0).getPlaceId());

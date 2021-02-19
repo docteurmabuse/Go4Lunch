@@ -4,14 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
-            name="placesViewModel"
+            name="restaurantList"
             type="com.tizzone.go4lunch.viewmodels.PlacesViewModel" />
-
-        <variable
-            name="placesListAdapter"
-            type="com.tizzone.go4lunch.adapters.PlacesListAdapter" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -28,7 +23,6 @@
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
-            app:adapterRestaurantList="@{placesViewModel.restaurantsList}"
             tools:listitem="@layout/place_item" />
 
         <TextView
@@ -48,7 +42,7 @@
             android:id="@+id/progressbar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:gone="@{!placesViewModel.isLoading}"
+            app:gone="@{!restaurantList.isLoading}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
