@@ -87,9 +87,7 @@ public class ListViewFragment extends Fragment {
         //Init ViewModels
         placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
-//        fragmentListBinding.listViewPlaces.setLayoutManager(new LinearLayoutManager(getContext()));
-//        fragmentListBinding.setPlacesAdapter(placesListAdapter);
-//        fragmentListBinding.setLifecycleOwner(this);
+
         observeData();
     }
 
@@ -98,7 +96,6 @@ public class ListViewFragment extends Fragment {
         placesViewModel.getRestaurantsList().observe(requireActivity(), restaurantsList -> {
             Log.e(TAG, "onChanged: " + restaurantsList.size());
             placesListAdapter.setPlaces(restaurantsList, currentLocation);
-            //fragmentListBinding.listViewPlaces.setAdapter(placesListAdapter);
             restaurants = new ArrayList<>();
             restaurants.addAll(restaurantsList);
         });
@@ -115,21 +112,9 @@ public class ListViewFragment extends Fragment {
         });
     }
 
-    private void initRecycleView() {
-    /*    fragmentListBinding.listViewPlaces.setLayoutManager(new LinearLayoutManager(getContext()));
-        placesListAdapter = new PlacesListAdapter();
-        fragmentListBinding.listViewPlaces.setAdapter(placesListAdapter);*/
-    }
-
 
     public void onResume() {
         super.onResume();
-//        locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
-//            if (locationModel != null) {
-////                placesListAdapter.setCurrentLocation(locationModel.getLocation());
-////                this.currentLocation = locationModel.getLocation();
-//            }
-//        });
     }
 
     @Override

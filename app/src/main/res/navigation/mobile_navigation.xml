@@ -15,7 +15,13 @@
         android:id="@+id/navigation_list"
         android:name="com.tizzone.go4lunch.ui.list.ListViewFragment"
         android:label="@string/title_hungry"
-        tools:layout="@layout/fragment_list" />
+        tools:layout="@layout/fragment_list">
+        <action
+            android:id="@+id/action_navigation_list_to_placeDetailActivity2"
+            app:destination="@id/placeDetailActivity"
+            app:enterAnim="@anim/fui_slide_in_right"
+            app:exitAnim="@anim/fui_slide_out_left" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_workmates"
@@ -41,4 +47,8 @@
         android:name="com.tizzone.go4lunch.ui.settings.SlideshowFragment"
         android:label="@string/menu_settings"
         tools:layout="@layout/fragment_slideshow" />
+    <activity
+        android:id="@+id/placeDetailActivity"
+        android:name="com.tizzone.go4lunch.ui.list.PlaceDetailActivity"
+        android:label="PlaceDetailActivity" />
 </navigation>

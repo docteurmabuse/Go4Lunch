@@ -3,6 +3,7 @@ package com.tizzone.go4lunch.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -63,7 +64,9 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
         holder.itemView.setOnClickListener(view -> {
             final Context context = holder.itemView.getContext();
             Intent intent = new Intent(context, PlaceDetailActivity.class);
-            intent.putExtra("RESTAURANT", place.getUid());
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("RESTAURANT", place);
+            intent.putExtras(bundle);
             context.startActivity(intent);
         });
     }

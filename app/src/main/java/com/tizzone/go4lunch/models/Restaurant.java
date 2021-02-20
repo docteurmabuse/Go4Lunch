@@ -1,5 +1,8 @@
 package com.tizzone.go4lunch.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 import androidx.databinding.PropertyChangeRegistry;
@@ -11,7 +14,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 
-public class Restaurant extends BaseObservable implements Serializable {
+
+public class Restaurant extends BaseObservable implements Serializable, Parcelable {
     private String uid;
     private int restaurant_counter;
     private String name;
@@ -34,8 +38,25 @@ public class Restaurant extends BaseObservable implements Serializable {
     private String phone;
 
 
+    public static final Creator<Restaurant> CREATOR = new Creator<Restaurant>() {
+        @Override
+        public Restaurant createFromParcel(Parcel in) {
+            return new Restaurant(in);
+        }
+
+        @Override
+        public Restaurant[] newArray(int size) {
+            return new Restaurant[size];
+        }
+    };
+
+
+    public Restaurant() {
+
+    }
+
     public Restaurant(String uid, String name, String address, @Nullable String photoUrl, @Nullable Float rating, int restaurant_counter, @Nullable Boolean open_now, @Nullable
-            Double latitude, Double longitude, String websiteUrl, String phone) {
+            Double latitude, @Nullable Double longitude, @Nullable String websiteUrl, @Nullable String phone) {
         this.uid = uid;
         this.restaurant_counter = restaurant_counter;
         this.name = name;
@@ -49,9 +70,31 @@ public class Restaurant extends BaseObservable implements Serializable {
         this.phone = phone;
     }
 
-
-    public Restaurant() {
-
+    protected Restaurant(Parcel in) {
+        uid = in.readString();
+        restaurant_counter = in.readInt();
+        name = in.readString();
+        address = in.readString();
+        if (in.readByte() == 0) {
+            latitude = null;
+        } else {
+            latitude = in.readDouble();
+        }
+        if (in.readByte() == 0) {
+            longitude = null;
+        } else {
+            longitude = in.readDouble();
+        }
+        photoUrl = in.readString();
+        if (in.readByte() == 0) {
+            rating = null;
+        } else {
+            rating = in.readFloat();
+        }
+        byte tmpOpen_now = in.readByte();
+        open_now = tmpOpen_now == 0 ? null : tmpOpen_now == 1;
+        websiteUrl = in.readString();
+        phone = in.readString();
     }
 
     public LatLng getLocation() {
@@ -172,4 +215,55 @@ public class Restaurant extends BaseObservable implements Serializable {
         registry.remove(callback);
     }
 
+    /**
+     * Describe the kinds of special objects contained in this Parcelable
+     * instance's marshaled representation. For example, if the object will
+     * include a file descriptor in the output of {@link #writeToParcel(Parcel, int)},
+     * the return value of this method must include the
+     * {@link #CONTENTS_FILE_DESCRIPTOR} bit.
+     *
+     * @return a bitmask indicating the set of special object types marshaled
+     * by this Parcelable object instance.
+     */
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    /**
+     * Flatten this object in to a Parcel.
+     *
+     * @param dest  The Parcel in which the object should be written.
+     * @param flags Additional flags about how the object should be written.
+     *              May be 0 or {@link #PARCELABLE_WRITE_RETURN_VALUE}.
+     */
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(uid);
+        dest.writeInt(restaurant_counter);
+        dest.writeString(name);
+        dest.writeString(address);
+        if (latitude == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeDouble(latitude);
+        }
+        if (longitude == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeDouble(longitude);
+        }
+        dest.writeString(photoUrl);
+        if (rating == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeFloat(rating);
+        }
+        dest.writeByte((byte) (open_now == null ? 0 : open_now ? 1 : 2));
+        dest.writeString(websiteUrl);
+        dest.writeString(phone);
+    }
 }

@@ -435,7 +435,9 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     private void viewRestaurantDetail(Restaurant restaurant) {
         final Context context = getContext();
         Intent intent = new Intent(context, PlaceDetailActivity.class);
-        intent.putExtra("RESTAURANT", restaurant.getUid());
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("RESTAURANT", restaurant);
+        intent.putExtras(bundle);
         context.startActivity(intent);
     }
 

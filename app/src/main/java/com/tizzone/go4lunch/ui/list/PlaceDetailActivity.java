@@ -146,9 +146,11 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         }
 
         initViews();
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            currentPlaceId = extras.getString("RESTAURANT");
+        Intent intent = this.getIntent();
+        if (intent != null) {
+            restaurant = (Restaurant) intent.getSerializableExtra("RESTAURANT");
+            placeDetailBinding.setRestaurant(restaurant);
+            currentPlaceId = restaurant.getUid();
             placesViewModel.setRestaurant(currentPlaceId);
             addOnOffsetChangedListener();
         }
