@@ -3,6 +3,7 @@ package com.tizzone.go4lunch.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -117,7 +118,9 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
                 itemView.setOnClickListener(view -> {
                     final Context context = itemView.getContext();
                     Intent intent = new Intent(context, PlaceDetailActivity.class);
-                    intent.putExtra("RESTAURANT", restaurant.getUid());
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("RESTAURANT", restaurant);
+                    intent.putExtras(bundle);
                     context.startActivity(intent);
                 });
 
