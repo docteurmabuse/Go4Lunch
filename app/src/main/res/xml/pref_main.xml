@@ -1,23 +1,20 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory android:title="General">
-
-
         <ListPreference
             android:defaultValue="1000"
             android:entries="@array/pref_radius_entries"
             android:entryValues="@array/pref_radius_values"
             android:key="list_preference_1"
             android:title="Radius" />
-        <Preference
-            app:key="feedback"
-            app:summary="Report technical issues or suggest new features"
-            app:title="Send feedback" />
+        <!--        <Preference-->
+        <!--            app:key="feedback"-->
+        <!--            app:summary="Report technical issues or suggest new features"-->
+        <!--            app:title="Send feedback" />-->
     </PreferenceCategory>
     <PreferenceCategory android:title="Notification">
         <SwitchPreferenceCompat
             app:key="notifications"
-            app:title="Enable message notifications" />
+            app:title="@string/notifications_label" />
     </PreferenceCategory>
-
 </PreferenceScreen>

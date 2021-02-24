@@ -57,25 +57,6 @@ public class AppModule {
         return new FirebaseDataSource(firebaseFirestore);
     }
 
-//    @Singleton
-//    @Provides
-//    static UserViewModel provideUserViewModel( SavedStateHandle savedStateHandle,UserRepository userRepository) {
-//        return new UserViewModel(savedStateHandle, userRepository);
-//    }
-//
-//    @Singleton
-//    @Provides
-//    static PlacesViewModel providePlaceViewModel(PlaceRepository placeRepository, SavedStateHandle savedStateHandle) {
-//        return new PlacesViewModel(placeRepository,savedStateHandle);
-//    }
-
-
-//    @Singleton
-//    @Provides
-//    String provideString() {
-//        return "Helloo this inject working";
-//    }
-
     @Singleton
     @Provides
     static Boolean provideBoolean(boolean isWorkmates) {

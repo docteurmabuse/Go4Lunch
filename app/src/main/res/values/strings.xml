@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">Go4Lunch</string>
+    <string name="twitter_consumer_key" translatable="false">
+					856958671749775360-zigDhcOew8Fg7GwHPsTVrOtOoTEyukM</string>
+
+    <string name="twitter_consumer_secret" translatable="false">
+					Wx27TEzHTkITClUoejfQ8QH3cDqDjzzvYoUW1ylYF36Jd</string>
+
     <string name="title_activity_bottom_navigation">Navigation activity</string>
     <string name="title_map_view">Map View</string>
     <string name="title_hungry">I\'m Hungry!</string>
@@ -63,6 +69,9 @@
     <string name="notification_lunching_text">You\'re lunching at %1$s on %2$s with %3$s</string>
     <string name="msg_subscribed">subscribed</string>
     <string name="msg_subscribe_failed">subsribed failed</string>
+    <string name="notifications_label">Enable message notifications</string>
+    <string name="email_connexion">Sign in by email</string>
+    <string name="fui_sign_in_with_twittern">Sign in with Twitter</string>
 
 
 </resources>

@@ -48,9 +48,6 @@ public class NetworkModule {
 
     @Provides
     public OkHttpClient provideHttpClient() {
-        // HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
-        //httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-
         File httpCacheDirectory = new File(getCacheDir(), "offlineCache");
 
         //10 MB

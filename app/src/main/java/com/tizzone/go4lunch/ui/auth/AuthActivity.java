@@ -83,6 +83,7 @@ public class AuthActivity extends BaseActivity {
                 .setGoogleButtonId(R.id.google_signin)
                 .setFacebookButtonId(R.id.facebook_signin)
                 .setEmailButtonId(R.id.email_signin)
+                .setTwitterButtonId(R.id.twitter_signin)
                 // .setTosAndPrivacyPolicyId(R.id.baz)
                 .build();
 
@@ -90,7 +91,8 @@ public class AuthActivity extends BaseActivity {
                 new AuthUI.IdpConfig.EmailBuilder().build(),
                 //  new AuthUI.IdpConfig.PhoneBuilder().build(),
                 new AuthUI.IdpConfig.GoogleBuilder().build(),
-                new AuthUI.IdpConfig.FacebookBuilder().build());
+                new AuthUI.IdpConfig.FacebookBuilder().build(),
+                new AuthUI.IdpConfig.TwitterBuilder().build());
 
         startActivityForResult(AuthUI.getInstance()
                 .createSignInIntentBuilder()

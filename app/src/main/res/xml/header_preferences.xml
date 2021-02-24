@@ -9,27 +9,14 @@
             android:key="radius"
             android:title="Radius"
             app:useSimpleSummaryProvider="true" />
-        <Preference
-            app:key="feedback"
-            app:summary="Report technical issues or suggest new features"
-            app:title="Send feedback" />
+        <!--        <Preference-->
+        <!--            app:key="feedback"-->
+        <!--            app:summary="Report technical issues or suggest new features"-->
+        <!--            app:title="Send feedback" />-->
     </PreferenceCategory>
     <PreferenceCategory android:title="Notification">
         <SwitchPreferenceCompat
             app:key="notifications"
-            app:title="Enable message notifications" />
+            app:title="@string/notifications_label" />
     </PreferenceCategory>
-
-    <Preference
-        app:fragment="com.tizzone.go4lunch.ui.settings.SettingsActivity$MessagesFragment"
-        app:icon="@drawable/messages"
-        app:key="messages_header"
-        app:title="@string/messages_header" />
-
-    <Preference
-        app:fragment="com.tizzone.go4lunch.ui.settings.SettingsActivity$SyncFragment"
-        app:icon="@drawable/sync"
-        app:key="sync_header"
-        app:title="@string/sync_header" />
-
 </PreferenceScreen>
