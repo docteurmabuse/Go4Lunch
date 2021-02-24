@@ -222,9 +222,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 .setAutoCancel(true);
     }
 
-
     private void addOnOffsetChangedListener() {
-
         // Set title of Detail page
         appbar.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
             if (Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() == 0) {
@@ -250,7 +248,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
     private void fabOnClickListener() {
         getUserDataFromFirestore();
-
         addSpotLunch.setOnClickListener(view -> {
             if (!isLunchSpot) {
                 addLunchSpotInFirebase();

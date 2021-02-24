@@ -18,23 +18,24 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityMainBinding;
 import com.tizzone.go4lunch.databinding.NavHeaderMainBinding;
+import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.ui.MainFragmentFactory;
 import com.tizzone.go4lunch.ui.MainNavHostFragment;
 import com.tizzone.go4lunch.ui.auth.AuthActivity;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.ui.settings.SettingsActivity;
+import com.tizzone.go4lunch.utils.UserHelper;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
 import javax.inject.Inject;
@@ -198,14 +199,13 @@ public class MainActivity extends BaseActivity {
 
     private void updateProfileWhenCreating() {
         if (this.getCurrentUser() != null) {
-            navHeaderMainBinding.profileName.setText(this.getCurrentUser().getDisplayName());
-            navHeaderMainBinding.profileEmail.setText(this.getCurrentUser().getEmail());
-            if (this.getCurrentUser().getDisplayName() != null) {
-                Glide.with(this)
-                        .load(this.getCurrentUser().getPhotoUrl())
-                        .apply(RequestOptions.circleCropTransform())
-                        .into(navHeaderMainBinding.profilePicture);
-            }
+            UserHelper.getUser(this.getCurrentUser().getUid()).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    User user = documentSnapshot.toObject(User.class);
+                    navHeaderMainBinding.setUser(user);
+                }
+            });
         }
     }
 
@@ -226,23 +226,6 @@ public class MainActivity extends BaseActivity {
         Intent intent = new Intent(this, AuthActivity.class);
         startActivity(intent);
     }
-
-//    private void createNotificationChannel() {
-//
-//        // Create the NotificationChannel, but only on API 26+ because
-//        // the NotificationChannel class is new and not in the support library
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            CharSequence name = getString(R.string.channel_name);
-//            String description = getString(R.string.channel_description);
-//            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-//            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-//            channel.setDescription(description);
-//            // Register the channel with the system; you can't change the importance
-//            // or other notification behaviors after this
-//            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-//            notificationManager.createNotificationChannel(channel);
-//        }
-//    }
 
     @Override
     protected void onDestroy() {

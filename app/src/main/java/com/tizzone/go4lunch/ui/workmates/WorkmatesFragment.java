@@ -44,10 +44,7 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
     private RecyclerView workmatesRecyclerView;
     private UsersListAdapter adapter;
     private TextView textView;
-    private String uid;
-
     public UserViewModel userViewModel;
-
 
     public WorkmatesFragment() {
         // Required empty public constructor
@@ -79,10 +76,6 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
                 System.out.println("ViewModel is working" + user.getUserName());
             }
 
-            //new ArrayList<>(firebaseDataSource.getWorkmates(this.getArguments().getString("userId")));
-            // Log.e("Fragment si working", userViewModel.getUsersLiveData().getValue().addAll(User.class);
-
-            //Log.e("Workmates User name is", user.getUserName());
         });
         adapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getWorkmates(uid).orderBy("uid").orderBy("userName")), this);
 
@@ -118,10 +111,6 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
         super.onStop();
         adapter.stopListening();
     }
-
-    // --------------------
-    // CALLBACK
-    // --------------------
 
     @Override
     public void onDataChanged() {
