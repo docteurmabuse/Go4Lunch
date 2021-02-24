@@ -22,10 +22,9 @@ import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 public class ViewBinding {
     @BindingAdapter(value = {"imageFromUrl", "placeHolder", "progressBar"}, requireAll = false)
     public static void bindImageFromUrl(AppCompatImageView imageView, String imageFromUrl, Drawable placeHolder, ProgressBar progressBar) {
-        if (imageFromUrl != null) {
+        if (imageFromUrl != null && imageFromUrl.startsWith("https")) {
             Glide.with(imageView.getContext())
                     .load(imageFromUrl)
-                    .placeholder(placeHolder)
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .listener(new RequestListener<Drawable>() {
                         @Override
