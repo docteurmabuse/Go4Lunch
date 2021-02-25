@@ -5,12 +5,11 @@ import android.util.Log;
 import androidx.lifecycle.MutableLiveData;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.utils.FirebaseDataSource;
-import com.tizzone.go4lunch.utils.UserHelper;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -21,37 +20,14 @@ import static android.content.ContentValues.TAG;
 
 public class UserRepository {
 
+    private final Query queryUsersByName;
     private final FirebaseDataSource firebaseDataSource;
-    private UserHelper userHelper;
+
 
     @Inject
-    public UserRepository(FirebaseDataSource firebaseDataSource) {
+    public UserRepository(Query queryUsersByName, FirebaseDataSource firebaseDataSource) {
+        this.queryUsersByName = queryUsersByName;
         this.firebaseDataSource = firebaseDataSource;
-    }
-
-
-    public MutableLiveData<List<User>> getFirebaseUsersLunch(String uid) {
-        MutableLiveData<List<User>> firebaseUsersLunch = new MutableLiveData<>();
-        UserHelper.getUsersLunchSpot(uid).
-                addSnapshotListener((value, error) -> {
-                    if (error != null) {
-                        Log.w(TAG, "Listener failed.", error);
-                        List<User> wRestaurants = new ArrayList<>();
-                        firebaseUsersLunch.setValue(wRestaurants);
-
-                    } else {
-                        int usersCount = value.size();
-                        firebaseUsersLunch.setValue(value.toObjects(User.class));
-                    }
-                });
-        return firebaseUsersLunch;
-    }
-
-
-    public MutableLiveData<List<User>> getFirebaseUsers() {
-        MutableLiveData<List<User>> firebaseUsers = new MutableLiveData<>();
-        UserHelper.getUsers().addOnCompleteListener(task -> firebaseUsers.setValue(task.getResult().toObjects(User.class)));
-        return firebaseUsers;
     }
 
     public FirestoreRecyclerOptions<User> getUserList() {
@@ -67,8 +43,30 @@ public class UserRepository {
         return firebaseDataSource.getWorkmates(currentUserId);
     }
 
+    public MutableLiveData<List<User>> getFirebaseUsersLunch(String uid) {
+        MutableLiveData<List<User>> firebaseUsersLunch = new MutableLiveData<>();
+        queryUsersByName.whereNotEqualTo("uid", uid).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                int usersCount = task.getResult().size();
+                firebaseUsersLunch.setValue(task.getResult().toObjects(User.class));
+            } else {
+                Log.w(TAG, "Listener failed.", task.getException());
 
-    public String doAThing() {
-        return "Injection work";
+            }
+        });
+        return firebaseUsersLunch;
+    }
+
+
+    public MutableLiveData<List<User>> getFirebaseUsers() {
+        MutableLiveData<List<User>> firebaseUsers = new MutableLiveData<>();
+        queryUsersByName.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                firebaseUsers.setValue(task.getResult().toObjects(User.class));
+            } else {
+                Log.w(TAG, "Listener failed.", task.getException());
+            }
+        });
+        return firebaseUsers;
     }
 }

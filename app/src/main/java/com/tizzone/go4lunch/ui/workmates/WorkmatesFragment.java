@@ -23,9 +23,6 @@ import com.tizzone.go4lunch.utils.FirebaseDataSource;
 import com.tizzone.go4lunch.utils.UserHelper;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -65,19 +62,18 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
         View root = workmatesBinding.getRoot();
         textView = workmatesBinding.textNotifications;
         workmatesRecyclerView = workmatesBinding.workmatesRecyclerView;
-        getWorkmatesList(this.getArguments().getString("userId"));
+        getWorkmatesList();
         return root;
     }
 
-    private void getWorkmatesList(String uid) {
-        List<User> usersTest = new ArrayList<>();
-        userViewModel.getFirebaseUsers().observe(getViewLifecycleOwner(), users -> {
-            for (User user : users) {
-                System.out.println("ViewModel is working" + user.getUserName());
+    private void getWorkmatesList() {
+        userViewModel.getUsersLiveData().observe(getViewLifecycleOwner(), users1 -> {
+            for (User user : users1) {
+                System.out.println("ViewModel is working in workmatesFragment" + user.getUserName());
             }
-
         });
-        adapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getWorkmates(uid).orderBy("uid").orderBy("userName")), this);
+        String uid = this.getArguments().getString("userId");
+        adapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getWorkmates(uid)), this);
 
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -116,7 +112,6 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
     public void onDataChanged() {
         textView.setVisibility(this.adapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
     }
-
 
     @Override
     public void onDestroyView() {

@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Objects;
 
 import static android.content.ContentValues.TAG;
+import static com.tizzone.go4lunch.utils.Constants.RC_SIGN_IN;
 
 public class AuthActivity extends BaseActivity {
-    private static final int RC_SIGN_IN = 9903;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private List<AuthUI.IdpConfig> providers;
@@ -38,7 +38,22 @@ public class AuthActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        this.handleResponseAfterSignIn(requestCode, resultCode, data);
+        if (requestCode == RC_SIGN_IN) {
+            IdpResponse response = IdpResponse.fromResultIntent(data);
+            if (resultCode == RESULT_OK) { // SUCCESS
+                this.createUserInFirestore();
+                this.startMainActivity();
+                showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
+            } else { // ERRORS
+                if (response == null) {
+                    showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));
+                } else if (Objects.requireNonNull(response.getError()).getErrorCode() == ErrorCodes.NO_NETWORK) {
+                    showSnackBar(this.coordinatorLayout, getString(R.string.error_no_internet));
+                } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
+                    showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
+                }
+            }
+        }
     }
 
     @Override
@@ -114,45 +129,13 @@ public class AuthActivity extends BaseActivity {
         startActivity(intent);
     }
 
-    // --------------------
-    // REST REQUEST
-    // --------------------
-
     private void createUserInFirestore() {
-
         if (this.getCurrentUser() != null) {
-
             String urlPicture = (this.getCurrentUser().getPhotoUrl() != null) ? this.getCurrentUser().getPhotoUrl().toString() : null;
             String username = this.getCurrentUser().getDisplayName();
             String uid = this.getCurrentUser().getUid();
             String userEmail = this.getCurrentUser().getEmail();
             UserHelper.createUser(uid, userEmail, username, urlPicture, null, null).addOnFailureListener(this.onFailureListener());
-        }
-    }
-
-
-    // --------------------
-    // UTILS
-    // --------------------
-
-    private void handleResponseAfterSignIn(int requestCode, int resultCode, Intent data) {
-
-        IdpResponse response = IdpResponse.fromResultIntent(data);
-
-        if (requestCode == RC_SIGN_IN) {
-            if (resultCode == RESULT_OK) { // SUCCESS
-                this.createUserInFirestore();
-                this.startMainActivity();
-                showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
-            } else { // ERRORS
-                if (response == null) {
-                    showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));
-                } else if (Objects.requireNonNull(response.getError()).getErrorCode() == ErrorCodes.NO_NETWORK) {
-                    showSnackBar(this.coordinatorLayout, getString(R.string.error_no_internet));
-                } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
-                    showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
-                }
-            }
         }
     }
 }

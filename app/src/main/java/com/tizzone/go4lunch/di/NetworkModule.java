@@ -2,6 +2,8 @@ package com.tizzone.go4lunch.di;
 
 import com.tizzone.go4lunch.network.PlacesApiService;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -15,6 +17,7 @@ import dagger.hilt.components.SingletonComponent;
 import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory;
 import okhttp3.Cache;
 import okhttp3.CacheControl;
+import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -32,8 +35,9 @@ public class NetworkModule {
     @Provides
     @Singleton
     public PlacesApiService provideGooglePlacesApiService(OkHttpClient httpClient) {
+        HttpUrl baseUrl = HttpUrl.get("https://maps.googleapis.com/maps/api/");
         return new Retrofit.Builder()
-                .baseUrl("https://maps.googleapis.com/maps/api/")
+                .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                 .client(httpClient)
@@ -64,8 +68,10 @@ public class NetworkModule {
     public Interceptor provideOfflineCacheInterceptor() {
 
         return new Interceptor() {
+
+            @NotNull
             @Override
-            public Response intercept(Chain chain) throws IOException {
+            public Response intercept(@NotNull Chain chain) throws IOException {
                 try {
                     return chain.proceed(chain.request());
                 } catch (Exception e) {
@@ -88,31 +94,28 @@ public class NetworkModule {
     @Provides
     public Interceptor provideCacheInterceptor() {
 
-        return new Interceptor() {
-            @Override
-            public Response intercept(Chain chain) throws IOException {
-                Request request = chain.request();
-                Response originalResponse = chain.proceed(request);
-                String cacheControl = originalResponse.header("Cache-Control");
+        return chain -> {
+            Request request = chain.request();
+            Response originalResponse = chain.proceed(request);
+            String cacheControl = originalResponse.header("Cache-Control");
 
-                if (cacheControl == null || cacheControl.contains("no-store") || cacheControl.contains("no-cache") ||
-                        cacheControl.contains("must-revalidate") || cacheControl.contains("max-stale=0")) {
+            if (cacheControl == null || cacheControl.contains("no-store") || cacheControl.contains("no-cache") ||
+                    cacheControl.contains("must-revalidate") || cacheControl.contains("max-stale=0")) {
 
 
-                    CacheControl cc = new CacheControl.Builder()
-                            .maxStale(1, TimeUnit.DAYS)
-                            .build();
+                CacheControl cc = new CacheControl.Builder()
+                        .maxStale(1, TimeUnit.DAYS)
+                        .build();
 
 
-                    request = request.newBuilder()
-                            .cacheControl(cc)
-                            .build();
+                request = request.newBuilder()
+                        .cacheControl(cc)
+                        .build();
 
-                    return chain.proceed(request);
+                return chain.proceed(request);
 
-                } else {
-                    return originalResponse;
-                }
+            } else {
+                return originalResponse;
             }
         };
 

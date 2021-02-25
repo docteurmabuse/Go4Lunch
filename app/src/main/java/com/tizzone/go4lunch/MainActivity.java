@@ -7,20 +7,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -36,25 +31,21 @@ import com.tizzone.go4lunch.ui.auth.AuthActivity;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.ui.settings.SettingsActivity;
 import com.tizzone.go4lunch.utils.UserHelper;
-import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+import static com.tizzone.go4lunch.utils.Constants.lunchSpotId;
+import static com.tizzone.go4lunch.utils.Constants.myPreference;
+
 @AndroidEntryPoint
 public class MainActivity extends BaseActivity {
-    private static final int SIGN_OUT_TASK = 25;
     private static final String TAG = "MainActivity";
     private ActivityMainBinding mBinding;
     private AppBarConfiguration mAppBarConfiguration;
     private NavHeaderMainBinding navHeaderMainBinding;
-    public static final String lunchSpotId = "lunchSpotId";
-    public static final String myPreference = "mypref";
     private SharedPreferences sharedPreferences;
-    private static final String CHANNEL_ID = "4578";
-    private UserViewModel userViewModel;
-
 
     @Inject
     public MainFragmentFactory fragmentFactory;
@@ -66,17 +57,13 @@ public class MainActivity extends BaseActivity {
         initNotifications();
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         mBinding.setNavigationItemSelectedListener(this);
-       // createNotificationChannel();
         View view = mBinding.getRoot();
         setContentView(view);
-
-        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         MainNavHostFragment navHostFragment =
                 (MainNavHostFragment) getSupportFragmentManager()
                         .findFragmentById(R.id.nav_host_fragment);
         NavController navController = navHostFragment.getNavController();
-        NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.my_graph);
 
         sharedPreferences = getSharedPreferences(myPreference,
                 Context.MODE_PRIVATE);
@@ -96,34 +83,17 @@ public class MainActivity extends BaseActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
-        //navController.setGraph(R.navigation.mobile_navigation);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-//                ConfirmationAction action =
-//                        SpecifyAmountFragmentDirections.confirmationAction();
-//                action.setAmount(amount);
-//                Navigation.findNavController(view).navigate(action);
             int id = item.getItemId();
             if (id == R.id.navigation_map) {
-//                    getSupportFragmentManager().setFragmentFactory(fragmentFactory);
-//                    getSupportFragmentManager().beginTransaction()
-//                            .replace(R.id.nav_host_fragment, MapFragment.class, null)
-//                            .commit();
                 navController.navigate(id);
             } else if (id == R.id.navigation_list) {
                 navController.navigate(id);
-//                    getSupportFragmentManager().setFragmentFactory(fragmentFactory);
-//                    getSupportFragmentManager().beginTransaction()
-//                            .replace(R.id.nav_host_fragment, ListViewFragment.class, null)
-//                            .commit();
             } else if (id == R.id.navigation_workmates) {
                 Bundle bundle = new Bundle();
                 bundle.putString("userId", uid);
                 navController.navigate(id, bundle);
-             //   getSupportFragmentManager().setFragmentFactory(fragmentFactory);
-//                    getSupportFragmentManager().beginTransaction()
-//                            .replace(R.id.nav_host_fragment, WorkmatesFragment.class, null)
-//                            .commit();
             }
             return true;
         });
@@ -158,9 +128,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void initNotifications() {
-
         // Handle possible data accompanying notification message.
-        // [START handle_data_extras]
         if (getIntent().getExtras() != null) {
             for (String key : getIntent().getExtras().keySet()) {
                 Object value = getIntent().getExtras().get(key);
@@ -168,22 +136,16 @@ public class MainActivity extends BaseActivity {
             }
         }
         FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(new OnCompleteListener<String>() {
-                    @Override
-                    public void onComplete(@NonNull Task<String> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
-                            return;
-                        }
-
-                        // Get new FCM registration token
-                        String token = task.getResult();
-
-                        // Log and toast
-                        String msg = getString(R.string.msg_token_fmt, token);
-                        Log.d(TAG, msg);
-                        //Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                        return;
                     }
+                    // Get new FCM registration token
+                    String token = task.getResult();
+                    // Log and toast
+                    String msg = getString(R.string.msg_token_fmt, token);
+                    Log.d(TAG, msg);
                 });
     }
 

@@ -25,9 +25,9 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     //FOR COMMUNICATION
     private final Listener callback;
     private UsersListItemBinding userBinding;
+    private String currentUserId;
 
-    public UsersListAdapter(FirestoreRecyclerOptions<User> options, Listener callback
-    ) {
+    public UsersListAdapter(FirestoreRecyclerOptions<User> options, Listener callback) {
         super(options);
         this.options = options;
         this.callback = callback;
@@ -44,16 +44,16 @@ public class UsersListAdapter extends FirestoreRecyclerAdapter<User, UsersListAd
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User user) {
         holder.userBinding.setWorkmates(user);
         if (user.getLunchSpot() != null) {
-                RestaurantHelper.getRestaurantsById(user.getLunchSpot()).addOnSuccessListener(documentSnapshot -> {
-                    restaurant = documentSnapshot.toObject(Restaurant.class);
-                    holder.userBinding.setRestaurant(restaurant);
-                });
-                holder.itemView.setOnClickListener(view -> {
-                    Intent intent = new Intent(context, PlaceDetailActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("RESTAURANT", restaurant);
-                    intent.putExtras(bundle);
-                    context.startActivity(intent);
+            RestaurantHelper.getRestaurantsById(user.getLunchSpot()).addOnSuccessListener(documentSnapshot -> {
+                restaurant = documentSnapshot.toObject(Restaurant.class);
+                holder.userBinding.setRestaurant(restaurant);
+            });
+            holder.itemView.setOnClickListener(view -> {
+                Intent intent = new Intent(context, PlaceDetailActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("RESTAURANT", restaurant);
+                intent.putExtras(bundle);
+                context.startActivity(intent);
                 });
         }
     }

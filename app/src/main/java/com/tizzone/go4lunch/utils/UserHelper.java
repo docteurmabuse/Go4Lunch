@@ -5,15 +5,15 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.tizzone.go4lunch.models.User;
 
 import java.util.List;
+
+import static com.google.firebase.firestore.Query.Direction.ASCENDING;
+import static com.tizzone.go4lunch.utils.Constants.COLLECTION_NAME;
+
 public class UserHelper {
-    private static final String COLLECTION_NAME = "users";
-
-// --- COLLECTION REFERENCE ---
-
+    // --- COLLECTION REFERENCE ---
     public static CollectionReference getUsersCollection() {
         return FirebaseFirestore.getInstance().collection(COLLECTION_NAME);
     }
@@ -32,8 +32,10 @@ public class UserHelper {
     }
 
 
-    public static Task<QuerySnapshot> getUsers() {
-        return UserHelper.getUsersCollection().get();
+    public static Query getUsers() {
+
+        return UserHelper.getUsersCollection()
+                .orderBy("userName", ASCENDING);
     }
 
 
@@ -42,7 +44,10 @@ public class UserHelper {
     }
 
     public static Query getWorkmates(String uid) {
-        return getUsersCollection().whereNotEqualTo("uid", uid);
+        return getUsersCollection()
+                .orderBy("uid")
+                .orderBy("userName", ASCENDING)
+                .whereNotEqualTo("uid", uid);
     }
 
     public static Query getUsersLunchSpot(String lunchSpot) {
@@ -74,7 +79,6 @@ public class UserHelper {
     public static Task<Void> updateLunchSpot(String lunchSpot, String uid) {
         return UserHelper.getUsersCollection().document(uid).update("lunchSpot", lunchSpot);
     }
-
 
     // --- DELETE ---
     public static Task<Void> deleteUser(String uid) {

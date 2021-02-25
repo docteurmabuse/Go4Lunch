@@ -18,9 +18,11 @@ import javax.inject.Inject;
 
 import io.reactivex.rxjava3.core.BackpressureStrategy;
 import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.FlowableEmitter;
+
+import static com.tizzone.go4lunch.utils.Constants.COLLECTION_NAME;
 
 public class FirebaseDataSource {
-    private static final String COLLECTION_NAME = "users";
     private final FirebaseFirestore firebaseFirestore;
     private static final String TAG = "FirebaseAuthAppTag";
 
@@ -55,19 +57,7 @@ public class FirebaseDataSource {
     }
 
     public Flowable<QuerySnapshot> getUsers() {
-        return Flowable.create((emitter -> {
-            CollectionReference reference = firebaseFirestore.collection(COLLECTION_NAME);
-            final ListenerRegistration registration = reference.addSnapshotListener((documentSnapshot, e) -> {
-                if (e != null) {
-                    emitter.onError(e);
-                }
-                if (documentSnapshot != null) {
-                    emitter.onNext(documentSnapshot);
-                }
-            });
-            emitter.setCancellable(registration::remove);
-
-        }), BackpressureStrategy.BUFFER);
+        return Flowable.create((this::subscribe), BackpressureStrategy.BUFFER);
     }
 
     //Firestore users List
@@ -87,5 +77,20 @@ public class FirebaseDataSource {
                     }
                 });
         return workmatesList;
+    }
+
+    private void subscribe(FlowableEmitter<QuerySnapshot> emitter) {
+        CollectionReference reference = firebaseFirestore.collection(COLLECTION_NAME);
+        final ListenerRegistration registration = (ListenerRegistration) reference.get()
+                .addOnCompleteListener(task -> {
+                    emitter.onNext(task.getResult());
+                })
+                .addOnFailureListener(e -> {
+                    if (e != null) {
+                        emitter.onError(e);
+                    }
+                });
+        emitter.setCancellable(registration::remove);
+
     }
 }

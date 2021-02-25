@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -60,17 +59,14 @@ public class UserViewModel extends ViewModel {
     public LiveData<String> getCurrentUserId() {
         return userIdLiveData;
     }
-//    public MutableLiveData<List<User>> addUserToLiveData(String restaurantId) {
-//        return userRepository.getFirebaseUsersLunch(restaurantId);
-//    }
 
     public MutableLiveData<List<User>> getUsersByIdLiveData(String uid) {
         return userRepository.getFirebaseUsersLunch(uid);
     }
 
-    public FirestoreRecyclerOptions<User> getUsersMutableLiveData() {
-        return userRepository.getUserList();
-    }
+//    public FirestoreRecyclerOptions<User> getUsersMutableLiveData() {
+//        return userRepository.getUserList();
+//    }
 
 
     public MutableLiveData<List<User>> getUsersLiveData() {
@@ -93,17 +89,16 @@ public class UserViewModel extends ViewModel {
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-
+                        logErrorMessage(e.getMessage());
                     }
 
                     @Override
                     public void onComplete() {
-
+                        System.out.println("Repository ViewModel on Complete is working");
                     }
                 });
         return usersList;
     }
-
 
     public MutableLiveData<User> addUserToLiveData(String uid) {
         userMutableLiveData = new MutableLiveData<>();
@@ -126,7 +121,7 @@ public class UserViewModel extends ViewModel {
     }
 
     public MutableLiveData<List<User>> getFirebaseUsers() {
-        UserHelper.getUsers().addOnCompleteListener(task -> {
+        UserHelper.getUsers().get().addOnCompleteListener(task -> {
                     firebaseUsers.setValue(task.getResult().toObjects(User.class));
                     List<String> usersSpot = new ArrayList();
                     for (User user : task.getResult().toObjects(User.class)) {

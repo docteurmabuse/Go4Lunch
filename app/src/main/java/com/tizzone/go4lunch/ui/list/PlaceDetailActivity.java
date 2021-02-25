@@ -58,15 +58,15 @@ import java.util.Objects;
 import dagger.hilt.android.AndroidEntryPoint;
 
 import static com.tizzone.go4lunch.MainActivity.myPreference;
+import static com.tizzone.go4lunch.utils.Constants.CHANNEL_ID;
+import static com.tizzone.go4lunch.utils.Constants.NOTIFICATION_ID;
+import static com.tizzone.go4lunch.utils.Constants.PRIMARY_CHANNEL_ID;
+import static com.tizzone.go4lunch.utils.Constants.TAG;
+
 
 @AndroidEntryPoint
 public class PlaceDetailActivity extends BaseActivity implements UsersListAdapter.Listener {
-    private static final String TAG = "1543";
-    private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 5873;
-    private static final String PRIMARY_CHANNEL_ID = "primary_notification_channel";
 
-    private static final String CHANNEL_ID = "primary_notification_channel";
-    private static final int NOTIFICATION_ID = 0;
 
     private String mDetailAddress;
     private String mDetailName;
@@ -203,7 +203,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         fabOnClickListener();
         configureRecyclerView(currentPlaceId);
 
-
         // Create an explicit intent for an Activity in your app
         Intent intent = new Intent(this, PlaceDetailActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -216,8 +215,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText("Join" + getCurrentUser().getDisplayName() + "for lunch ..."))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-
-                // Set the intent that will fire when the user taps the notification
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
     }
@@ -259,8 +256,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 Snackbar.make(view, "You're going to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                 sendUsersNotification();
-//                managerCompat = NotificationManagerCompat.from(this);
-//                managerCompat.notify(100, builder.build());
+
                 NotificationCompat.Builder notifyBuilder = getNotificationBuilder();
                 mNotifyManager.notify(NOTIFICATION_ID, notifyBuilder.build());
 
@@ -301,7 +297,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     }
 
     private void sendUsersNotification() {
-
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.id.logo_go4lunch)
                 .setContentTitle(getCurrentUser().getDisplayName() + "just choose a lunch spot")
@@ -381,29 +376,30 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
     private void getUserDataFromFirestore() {
         // 5 - Get additional data from Firestore
-
-        UserHelper.getUser(this.getCurrentUser().getUid()).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot documentSnapshot = task.getResult();
-                lunchSpot = documentSnapshot.toObject(User.class).getLunchSpot();
-                favouriteRestaurantsList = documentSnapshot.toObject(User.class).getFavoriteRestaurants();
-                if (favouriteRestaurantsList != null) {
-                    addFavorite(favouriteRestaurantsList);
-                }
-
-                if (lunchSpot != null) {
-                    isLunchSpot = lunchSpot.equals(currentPlaceId);
-                    if (!isLunchSpot) {
-                        addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
-                    } else {
-                        addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
+        if (this.getCurrentUser() != null) {
+            UserHelper.getUser(this.getCurrentUser().getUid()).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    lunchSpot = Objects.requireNonNull(documentSnapshot.toObject(User.class)).getLunchSpot();
+                    favouriteRestaurantsList = Objects.requireNonNull(documentSnapshot.toObject(User.class)).getFavoriteRestaurants();
+                    if (favouriteRestaurantsList != null) {
+                        addFavorite(favouriteRestaurantsList);
                     }
-                } else {
-                    isLunchSpot = false;
-                    addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
+                    if (lunchSpot != null) {
+                        isLunchSpot = lunchSpot.equals(currentPlaceId);
+                        if (!isLunchSpot) {
+                            addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
+                        } else {
+                            addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
+                        }
+                    } else {
+                        isLunchSpot = false;
+                        addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
+                    }
                 }
-            }
-        });
+            });
+        }
+
     }
 
     // --------------------
@@ -479,7 +475,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .setSmallIcon(R.drawable.ic_logo_go4lunch);
-
     }
 }
 
