@@ -16,13 +16,11 @@ import javax.inject.Inject;
 
 public class MainFragmentFactory extends FragmentFactory {
 
-    private final String randomString;
     private final LiveData<List<Restaurant>> restaurantsList;
 
     @Inject
-    public MainFragmentFactory(String randomString, LiveData<List<Restaurant>> restaurantsList) {
+    public MainFragmentFactory(LiveData<List<Restaurant>> restaurantsList) {
         super();
-        this.randomString = randomString;
         this.restaurantsList = restaurantsList;
     }
 
@@ -32,10 +30,10 @@ public class MainFragmentFactory extends FragmentFactory {
     public Fragment instantiate(@NonNull ClassLoader classLoader, @NonNull String className) {
         Class<? extends Fragment> fragmentClass = loadFragmentClass(classLoader, className);
         if (fragmentClass == MapFragment.class) {
-            return new MapFragment(randomString, restaurantsList);
+            return new MapFragment(restaurantsList);
         }
         if (fragmentClass == ListViewFragment.class) {
-            return new ListViewFragment(randomString, restaurantsList);
+            return new ListViewFragment(restaurantsList);
         }
         if (fragmentClass == WorkmatesFragment.class) {
             return new WorkmatesFragment();

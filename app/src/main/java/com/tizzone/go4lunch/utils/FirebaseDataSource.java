@@ -3,22 +3,15 @@ package com.tizzone.go4lunch.utils;
 import android.util.Log;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.tizzone.go4lunch.models.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
-
-import io.reactivex.rxjava3.core.BackpressureStrategy;
-import io.reactivex.rxjava3.core.Flowable;
-import io.reactivex.rxjava3.core.FlowableEmitter;
 
 import static com.tizzone.go4lunch.utils.Constants.COLLECTION_NAME;
 
@@ -56,9 +49,6 @@ public class FirebaseDataSource {
         return workmatesList;
     }
 
-    public Flowable<QuerySnapshot> getUsers() {
-        return Flowable.create((this::subscribe), BackpressureStrategy.BUFFER);
-    }
 
     //Firestore users List
     private List<User> getUsersGetQuery() {
@@ -79,18 +69,4 @@ public class FirebaseDataSource {
         return workmatesList;
     }
 
-    private void subscribe(FlowableEmitter<QuerySnapshot> emitter) {
-        CollectionReference reference = firebaseFirestore.collection(COLLECTION_NAME);
-        final ListenerRegistration registration = (ListenerRegistration) reference.get()
-                .addOnCompleteListener(task -> {
-                    emitter.onNext(task.getResult());
-                })
-                .addOnFailureListener(e -> {
-                    if (e != null) {
-                        emitter.onError(e);
-                    }
-                });
-        emitter.setCancellable(registration::remove);
-
-    }
 }

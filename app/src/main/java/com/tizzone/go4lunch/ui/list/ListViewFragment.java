@@ -25,7 +25,6 @@ import com.tizzone.go4lunch.databinding.FragmentListBinding;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
-import com.tizzone.go4lunch.viewmodels.SharedViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,15 +34,14 @@ import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 
 import static android.content.ContentValues.TAG;
+import static com.tizzone.go4lunch.utils.Constants.PROXIMITY_RADIUS;
+import static com.tizzone.go4lunch.utils.Constants.SESSION_TOKEN;
 
 @AndroidEntryPoint
 public class ListViewFragment extends Fragment {
 
     private PlacesListAdapter placesListAdapter;
     private FragmentListBinding fragmentListBinding;
-
-    private final int PROXIMITY_RADIUS = 1000;
-    private final int SESSION_TOKEN = 54784;
 
     private LocationViewModel locationViewModel;
 
@@ -54,16 +52,10 @@ public class ListViewFragment extends Fragment {
 
     @Inject
     public LiveData<List<Restaurant>> restaurantsList;
-    @Inject
-    public String randomString;
-    private SharedViewModel sharedViewModel;
 
-    public ListViewFragment(String randomString, LiveData<List<Restaurant>> restaurantsList) {
-        this.randomString = randomString;
+    public ListViewFragment(LiveData<List<Restaurant>> restaurantsList) {
         this.restaurantsList = restaurantsList;
-
     }
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -92,7 +84,6 @@ public class ListViewFragment extends Fragment {
     }
 
     private void observeData() {
-
         placesViewModel.getRestaurantsList().observe(requireActivity(), restaurantsList -> {
             Log.e(TAG, "onChanged: " + restaurantsList.size());
             placesListAdapter.setPlaces(restaurantsList, currentLocation);
@@ -107,9 +98,7 @@ public class ListViewFragment extends Fragment {
             }
         });
 
-        placesViewModel.getFilteredRestaurantsList().observe(getViewLifecycleOwner(), restaurants -> {
-            placesListAdapter.setPlaces(restaurants, currentLocation);
-        });
+        placesViewModel.getFilteredRestaurantsList().observe(getViewLifecycleOwner(), restaurants -> placesListAdapter.setPlaces(restaurants, currentLocation));
     }
 
 
@@ -122,7 +111,6 @@ public class ListViewFragment extends Fragment {
         super.onDestroyView();
         fragmentListBinding = null;
     }
-
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
@@ -142,13 +130,10 @@ public class ListViewFragment extends Fragment {
         // searchView.setBackgroundColor(Color.WHITE);
 
         searchView.findViewById(R.id.search_close_btn)
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Log.d("called", "this is called.");
-                        searchView.setIconified(true);
-                        placesListAdapter.setPlaces(restaurants, currentLocation);
-                    }
+                .setOnClickListener(v -> {
+                    Log.d("called", "this is called.");
+                    searchView.setIconified(true);
+                    placesListAdapter.setPlaces(restaurants, currentLocation);
                 });
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -168,6 +153,4 @@ public class ListViewFragment extends Fragment {
             }
         });
     }
-
-
 }

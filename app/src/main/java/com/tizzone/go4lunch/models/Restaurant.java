@@ -10,6 +10,7 @@ import androidx.databinding.PropertyChangeRegistry;
 import com.google.android.gms.maps.model.LatLng;
 import com.tizzone.go4lunch.BR;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
@@ -206,12 +207,12 @@ public class Restaurant extends BaseObservable implements Serializable, Parcelab
 
 
     @Override
-    public void addOnPropertyChangedCallback(OnPropertyChangedCallback callback) {
+    public void addOnPropertyChangedCallback(@NotNull OnPropertyChangedCallback callback) {
         registry.add(callback);
     }
 
     @Override
-    public void removeOnPropertyChangedCallback(OnPropertyChangedCallback callback) {
+    public void removeOnPropertyChangedCallback(@NotNull OnPropertyChangedCallback callback) {
         registry.remove(callback);
     }
 

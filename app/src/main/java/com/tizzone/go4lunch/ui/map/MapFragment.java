@@ -76,41 +76,27 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private PlacesViewModel placesViewModel;
     private LocationViewModel locationViewModel;
-    private Marker workmatesRestaurant;
-    private Marker emptyRestaurant;
     private Context mContext;
     private LatLng currentLocation;
     @Inject
-    public String randomString;
-    @Inject
     public LiveData<List<Restaurant>> restaurantsListLiveData;
-    private RestaurantViewModel restaurantViewModel;
     private List<Restaurant> restaurantsList;
-    private FragmentMapBinding mapBinding;
     private UserViewModel userViewModel;
-    private List<Restaurant> restaurantsMapList;
-    private List<User> workmatesList;
     private List<Restaurant> restaurants;
-    private MapViewModel mapViewModel;
-    private List<Restaurant> matesRestaurantList;
-    private ArrayList matesUidList;
+    private ArrayList<String> matesUidList;
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
 
         @Override
         public void onMapReady(GoogleMap googleMap) {
             mMap = googleMap;
-
+            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+            mMap.getUiSettings().setZoomControlsEnabled(true);
             // Prompt the user for permission.
             getLocationPermission();
-            // [END_EXCLUDE]
-
             // Turn on the My Location layer and the related control on the map.
             updateLocationUI();
-
             // Get the current location of the device and set the position of the map.
             getDeviceLocation();
-            observeData();
-
             // Set a listener for info window events.
             mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                 @Override
@@ -118,27 +104,19 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
                     viewRestaurantDetail((Restaurant) marker.getTag());
                 }
             });
+            observeData();
         }
     };
 
-
-    /**
-     * Called when a fragment is first attached to its context.
-     * {@link #onCreate(Bundle)} will be called after this.
-     *
-     * @param context
-     */
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         this.mContext = context;
     }
 
-    public MapFragment(String randomString, LiveData<List<Restaurant>> restaurantsList) {
-        this.randomString = randomString;
+    public MapFragment(LiveData<List<Restaurant>> restaurantsList) {
         this.restaurantsListLiveData = restaurantsList;
     }
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -151,18 +129,15 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         radius = Integer.parseInt(sharedPreferences.getString("radius", "1000"));
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-
     }
-
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        mapBinding = FragmentMapBinding.inflate(inflater, container, false);
-        View root = mapBinding.getRoot();
-        return root;
+        com.tizzone.go4lunch.databinding.FragmentMapBinding mapBinding = FragmentMapBinding.inflate(inflater, container, false);
+        return mapBinding.getRoot();
     }
 
     @Override
@@ -172,32 +147,31 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         // Init  ViewModels
         placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
-        restaurantViewModel = new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
+        RestaurantViewModel restaurantViewModel = new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
+        userViewModel.getUserMutableLiveData();
 
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
         }
-
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
     }
 
     private void observeData() {
-        placesViewModel.getRestaurantsList().observe(requireActivity(), this::initRestaurantsList);
+        placesViewModel.getRestaurantsList().observe(getViewLifecycleOwner(), this::initRestaurantsList);
 
-        locationViewModel.getUserLocation().observe(getActivity(), locationModel -> {
+        locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
             if (locationModel != null) {
                 this.currentLocation = locationModel.getLocation();
             }
         });
 
-        placesViewModel.getFilteredRestaurantsList().observe(requireActivity(), this::initRestaurantsList);
-
-        userViewModel.getFirebaseUsers().observe(requireActivity(), this::initWorkmatesList);
-        placesViewModel.getFilteredRestaurantsList().observe(getActivity(), new Observer<List<Restaurant>>() {
+        placesViewModel.getFilteredRestaurantsList().observe(getViewLifecycleOwner(), this::initRestaurantsList);
+        userViewModel.getUsersList().observe(getViewLifecycleOwner(), this::initWorkmatesList);
+        placesViewModel.getFilteredRestaurantsList().observe(getViewLifecycleOwner(), new Observer<List<Restaurant>>() {
             @Override
             public void onChanged(List<Restaurant> restaurants) {
                 mMap.clear();
@@ -207,10 +181,9 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     }
 
     private void initWorkmatesList(List<User> users) {
-        workmatesList = new ArrayList<User>(users);
-        if (workmatesList != null) {
-            matesUidList = new ArrayList();
-            for (User user : workmatesList) {
+        if (users != null) {
+            matesUidList = new ArrayList<>();
+            for (User user : users) {
                 if (user.getLunchSpot() != null) {
                     matesUidList.add(user.getLunchSpot());
                 }
@@ -263,8 +236,8 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     }
 
     private void initRestaurantsList(List<Restaurant> mRestaurants) {
-        restaurantsMapList = new ArrayList<>();
-        matesRestaurantList = new ArrayList<>();
+        List<Restaurant> restaurantsMapList = new ArrayList<>();
+        List<Restaurant> matesRestaurantList = new ArrayList<>();
 
         for (Restaurant restaurant : mRestaurants) {
             boolean isMatesSpot = placeIsMatesSpot(restaurant);
@@ -273,7 +246,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
             } else {
                 restaurantsMapList.add(restaurant);
             }
-
         }
         setMarkers(restaurantsMapList, R.drawable.ic_restaurant_pin_red);
         setMarkers(matesRestaurantList, R.drawable.ic_restaurant_pin_green);
@@ -397,13 +369,10 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         mLocationPermissionGranted = false;
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mLocationPermissionGranted = true;
-                }
+        if (requestCode == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {// If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mLocationPermissionGranted = true;
             }
         }
         updateLocationUI();
@@ -426,7 +395,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
         if (s.equals("radius")) {
-            Log.e(TAG, "Preference55 value was updated to: " + sharedPreferences.getString(s, ""));
+            Log.e(TAG, "Preference radius value was updated to: " + sharedPreferences.getString(s, ""));
             radius = Integer.parseInt(sharedPreferences.getString(s, ""));
             mMap.clear();
             placesViewModel.setRestaurants(currentLocation.latitude + "," + currentLocation.longitude, Integer.parseInt(sharedPreferences.getString(s, "")));

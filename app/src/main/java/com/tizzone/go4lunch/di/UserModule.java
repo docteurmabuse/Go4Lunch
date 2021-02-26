@@ -1,10 +1,8 @@
 package com.tizzone.go4lunch.di;
 
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.tizzone.go4lunch.models.User;
-import com.tizzone.go4lunch.repositories.UserRepository;
 
 import javax.inject.Singleton;
 
@@ -29,9 +27,11 @@ public class UserModule {
                 .orderBy(NAME_PROPERTY, ASCENDING);
     }
 
+
     @Singleton
     @Provides
-    static FirestoreRecyclerOptions<User> provideOption(UserRepository userRepository) {
-        return userRepository.getUserList();
+    static CollectionReference provideUsersCollectionReference(FirebaseFirestore rootRef) {
+        return rootRef.collection(COLLECTION_NAME);
     }
+
 }

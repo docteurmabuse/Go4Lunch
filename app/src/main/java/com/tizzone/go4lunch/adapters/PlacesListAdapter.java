@@ -25,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.ViewHolder> {
 
     private static final String TAG = "ERROR";
@@ -32,7 +34,12 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     private PlaceItemBinding binding;
     private LatLng currentLocation;
     private Context context;
+    private UserHelper userHelper;
 
+    @Inject
+    public PlacesListAdapter(UserHelper userHelper) {
+        this.userHelper = userHelper;
+    }
 
     public PlacesListAdapter() {
         notifyDataSetChanged();

@@ -22,7 +22,6 @@ public class RecyclerViewBinding {
         }
     }
 
-
     @BindingAdapter("gone")
     public static void bindGone(View view, Boolean isGone) {
         if (isGone) view.setVisibility(View.INVISIBLE);

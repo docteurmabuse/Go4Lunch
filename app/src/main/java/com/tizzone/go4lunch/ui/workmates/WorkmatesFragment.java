@@ -1,6 +1,7 @@
 package com.tizzone.go4lunch.ui.workmates;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,17 +21,20 @@ import com.tizzone.go4lunch.databinding.FragmentWorkmatesBinding;
 import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.repositories.UserRepository;
 import com.tizzone.go4lunch.utils.FirebaseDataSource;
-import com.tizzone.go4lunch.utils.UserHelper;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class WorkmatesFragment extends Fragment implements UsersListAdapter.Listener {
+public class WorkmatesFragment extends Fragment {
 
     private WorkmatesViewModel workmatesViewModel;
+    private static final String TAG = "FirebaseAuthAppTag";
 
     private FragmentWorkmatesBinding workmatesBinding;
     @Inject
@@ -43,6 +47,8 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
     private TextView textView;
     public UserViewModel userViewModel;
 
+    public List<User> workmatesList;
+
     public WorkmatesFragment() {
         // Required empty public constructor
     }
@@ -52,12 +58,11 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
         super.onCreate(savedInstanceState);
         workmatesViewModel =
                 new ViewModelProvider(this).get(WorkmatesViewModel.class);
-        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-
         workmatesBinding = FragmentWorkmatesBinding.inflate(inflater, container, false);
         View root = workmatesBinding.getRoot();
         textView = workmatesBinding.textNotifications;
@@ -67,14 +72,19 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
     }
 
     private void getWorkmatesList() {
-        userViewModel.getUsersLiveData().observe(getViewLifecycleOwner(), users1 -> {
-            for (User user : users1) {
-                System.out.println("ViewModel is working in workmatesFragment" + user.getUserName());
+        userViewModel.getUsersList().observe(getViewLifecycleOwner(), users -> {
+            String uid = this.getArguments().getString("userId");
+            Log.e(TAG, "size rx1: " + (users.size()));
+            users.removeIf(user -> (user.getUid().equals(uid)));
+            workmatesList = new ArrayList<User>(users);
+            adapter.setUserList(workmatesList);
+            for (User user : workmatesList) {
+                System.out.println("ViewModel is working in workmatesFragment" + user.getUserEmail());
             }
+            textView.setVisibility(workmatesList.size() == 0 ? View.VISIBLE : View.GONE);
         });
-        String uid = this.getArguments().getString("userId");
-        adapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getWorkmates(uid)), this);
 
+        adapter = new UsersListAdapter();
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
@@ -99,18 +109,13 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.List
     @Override
     public void onStart() {
         super.onStart();
-        adapter.startListening();
+        // adapter.startListening();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        adapter.stopListening();
-    }
-
-    @Override
-    public void onDataChanged() {
-        textView.setVisibility(this.adapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
+        //  adapter.stopListening();
     }
 
     @Override

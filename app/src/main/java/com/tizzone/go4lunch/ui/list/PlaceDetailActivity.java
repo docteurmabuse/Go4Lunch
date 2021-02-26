@@ -50,6 +50,7 @@ import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.utils.RestaurantHelper;
 import com.tizzone.go4lunch.utils.UserHelper;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
+import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,15 +58,15 @@ import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
-import static com.tizzone.go4lunch.MainActivity.myPreference;
 import static com.tizzone.go4lunch.utils.Constants.CHANNEL_ID;
 import static com.tizzone.go4lunch.utils.Constants.NOTIFICATION_ID;
 import static com.tizzone.go4lunch.utils.Constants.PRIMARY_CHANNEL_ID;
 import static com.tizzone.go4lunch.utils.Constants.TAG;
+import static com.tizzone.go4lunch.utils.Constants.myPreference;
 
 
 @AndroidEntryPoint
-public class PlaceDetailActivity extends BaseActivity implements UsersListAdapter.Listener {
+public class PlaceDetailActivity extends BaseActivity {
 
 
     private String mDetailAddress;
@@ -121,6 +122,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
     UsersListAdapter usersListAdapter;
     RequestManager requestManager;
+    private UserViewModel userViewModel;
 
 
     @Override
@@ -137,6 +139,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         super.onCreate(savedInstanceState);
         createNotificationChannel();
         placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         restaurant = new Restaurant();
         placeDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_place_detail);
         favouriteRestaurantsList = new ArrayList<>();
@@ -180,6 +183,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
     private void observeData(Restaurant restaurant) {
         getUserDataFromFirestore();
+        userViewModel.getUserMutableLiveData();
         placeDetailBinding.setRestaurant(restaurant);
         this.restaurant = restaurant;
         placePhone = restaurant.getPhone();
@@ -399,7 +403,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 }
             });
         }
-
     }
 
     // --------------------
@@ -407,14 +410,24 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     // --------------------
     // 5 - Configure RecyclerView with a Query
     private void configureRecyclerView(String placeId) {
-        this.usersListAdapter = new UsersListAdapter(generateOptionsForAdapter(UserHelper.getUsersLunchSpotWithoutCurrentUser(placeId, uid))
-                , this);
-        usersListAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                usersRecyclerView.smoothScrollToPosition(usersListAdapter.getItemCount()); // Scroll to bottom on new messages
+        this.usersListAdapter = new UsersListAdapter();
+        userViewModel.getUsersList().observe(this, users -> {
+            Log.e(TAG, "size rx1: " + (users.size()));
+            users.removeIf(user -> (user.getLunchSpot() != placeId));
+            List<User> workmatesList = new ArrayList<User>(users);
+            usersListAdapter.setUserList(workmatesList);
+            noWorkmates.setVisibility(workmatesList.size() == 0 ? View.VISIBLE : View.GONE);
+            for (User user : workmatesList) {
+                System.out.println("ViewModel is working in workmatesFragment" + user.getUserEmail());
             }
         });
+//                , this);
+//        usersListAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+//            @Override
+//            public void onItemRangeInserted(int positionStart, int itemCount) {
+//                usersRecyclerView.smoothScrollToPosition(usersListAdapter.getItemCount()); // Scroll to bottom on new messages
+//            }
+//        });
         //  usersListAdapter.setClickListener(this);
 
         // usersRecyclerView.setHasFixedSize(true);
@@ -428,16 +441,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 .setQuery(query, User.class)
                 .setLifecycleOwner(this)
                 .build();
-    }
-
-
-    // --------------------
-    // CALLBACK
-    // --------------------
-
-    @Override
-    public void onDataChanged() {
-        noWorkmates.setVisibility(this.usersListAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
     }
 
     @Override

@@ -11,7 +11,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.repositories.UserRepository;
 import com.tizzone.go4lunch.utils.UserHelper;
@@ -22,12 +22,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.annotations.NonNull;
-import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @HiltViewModel
 public class UserViewModel extends ViewModel {
@@ -37,14 +32,17 @@ public class UserViewModel extends ViewModel {
     private final CollectionReference usersRef = rootRef.collection("USERS");
     private final SavedStateHandle savedStateHandle;
     private final UserRepository userRepository;
+    private final MutableLiveData<List<User>> userListMutableLiveData = new MutableLiveData<>();
 
     public MutableLiveData<User> userMutableLiveData = new MutableLiveData<>();
     private final CompositeDisposable disposable = new CompositeDisposable();
-    public MutableLiveData<List<User>> usersList = new MutableLiveData<>();
+    public LiveData<List<User>> usersList;
     MutableLiveData<List<User>> firebaseUsers = new MutableLiveData<>();
     MutableLiveData<List<String>> firebaseUsersSpotList = new MutableLiveData<>();
 
     public MutableLiveData<String> userIdLiveData = new MutableLiveData<>();
+    public LiveData<List<User>> userListLiveData;
+
 
     @Inject
     public UserViewModel(SavedStateHandle savedStateHandle, UserRepository userRepository) {
@@ -58,46 +56,6 @@ public class UserViewModel extends ViewModel {
 
     public LiveData<String> getCurrentUserId() {
         return userIdLiveData;
-    }
-
-    public MutableLiveData<List<User>> getUsersByIdLiveData(String uid) {
-        return userRepository.getFirebaseUsersLunch(uid);
-    }
-
-//    public FirestoreRecyclerOptions<User> getUsersMutableLiveData() {
-//        return userRepository.getUserList();
-//    }
-
-
-    public MutableLiveData<List<User>> getUsersLiveData() {
-        userRepository.getUsers()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .toObservable()
-                .subscribe(new Observer<QuerySnapshot>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-                        disposable.add(d);
-                    }
-
-                    @Override
-                    public void onNext(@NonNull QuerySnapshot queryDocumentSnapshots) {
-                        List<User> users = queryDocumentSnapshots.getQuery().get().getResult().toObjects(User.class);
-                        System.out.println("Repository ViewModel is working" + users.toString());
-                        usersList.setValue(users);
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                        logErrorMessage(e.getMessage());
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        System.out.println("Repository ViewModel on Complete is working");
-                    }
-                });
-        return usersList;
     }
 
     public MutableLiveData<User> addUserToLiveData(String uid) {
@@ -123,6 +81,8 @@ public class UserViewModel extends ViewModel {
     public MutableLiveData<List<User>> getFirebaseUsers() {
         UserHelper.getUsers().get().addOnCompleteListener(task -> {
                     firebaseUsers.setValue(task.getResult().toObjects(User.class));
+                    Log.e(TAG, "size: " + (task.getResult().toObjects(User.class).size()));
+
                     List<String> usersSpot = new ArrayList();
                     for (User user : task.getResult().toObjects(User.class)) {
                         usersSpot.add(user.getUid());
@@ -133,12 +93,45 @@ public class UserViewModel extends ViewModel {
         return firebaseUsers;
     }
 
-    public LiveData<List<User>> getFirebaseUsersLiveData() {
-        return firebaseUsers;
+
+    public LiveData<List<User>> getUsersList() {
+        return userListMutableLiveData;
     }
 
     public LiveData<List<String>> getUserSpotList() {
         return firebaseUsersSpotList;
     }
 
+    public void getUserMutableLiveData() {
+        userRepository.getQueryUsersByName().addSnapshotListener((value, error) -> {
+            if (error != null) {
+                Log.w(TAG, "Listen failed.", error);
+            } else {
+                if (value != null) {
+                    List<User> userList = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : value) {
+                        User user = document.toObject(User.class);
+                        userList.add(user);
+                    }
+                    userListMutableLiveData.setValue(userList);
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
+//        }
+//        }).get()
+//        .addOnCompleteListener(userListTask -> {
+//            if (userListTask.isSuccessful()) {
+//                List<User> userList = new ArrayList<>();
+//                for (QueryDocumentSnapshot document : userListTask.getResult()) {
+//                    User user = document.toObject(User.class);
+//                    userList.add(user);
+//                }
+//                userListMutableLiveData.setValue(userList);
+//            } else {
+//                Log.d(TAG, userListTask.getException().getMessage());
+//            }
+//        });
+    }
 }

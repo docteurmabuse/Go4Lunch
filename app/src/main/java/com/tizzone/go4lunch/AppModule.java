@@ -10,10 +10,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.tizzone.go4lunch.adapters.UsersListAdapter;
 import com.tizzone.go4lunch.models.Restaurant;
+import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.ui.MainFragmentFactory;
-import com.tizzone.go4lunch.utils.FirebaseDataSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,11 +50,6 @@ public class AppModule {
                 .error(R.mipmap.avatar);
     }
 
-    @Singleton
-    @Provides
-    static FirebaseDataSource provideFirebaseDataSource(FirebaseFirestore firebaseFirestore) {
-        return new FirebaseDataSource(firebaseFirestore);
-    }
 
     @Singleton
     @Provides
@@ -63,16 +57,11 @@ public class AppModule {
         return isWorkmates;
     }
 
-    @Singleton
-    @Provides
-    static UsersListAdapter.Listener provideListener(UsersListAdapter.Listener callback) {
-        return callback;
-    }
 
     @Singleton
     @Provides
-    static FragmentFactory provideMainFragmentFactory(String randomString, LiveData<List<Restaurant>> restaurantList) {
-        return new MainFragmentFactory(randomString, restaurantList);
+    static FragmentFactory provideMainFragmentFactory(LiveData<List<Restaurant>> restaurantList) {
+        return new MainFragmentFactory(restaurantList);
     }
 
     @Singleton
@@ -95,5 +84,15 @@ public class AppModule {
     @Provides
     static Restaurant provideRestaurant() {
         return new Restaurant();
+    }
+
+    @Provides
+    static User provideUser() {
+        return new User();
+    }
+
+    @Provides
+    static List<User> provideUserList() {
+        return new ArrayList<>();
     }
 }

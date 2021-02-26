@@ -2,10 +2,7 @@ package com.tizzone.go4lunch.di;
 
 import com.tizzone.go4lunch.network.PlacesApiService;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
@@ -31,7 +28,6 @@ import static com.facebook.FacebookSdk.getCacheDir;
 @Module
 @InstallIn(SingletonComponent.class)
 public class NetworkModule {
-
     @Provides
     @Singleton
     public PlacesApiService provideGooglePlacesApiService(OkHttpClient httpClient) {
@@ -53,7 +49,6 @@ public class NetworkModule {
     @Provides
     public OkHttpClient provideHttpClient() {
         File httpCacheDirectory = new File(getCacheDir(), "offlineCache");
-
         //10 MB
         Cache cache = new Cache(httpCacheDirectory, 10 * 1024 * 1024);
         return new OkHttpClient.Builder()
@@ -66,27 +61,19 @@ public class NetworkModule {
 
     @Provides
     public Interceptor provideOfflineCacheInterceptor() {
+        return chain -> {
+            try {
+                return chain.proceed(chain.request());
+            } catch (Exception e) {
+                CacheControl cacheControl = new CacheControl.Builder()
+                        .onlyIfCached()
+                        .maxStale(1, TimeUnit.DAYS)
+                        .build();
 
-        return new Interceptor() {
-
-            @NotNull
-            @Override
-            public Response intercept(@NotNull Chain chain) throws IOException {
-                try {
-                    return chain.proceed(chain.request());
-                } catch (Exception e) {
-
-
-                    CacheControl cacheControl = new CacheControl.Builder()
-                            .onlyIfCached()
-                            .maxStale(1, TimeUnit.DAYS)
-                            .build();
-
-                    Request offlineRequest = chain.request().newBuilder()
-                            .cacheControl(cacheControl)
-                            .build();
-                    return chain.proceed(offlineRequest);
-                }
+                Request offlineRequest = chain.request().newBuilder()
+                        .cacheControl(cacheControl)
+                        .build();
+                return chain.proceed(offlineRequest);
             }
         };
     }
@@ -101,12 +88,9 @@ public class NetworkModule {
 
             if (cacheControl == null || cacheControl.contains("no-store") || cacheControl.contains("no-cache") ||
                     cacheControl.contains("must-revalidate") || cacheControl.contains("max-stale=0")) {
-
-
                 CacheControl cc = new CacheControl.Builder()
                         .maxStale(1, TimeUnit.DAYS)
                         .build();
-
 
                 request = request.newBuilder()
                         .cacheControl(cc)

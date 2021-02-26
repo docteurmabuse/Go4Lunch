@@ -23,23 +23,15 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class SharedViewModel extends ViewModel {
 
     private static final String TAG = "SharedViewModel";
-    private final String randomString;
     private final PlaceRepository placeRepository;
     private final SavedStateHandle savedStateHandle;
     public MutableLiveData<List<Restaurant>> restaurantsList;
 
     @Inject
-    public SharedViewModel(String randomString, PlaceRepository placeRepository, SavedStateHandle savedStateHandle, MutableLiveData<List<Restaurant>> restaurantsList) {
-        this.randomString = randomString;
+    public SharedViewModel(PlaceRepository placeRepository, SavedStateHandle savedStateHandle, MutableLiveData<List<Restaurant>> restaurantsList) {
         this.placeRepository = placeRepository;
         this.savedStateHandle = savedStateHandle;
         this.restaurantsList = restaurantsList;
-        init();
-    }
-
-
-    public void init() {
-        System.out.println("ViewModel:" + randomString);
     }
 
     public MutableLiveData<List<Restaurant>> setRestaurants(String location, int radius) {
@@ -73,9 +65,6 @@ public class SharedViewModel extends ViewModel {
     }
 
     public LiveData<List<Restaurant>> getRestaurantsList() {
-//        if (restaurantsList == null) {
-//            restaurantsList = new MutableLiveData<>();
-//        }
         if (restaurantsList.getValue() != null)
             Log.e(TAG, "apply restaurant list0: " + restaurantsList.getValue().get(0).getName());
 
