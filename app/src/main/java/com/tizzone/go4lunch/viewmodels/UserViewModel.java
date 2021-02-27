@@ -14,7 +14,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.repositories.UserRepository;
-import com.tizzone.go4lunch.utils.UserHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +21,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
-import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 @HiltViewModel
 public class UserViewModel extends ViewModel {
@@ -35,13 +33,8 @@ public class UserViewModel extends ViewModel {
     private final MutableLiveData<List<User>> userListMutableLiveData = new MutableLiveData<>();
 
     public MutableLiveData<User> userMutableLiveData = new MutableLiveData<>();
-    private final CompositeDisposable disposable = new CompositeDisposable();
-    public LiveData<List<User>> usersList;
-    MutableLiveData<List<User>> firebaseUsers = new MutableLiveData<>();
-    MutableLiveData<List<String>> firebaseUsersSpotList = new MutableLiveData<>();
-
+    public MutableLiveData<List<User>> firebaseUserLunchInThatSpotList = new MutableLiveData<>();
     public MutableLiveData<String> userIdLiveData = new MutableLiveData<>();
-    public LiveData<List<User>> userListLiveData;
 
 
     @Inject
@@ -78,28 +71,32 @@ public class UserViewModel extends ViewModel {
         Log.d(TAG, errorMessage);
     }
 
-    public MutableLiveData<List<User>> getFirebaseUsers() {
-        UserHelper.getUsers().get().addOnCompleteListener(task -> {
-                    firebaseUsers.setValue(task.getResult().toObjects(User.class));
-                    Log.e(TAG, "size: " + (task.getResult().toObjects(User.class).size()));
-
-                    List<String> usersSpot = new ArrayList();
-                    for (User user : task.getResult().toObjects(User.class)) {
-                        usersSpot.add(user.getUid());
+    public void getUserLunchInThatSpotList(String lunchSpotId) {
+        userRepository.getQueryUsersByLunchSpotId(lunchSpotId).addSnapshotListener((value, error) -> {
+            if (error != null) {
+                Log.w(TAG, "Listen failed.", error);
+            } else {
+                if (value != null) {
+                    List<User> userList = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : value) {
+                        User user = document.toObject(User.class);
+                        userList.add(user);
                     }
-                    firebaseUsersSpotList.setValue(usersSpot);
+                    firebaseUserLunchInThatSpotList.setValue(userList);
+                } else {
+                    Log.d(TAG, "Current data: null");
                 }
-        );
-        return firebaseUsers;
+            }
+        });
     }
 
+
+    public LiveData<List<User>> getUserLunchInThatSpotList() {
+        return firebaseUserLunchInThatSpotList;
+    }
 
     public LiveData<List<User>> getUsersList() {
         return userListMutableLiveData;
-    }
-
-    public LiveData<List<String>> getUserSpotList() {
-        return firebaseUsersSpotList;
     }
 
     public void getUserMutableLiveData() {
@@ -119,19 +116,7 @@ public class UserViewModel extends ViewModel {
                 }
             }
         });
-//        }
-//        }).get()
-//        .addOnCompleteListener(userListTask -> {
-//            if (userListTask.isSuccessful()) {
-//                List<User> userList = new ArrayList<>();
-//                for (QueryDocumentSnapshot document : userListTask.getResult()) {
-//                    User user = document.toObject(User.class);
-//                    userList.add(user);
-//                }
-//                userListMutableLiveData.setValue(userList);
-//            } else {
-//                Log.d(TAG, userListTask.getException().getMessage());
-//            }
-//        });
     }
+
+
 }

@@ -25,22 +25,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.ViewHolder> {
 
     private static final String TAG = "ERROR";
     private List<Restaurant> mPlaces;
-    private PlaceItemBinding binding;
     private LatLng currentLocation;
     private Context context;
-    private UserHelper userHelper;
-
-    @Inject
-    public PlacesListAdapter(UserHelper userHelper) {
-        this.userHelper = userHelper;
-    }
-
     public PlacesListAdapter() {
         notifyDataSetChanged();
     }
@@ -49,10 +39,9 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        binding = DataBindingUtil.inflate(inflater, R.layout.place_item, parent, false);
+        com.tizzone.go4lunch.databinding.PlaceItemBinding binding = DataBindingUtil.inflate(inflater, R.layout.place_item, parent, false);
         context = parent.getContext();
         return new ViewHolder(binding);
-
     }
 
     @Override
@@ -67,7 +56,6 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
             holder.distance.setText(resources.getString(R.string.distance, mDistance));
         }
 
-
         holder.itemView.setOnClickListener(view -> {
             final Context context = holder.itemView.getContext();
             Intent intent = new Intent(context, PlaceDetailActivity.class);
@@ -77,7 +65,6 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
             context.startActivity(intent);
         });
     }
-
 
     private void getUsersCountFromFirestore(String placeId, ViewHolder holder) {
         UserHelper.getUsersLunchSpot(placeId).addSnapshotListener((value, error) -> {
@@ -102,12 +89,10 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
         notifyDataSetChanged();
     }
 
-
     @Override
     public int getItemCount() {
         return mPlaces == null ? 0 : mPlaces.size();
     }
-
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView workmatesCount;
@@ -121,6 +106,5 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
             workmatesCount = placeItemBinding.workmatesCount;
         }
     }
-
 }
 

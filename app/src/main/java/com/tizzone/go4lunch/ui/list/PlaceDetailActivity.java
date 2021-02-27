@@ -29,7 +29,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.RequestManager;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.net.PlacesClient;
@@ -38,7 +37,6 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.adapters.UsersListAdapter;
@@ -66,7 +64,7 @@ import static com.tizzone.go4lunch.utils.Constants.myPreference;
 
 
 @AndroidEntryPoint
-public class PlaceDetailActivity extends BaseActivity {
+public class PlaceDetailActivity extends BaseActivity implements UsersListAdapter.UserItemClickListener {
 
 
     private String mDetailAddress;
@@ -124,7 +122,6 @@ public class PlaceDetailActivity extends BaseActivity {
     RequestManager requestManager;
     private UserViewModel userViewModel;
 
-
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -143,11 +140,9 @@ public class PlaceDetailActivity extends BaseActivity {
         restaurant = new Restaurant();
         placeDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_place_detail);
         favouriteRestaurantsList = new ArrayList<>();
-
         if (this.getCurrentUser() != null) {
             uid = this.getCurrentUser().getUid();
         }
-
         initViews();
         Intent intent = this.getIntent();
         if (intent != null) {
@@ -178,7 +173,7 @@ public class PlaceDetailActivity extends BaseActivity {
         call = placeDetailBinding.contentLayoutPlaceDetailActivity.callButton;
         addSpotLunch = placeDetailBinding.addSpotLunchButton;
 
-        placesViewModel.getRestaurant().observe(this, restaurantDetail -> observeData(restaurantDetail));
+        placesViewModel.getRestaurant().observe(this, this::observeData);
     }
 
     private void observeData(Restaurant restaurant) {
@@ -265,17 +260,14 @@ public class PlaceDetailActivity extends BaseActivity {
                 mNotifyManager.notify(NOTIFICATION_ID, notifyBuilder.build());
 
                 FirebaseMessaging.getInstance().subscribeToTopic("lunch")
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                String msg = getString(R.string.msg_subscribed);
-                                if (!task.isSuccessful()) {
-                                    msg = getString(R.string.msg_subscribe_failed);
-                                }
-                                Log.d(TAG, msg);
-                                System.out.println(" tokens were subscribed successfully");
-                                Toast.makeText(PlaceDetailActivity.this, msg, Toast.LENGTH_SHORT).show();
+                        .addOnCompleteListener(task -> {
+                            String msg = getString(R.string.msg_subscribed);
+                            if (!task.isSuccessful()) {
+                                msg = getString(R.string.msg_subscribe_failed);
                             }
+                            Log.d(TAG, msg);
+                            System.out.println(" tokens were subscribed successfully");
+                            Toast.makeText(PlaceDetailActivity.this, msg, Toast.LENGTH_SHORT).show();
                         });
 
             } else {
@@ -405,42 +397,29 @@ public class PlaceDetailActivity extends BaseActivity {
         }
     }
 
-    // --------------------
-    // UI
-    // --------------------
-    // 5 - Configure RecyclerView with a Query
+
+    // Configure RecyclerView with a Query
     private void configureRecyclerView(String placeId) {
-        this.usersListAdapter = new UsersListAdapter();
+        this.usersListAdapter = new UsersListAdapter(this);
         userViewModel.getUsersList().observe(this, users -> {
-            Log.e(TAG, "size rx1: " + (users.size()));
-            users.removeIf(user -> (user.getLunchSpot() != placeId));
+            users.removeIf(user -> {
+                if (user.getLunchSpot() != null) {
+                    return (user.getUid().equals(uid) || !user.getLunchSpot().equals(placeId));
+                }
+                return true;
+            });
             List<User> workmatesList = new ArrayList<User>(users);
             usersListAdapter.setUserList(workmatesList);
             noWorkmates.setVisibility(workmatesList.size() == 0 ? View.VISIBLE : View.GONE);
             for (User user : workmatesList) {
                 System.out.println("ViewModel is working in workmatesFragment" + user.getUserEmail());
+                Log.e(TAG, "size rx1: " + user.getLunchSpot() + " :" + placeId);
+
             }
         });
-//                , this);
-//        usersListAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-//            @Override
-//            public void onItemRangeInserted(int positionStart, int itemCount) {
-//                usersRecyclerView.smoothScrollToPosition(usersListAdapter.getItemCount()); // Scroll to bottom on new messages
-//            }
-//        });
-        //  usersListAdapter.setClickListener(this);
-
-        // usersRecyclerView.setHasFixedSize(true);
+        usersRecyclerView.setHasFixedSize(true);
         usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         usersRecyclerView.setAdapter(this.usersListAdapter);
-    }
-
-    // 6 - Create options for RecyclerView from a Query
-    private FirestoreRecyclerOptions<User> generateOptionsForAdapter(Query query) {
-        return new FirestoreRecyclerOptions.Builder<User>()
-                .setQuery(query, User.class)
-                .setLifecycleOwner(this)
-                .build();
     }
 
     @Override
@@ -471,13 +450,17 @@ public class PlaceDetailActivity extends BaseActivity {
         PendingIntent notificationPendingIntent = PendingIntent.getActivity(this,
                 NOTIFICATION_ID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         return new NotificationCompat.Builder(this, PRIMARY_CHANNEL_ID)
-                .setContentTitle(getCurrentUser().getDisplayName() + " just choose a lunch spot")
+                .setContentTitle(Objects.requireNonNull(getCurrentUser()).getDisplayName() + " just choose a lunch spot")
                 .setContentText("He's lunching at " + restaurant.getName())
                 .setContentIntent(notificationPendingIntent)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .setSmallIcon(R.drawable.ic_logo_go4lunch);
+    }
+
+    @Override
+    public void onUserClick(Restaurant restaurant) {
     }
 }
 

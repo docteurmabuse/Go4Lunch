@@ -1,5 +1,6 @@
 package com.tizzone.go4lunch.ui.workmates;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,13 +15,12 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.firebase.firestore.Query;
 import com.tizzone.go4lunch.adapters.UsersListAdapter;
 import com.tizzone.go4lunch.databinding.FragmentWorkmatesBinding;
+import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.repositories.UserRepository;
-import com.tizzone.go4lunch.utils.FirebaseDataSource;
+import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
 import java.util.ArrayList;
@@ -31,22 +31,17 @@ import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class WorkmatesFragment extends Fragment {
+public class WorkmatesFragment extends Fragment implements UsersListAdapter.UserItemClickListener {
 
     private WorkmatesViewModel workmatesViewModel;
     private static final String TAG = "FirebaseAuthAppTag";
-
     private FragmentWorkmatesBinding workmatesBinding;
     @Inject
     public UserRepository userRepository;
-
-    @Inject
-    public FirebaseDataSource firebaseDataSource;
     private RecyclerView workmatesRecyclerView;
     private UsersListAdapter adapter;
     private TextView textView;
     public UserViewModel userViewModel;
-
     public List<User> workmatesList;
 
     public WorkmatesFragment() {
@@ -73,49 +68,28 @@ public class WorkmatesFragment extends Fragment {
 
     private void getWorkmatesList() {
         userViewModel.getUsersList().observe(getViewLifecycleOwner(), users -> {
+            assert this.getArguments() != null;
             String uid = this.getArguments().getString("userId");
-            Log.e(TAG, "size rx1: " + (users.size()));
+            Log.e(TAG, "Workmates list size " + (users.size()));
             users.removeIf(user -> (user.getUid().equals(uid)));
-            workmatesList = new ArrayList<User>(users);
+            workmatesList = new ArrayList<>(users);
             adapter.setUserList(workmatesList);
-            for (User user : workmatesList) {
-                System.out.println("ViewModel is working in workmatesFragment" + user.getUserEmail());
-            }
             textView.setVisibility(workmatesList.size() == 0 ? View.VISIBLE : View.GONE);
         });
-
-        adapter = new UsersListAdapter();
-        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                workmatesRecyclerView.smoothScrollToPosition(adapter.getItemCount()); // Scroll to bottom on new messages
-            }
-        });
+        adapter = new UsersListAdapter(this);
         workmatesRecyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
         workmatesRecyclerView.setAdapter(this.adapter);
-
-        if (adapter.getItemCount() == 0) {
-            workmatesViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
-        }
     }
 
-    private FirestoreRecyclerOptions<User> generateOptionsForAdapter(Query query) {
-        return new FirestoreRecyclerOptions.Builder<User>()
-                .setQuery(query, User.class)
-                .setLifecycleOwner(this)
-                .build();
-    }
 
     @Override
     public void onStart() {
         super.onStart();
-        // adapter.startListening();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        //  adapter.stopListening();
     }
 
     @Override
@@ -124,4 +98,13 @@ public class WorkmatesFragment extends Fragment {
         workmatesBinding = null;
     }
 
+    @Override
+    public void onUserClick(Restaurant restaurant) {
+        Intent intent = new Intent(getContext(), PlaceDetailActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("RESTAURANT", restaurant);
+        intent.putExtras(bundle);
+        startActivity(intent);
+        Log.e(TAG, "restaurant: " + (restaurant.getName()));
+    }
 }

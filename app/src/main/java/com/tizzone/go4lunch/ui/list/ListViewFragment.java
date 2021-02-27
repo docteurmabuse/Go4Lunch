@@ -16,6 +16,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -67,6 +68,7 @@ public class ListViewFragment extends Fragment {
         // Inflate view and obtain an instance of the binding class.
         fragmentListBinding = FragmentListBinding.inflate(inflater, container, false);
         fragmentListBinding.listViewPlaces.setLayoutManager(new LinearLayoutManager(getContext()));
+        fragmentListBinding.listViewPlaces.addItemDecoration(new DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL));
         placesListAdapter = new PlacesListAdapter();
         fragmentListBinding.listViewPlaces.setAdapter(placesListAdapter);
         setHasOptionsMenu(true);
@@ -79,7 +81,6 @@ public class ListViewFragment extends Fragment {
         //Init ViewModels
         placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
-
         observeData();
     }
 
@@ -90,17 +91,14 @@ public class ListViewFragment extends Fragment {
             restaurants = new ArrayList<>();
             restaurants.addAll(restaurantsList);
         });
-
         locationViewModel.getUserLocation().observe(requireActivity(), locationModel -> {
             if (locationModel != null) {
                 placesListAdapter.setCurrentLocation(locationModel.getLocation());
                 this.currentLocation = locationModel.getLocation();
             }
         });
-
         placesViewModel.getFilteredRestaurantsList().observe(getViewLifecycleOwner(), restaurants -> placesListAdapter.setPlaces(restaurants, currentLocation));
     }
-
 
     public void onResume() {
         super.onResume();

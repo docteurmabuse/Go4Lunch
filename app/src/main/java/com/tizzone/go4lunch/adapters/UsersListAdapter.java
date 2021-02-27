@@ -1,18 +1,18 @@
 package com.tizzone.go4lunch.adapters;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.UsersListItemBinding;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
-import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.utils.RestaurantHelper;
 
 import java.util.List;
@@ -21,41 +21,23 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.User
 
     private Context context;
     private Restaurant restaurant;
-    //FOR COMMUNICATION
-    private UsersListItemBinding userBinding;
-    private String currentUserId;
     private List<User> userList;
+    private static final String TAG = "FirebaseAuthAppTag";
+    private final UserItemClickListener mListener;
 
-    public UsersListAdapter() {
+    public UsersListAdapter(UserItemClickListener mListener) {
+        this.mListener = mListener;
         notifyDataSetChanged();
     }
-
-
-//    @Override
-//    public void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User user) {
-//        holder.userBinding.setWorkmates(user);
-//        if (user.getLunchSpot() != null) {
-//            RestaurantHelper.getRestaurantsById(user.getLunchSpot()).addOnSuccessListener(documentSnapshot -> {
-//                restaurant = documentSnapshot.toObject(Restaurant.class);
-//                holder.userBinding.setRestaurant(restaurant);
-//            });
-//            holder.itemView.setOnClickListener(view -> {
-//                Intent intent = new Intent(context, PlaceDetailActivity.class);
-//                Bundle bundle = new Bundle();
-//                bundle.putSerializable("RESTAURANT", restaurant);
-//                intent.putExtras(bundle);
-//                context.startActivity(intent);
-//                });
-//        }
-//    }
 
     @NonNull
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        userBinding = UsersListItemBinding.inflate(inflater, parent, false);
-        return new UserViewHolder(userBinding);
+        //FOR COMMUNICATION
+        UsersListItemBinding userBinding = DataBindingUtil.inflate(inflater, R.layout.users_list_item, parent, false);
+        return new UserViewHolder(userBinding.getRoot());
     }
 
     @Override
@@ -64,16 +46,10 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.User
         holder.userBinding.setWorkmates(user);
         if (user.getLunchSpot() != null) {
             RestaurantHelper.getRestaurantsById(user.getLunchSpot()).addOnSuccessListener(documentSnapshot -> {
-                restaurant = documentSnapshot.toObject(Restaurant.class);
+                this.restaurant = documentSnapshot.toObject(Restaurant.class);
                 holder.userBinding.setRestaurant(restaurant);
             });
-            holder.itemView.setOnClickListener(view -> {
-                Intent intent = new Intent(context, PlaceDetailActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("RESTAURANT", restaurant);
-                intent.putExtras(bundle);
-                context.startActivity(intent);
-            });
+            holder.userBinding.setUserItemClick(mListener);
         }
     }
 
@@ -87,12 +63,16 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.User
         return userList == null ? 0 : userList.size();
     }
 
+    public interface UserItemClickListener {
+        void onUserClick(Restaurant restaurant);
+    }
+
     public static class UserViewHolder extends RecyclerView.ViewHolder {
         public UsersListItemBinding userBinding;
 
-        public UserViewHolder(@NonNull UsersListItemBinding userBinding) {
-            super(userBinding.getRoot());
-            this.userBinding = userBinding;
+        public UserViewHolder(@NonNull View itemView) {
+            super(itemView);
+            userBinding = DataBindingUtil.bind(itemView);
         }
     }
 }

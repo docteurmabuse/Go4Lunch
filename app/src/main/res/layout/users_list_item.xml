@@ -14,12 +14,17 @@
         <variable
             name="restaurant"
             type="com.tizzone.go4lunch.models.Restaurant" />
+
+        <variable
+            name="userItemClick"
+            type="com.tizzone.go4lunch.adapters.UsersListAdapter.UserItemClickListener" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/user_avatar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:onClick="@{() -> userItemClick.onUserClick(restaurant)}"
         android:layout_margin="5dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout

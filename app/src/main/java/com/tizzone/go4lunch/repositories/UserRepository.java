@@ -12,7 +12,7 @@ public class UserRepository {
     private final CollectionReference usersRef;
 
     @Inject
-    public UserRepository(Query queryUsersByName, CollectionReference usersRef) {
+    public UserRepository(CollectionReference usersRef) {
         this.usersRef = usersRef;
     }
 
@@ -20,5 +20,8 @@ public class UserRepository {
         return usersRef.orderBy("userName", ASCENDING);
     }
 
+    public Query getQueryUsersByLunchSpotId(String lunchSpoId) {
+        return usersRef.orderBy("userName", ASCENDING).whereEqualTo("lunchSpot", lunchSpoId);
+    }
 
 }
