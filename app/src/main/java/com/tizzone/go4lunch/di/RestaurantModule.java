@@ -12,25 +12,26 @@ import dagger.hilt.InstallIn;
 import dagger.hilt.components.SingletonComponent;
 
 import static com.google.firebase.firestore.Query.Direction.ASCENDING;
-import static com.tizzone.go4lunch.utils.Constants.COLLECTION_USER_NAME;
+import static com.tizzone.go4lunch.utils.Constants.COLLECTION_RESTAURANT_NAME;
 import static com.tizzone.go4lunch.utils.Constants.USER_NAME_PROPERTY;
 
 @InstallIn(SingletonComponent.class)
 @Module
-public class UserModule {
-
+public class RestaurantModule {
     @Singleton
     @Provides
-    static Query provideQueryUsers() {
+    public static Query provideQueryRestaurants() {
         return FirebaseFirestore.getInstance()
-                .collection(COLLECTION_USER_NAME)
+                .collection(COLLECTION_RESTAURANT_NAME)
                 .orderBy(USER_NAME_PROPERTY, ASCENDING);
     }
 
-    @CollectionUsers
+
     @Singleton
+    @CollectionRestaurants
     @Provides
-    static CollectionReference provideUsersCollectionReference(FirebaseFirestore rootRef) {
-        return rootRef.collection(COLLECTION_USER_NAME);
+    public static CollectionReference provideRestaurantsCollectionReference(FirebaseFirestore rootRef) {
+        return rootRef.collection(COLLECTION_RESTAURANT_NAME);
     }
 }
+

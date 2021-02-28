@@ -12,11 +12,14 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
+import com.tizzone.go4lunch.repositories.RestaurantRepository;
 import com.tizzone.go4lunch.repositories.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -30,17 +33,23 @@ public class UserViewModel extends ViewModel {
     private final CollectionReference usersRef = rootRef.collection("USERS");
     private final SavedStateHandle savedStateHandle;
     private final UserRepository userRepository;
+    private final RestaurantRepository restaurantRepository;
     private final MutableLiveData<List<User>> userListMutableLiveData = new MutableLiveData<>();
 
     public MutableLiveData<User> userMutableLiveData = new MutableLiveData<>();
     public MutableLiveData<List<User>> firebaseUserLunchInThatSpotList = new MutableLiveData<>();
+    public MutableLiveData<List<String>> favoriteLunchSpotListLiveData = new MutableLiveData<>();
+
     public MutableLiveData<String> userIdLiveData = new MutableLiveData<>();
+    public MutableLiveData<Boolean> isLunchSpotLiveData = new MutableLiveData<>();
+    public MutableLiveData<Boolean> isFavoriteLunchSpotLiveData = new MutableLiveData<>();
 
 
     @Inject
-    public UserViewModel(SavedStateHandle savedStateHandle, UserRepository userRepository) {
+    public UserViewModel(SavedStateHandle savedStateHandle, UserRepository userRepository, RestaurantRepository restaurantRepository) {
         this.savedStateHandle = savedStateHandle;
         this.userRepository = userRepository;
+        this.restaurantRepository = restaurantRepository;
     }
 
     public void setUserId(String uid) {
@@ -51,20 +60,66 @@ public class UserViewModel extends ViewModel {
         return userIdLiveData;
     }
 
-    public MutableLiveData<User> addUserToLiveData(String uid) {
+    public void updateLunchSpotUser(Boolean isLunchSpot, Restaurant restaurant, String userId) {
+        if (isLunchSpot) {
+            userRepository.updateLunchSpot(null, userId);
+            isLunchSpotLiveData.setValue(false);
+        } else {
+            userRepository.updateLunchSpot(restaurant.getUid(), userId);
+            restaurantRepository.createRestaurant(restaurant);
+            isLunchSpotLiveData.setValue(true);
+        }
+    }
+
+    public void updateFavoriteLunchSpotUser(Boolean isFavoriteLunchSpot, List<String> favoriteRestaurants, String restaurantId, String userId) {
+        if (isFavoriteLunchSpot) {
+            favoriteRestaurants.remove(restaurantId);
+            userRepository.updateFavoriteRestaurants(null, userId);
+            isFavoriteLunchSpotLiveData.setValue(false);
+        } else {
+            favoriteRestaurants.add(restaurantId);
+            userRepository.updateFavoriteRestaurants(favoriteRestaurants, userId);
+            isFavoriteLunchSpotLiveData.setValue(true);
+        }
+    }
+
+    public LiveData<Boolean> getIsLunchSpot() {
+        return isLunchSpotLiveData;
+    }
+
+    public LiveData<Boolean> getIsFavoriteLunchSpot() {
+        return isFavoriteLunchSpotLiveData;
+    }
+
+    public LiveData<List<String>> getFavoriteListLunchSpot() {
+        return favoriteLunchSpotListLiveData;
+    }
+
+
+    public void getIsLunchSpotFromFirestore(String userId, String lunchSpotId) {
         userMutableLiveData = new MutableLiveData<>();
-        usersRef.document(uid).get().addOnCompleteListener(userTask -> {
-            if (userTask.isSuccessful()) {
-                DocumentSnapshot document = userTask.getResult();
-                if (document.exists()) {
-                    User user = document.toObject(User.class);
-                    userMutableLiveData.setValue(user);
+        userRepository.getUser(userId).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                boolean isLunchSpot;
+                DocumentSnapshot documentSnapshot = task.getResult();
+                String lunchSpot = Objects.requireNonNull(documentSnapshot.toObject(User.class)).getLunchSpot();
+                if (lunchSpot != null) {
+                    isLunchSpot = lunchSpot.equals(lunchSpotId);
+                } else {
+                    isLunchSpot = false;
                 }
-            } else {
-                logErrorMessage(userTask.getException().getMessage());
+                isLunchSpotLiveData.setValue(isLunchSpot);
+                boolean isFavoriteLunchSpot;
+                List<String> favouriteRestaurantsList = Objects.requireNonNull(documentSnapshot.toObject(User.class)).getFavoriteRestaurants();
+                if (favouriteRestaurantsList != null) {
+                    isFavoriteLunchSpot = favouriteRestaurantsList.contains(lunchSpotId);
+                } else {
+                    isFavoriteLunchSpot = false;
+                }
+                isFavoriteLunchSpotLiveData.setValue(isFavoriteLunchSpot);
+                favoriteLunchSpotListLiveData.setValue(favouriteRestaurantsList);
             }
         });
-        return userMutableLiveData;
     }
 
     public static void logErrorMessage(String errorMessage) {
@@ -91,7 +146,7 @@ public class UserViewModel extends ViewModel {
     }
 
 
-    public LiveData<List<User>> getUserLunchInThatSpotList() {
+    public LiveData<List<User>> getUserListLunchInThatSpot() {
         return firebaseUserLunchInThatSpotList;
     }
 

@@ -13,7 +13,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static com.tizzone.go4lunch.utils.Constants.COLLECTION_NAME;
+import static com.tizzone.go4lunch.utils.Constants.COLLECTION_USER_NAME;
 
 public class FirebaseDataSource {
     private final FirebaseFirestore firebaseFirestore;
@@ -26,7 +26,7 @@ public class FirebaseDataSource {
 
     //Firestore users List
     private Query getUsersQuery() {
-        return firebaseFirestore.collection(COLLECTION_NAME);
+        return firebaseFirestore.collection(COLLECTION_USER_NAME);
     }
 
     public FirestoreRecyclerOptions<User> getUsersList() {
@@ -37,7 +37,7 @@ public class FirebaseDataSource {
 
     public List<User> getWorkmates(String uid) {
         ArrayList<User> workmatesList = new ArrayList<>();
-        firebaseFirestore.collection(COLLECTION_NAME).whereNotEqualTo("uid", uid)
+        firebaseFirestore.collection(COLLECTION_USER_NAME).whereNotEqualTo("uid", uid)
                 .get()
                 .addOnSuccessListener(documentSnapshots -> {
                     for (QueryDocumentSnapshot queryDocumentSnapshot : documentSnapshots) {
@@ -54,7 +54,7 @@ public class FirebaseDataSource {
     private List<User> getUsersGetQuery() {
         ArrayList<User> workmatesList = new ArrayList<>();
 
-        firebaseFirestore.collection(COLLECTION_NAME)
+        firebaseFirestore.collection(COLLECTION_USER_NAME)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

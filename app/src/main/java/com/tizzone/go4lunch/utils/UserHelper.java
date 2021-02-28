@@ -10,12 +10,12 @@ import com.tizzone.go4lunch.models.User;
 import java.util.List;
 
 import static com.google.firebase.firestore.Query.Direction.ASCENDING;
-import static com.tizzone.go4lunch.utils.Constants.COLLECTION_NAME;
+import static com.tizzone.go4lunch.utils.Constants.COLLECTION_USER_NAME;
 
 public class UserHelper {
     // --- COLLECTION REFERENCE ---
     public static CollectionReference getUsersCollection() {
-        return FirebaseFirestore.getInstance().collection(COLLECTION_NAME);
+        return FirebaseFirestore.getInstance().collection(COLLECTION_USER_NAME);
     }
 
     // --- CREATE ---
@@ -38,7 +38,6 @@ public class UserHelper {
                 .orderBy("userName", ASCENDING);
     }
 
-
     public static Query getUserFavouriteRestaurants(String userId) {
         return getUsersCollection().document(userId).collection("favouriteRestaurants");
     }
@@ -53,7 +52,6 @@ public class UserHelper {
     public static Query getUsersLunchSpot(String lunchSpot) {
         return getUsersCollection().whereEqualTo("lunchSpot", lunchSpot);
     }
-
 
     public static Query getUsersLunchSpotWithoutCurrentUser(String lunchSpot, String uid) {
         return getUsersCollection().whereNotEqualTo("uid", uid).whereEqualTo("lunchSpot", lunchSpot);

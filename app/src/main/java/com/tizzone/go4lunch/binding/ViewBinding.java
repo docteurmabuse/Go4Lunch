@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.databinding.BindingAdapter;
@@ -16,6 +17,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 
@@ -89,6 +91,23 @@ public class ViewBinding {
                 textView.setTypeface(null, Typeface.BOLD);
             }
         }
+    }
 
+    @BindingAdapter(value = {"isTrue", "placeHolderTrue", "placeHolderFalse"}, requireAll = true)
+    public static void bindFloatingActionButton(FloatingActionButton floatingActionButton, Boolean isLunchSpot, Drawable placeHolderTrue, Drawable placeHolderFalse) {
+        if (isLunchSpot != null && !isLunchSpot) {
+            floatingActionButton.setImageDrawable(placeHolderFalse);
+        } else {
+            floatingActionButton.setImageDrawable(placeHolderTrue);
+        }
+    }
+
+    @BindingAdapter(value = {"isTrue", "placeHolderTrue", "placeHolderFalse"}, requireAll = true)
+    public static void bindAppCompatImageButton(AppCompatImageButton appCompatImageButton, Boolean isTrue, Drawable placeHolderTrue, Drawable placeHolderFalse) {
+        if (isTrue != null && !isTrue) {
+            appCompatImageButton.setBackgroundDrawable(placeHolderFalse);
+        } else {
+            appCompatImageButton.setBackgroundDrawable(placeHolderTrue);
+        }
     }
 }

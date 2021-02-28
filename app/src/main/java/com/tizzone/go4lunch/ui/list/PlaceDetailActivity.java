@@ -15,7 +15,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,16 +27,9 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.RequestManager;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.adapters.UsersListAdapter;
 import com.tizzone.go4lunch.base.BaseActivity;
@@ -61,6 +53,7 @@ import static com.tizzone.go4lunch.utils.Constants.NOTIFICATION_ID;
 import static com.tizzone.go4lunch.utils.Constants.PRIMARY_CHANNEL_ID;
 import static com.tizzone.go4lunch.utils.Constants.TAG;
 import static com.tizzone.go4lunch.utils.Constants.myPreference;
+import static com.tizzone.go4lunch.utils.Constants.notificationId;
 
 
 @AndroidEntryPoint
@@ -73,13 +66,11 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private Uri placeWebsite;
     private String lunchSpot;
     private String mDetailPhotoUrl;
-    private String uid;
+    private String currentUserId;
     private List<String> favouriteRestaurantsList;
     private float ratingThreeStars;
     private float ratingFiveStarFloat;
     private PlacesViewModel placesViewModel;
-    private String key;
-    private Restaurant restaurantDetail;
     @Nullable
     boolean isOpen;
 
@@ -92,7 +83,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private AppBarLayout appbar;
     // Define a Place ID.
     private String currentPlaceId;
-    private PlacesClient placesClient;
     private boolean isLunchSpot;
     private TextView placeName;
     private TextView placeAddress;
@@ -107,19 +97,13 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private AppCompatImageButton likeButton;
     private AppCompatImageButton website;
     private AppCompatImageButton call;
-
     private NotificationManagerCompat managerCompat;
     private NotificationCompat.Builder builder;
-
     private RecyclerView usersRecyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private Restaurant restaurant;
-    private static final int notificationId = 1578;
     private NotificationManager mNotifyManager;
-
-
-    UsersListAdapter usersListAdapter;
-    RequestManager requestManager;
+    private UsersListAdapter usersListAdapter;
     private UserViewModel userViewModel;
 
     @Override
@@ -135,14 +119,16 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         createNotificationChannel();
+        if (this.getCurrentUser() != null) {
+            currentUserId = this.getCurrentUser().getUid();
+        }
         placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        userViewModel.setUserId(currentUserId);
         restaurant = new Restaurant();
         placeDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_place_detail);
+        placeDetailBinding.setUserViewModel(userViewModel);
         favouriteRestaurantsList = new ArrayList<>();
-        if (this.getCurrentUser() != null) {
-            uid = this.getCurrentUser().getUid();
-        }
         initViews();
         Intent intent = this.getIntent();
         if (intent != null) {
@@ -172,17 +158,18 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         website = placeDetailBinding.contentLayoutPlaceDetailActivity.websiteButton;
         call = placeDetailBinding.contentLayoutPlaceDetailActivity.callButton;
         addSpotLunch = placeDetailBinding.addSpotLunchButton;
-
         placesViewModel.getRestaurant().observe(this, this::observeData);
     }
 
     private void observeData(Restaurant restaurant) {
         getUserDataFromFirestore();
-        userViewModel.getUserMutableLiveData();
+        userViewModel.getUserLunchInThatSpotList(currentPlaceId);
+        if (this.getCurrentUser() != null) {
+            userViewModel.getIsLunchSpotFromFirestore(this.getCurrentUser().getUid(), currentPlaceId);
+        }
         placeDetailBinding.setRestaurant(restaurant);
         this.restaurant = restaurant;
         placePhone = restaurant.getPhone();
-
         Double rating = (double) restaurant.getRating();
         if (rating != null) {
             ratingFiveStar = rating;
@@ -199,7 +186,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
         website.setOnClickListener(view12 -> openWebPage(placeWebsite));
 
-        fabOnClickListener();
+        //fabOnClickListener();
         configureRecyclerView(currentPlaceId);
 
         // Create an explicit intent for an Activity in your app
@@ -242,12 +229,12 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         });
     }
 
+/*
     private void fabOnClickListener() {
         getUserDataFromFirestore();
         addSpotLunch.setOnClickListener(view -> {
             if (!isLunchSpot) {
                 addLunchSpotInFirebase();
-                //sendUsersNotification();
                 addSpotLunchInSharedPreferences(restaurant.getUid());
                 RestaurantHelper.incrementCounter(restaurant.getUid(), 1);
                 addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
@@ -255,10 +242,8 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 Snackbar.make(view, "You're going to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                 sendUsersNotification();
-
                 NotificationCompat.Builder notifyBuilder = getNotificationBuilder();
                 mNotifyManager.notify(NOTIFICATION_ID, notifyBuilder.build());
-
                 FirebaseMessaging.getInstance().subscribeToTopic("lunch")
                         .addOnCompleteListener(task -> {
                             String msg = getString(R.string.msg_subscribed);
@@ -286,11 +271,10 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                                 System.out.println(" tokens were unsubscribed successfully");
                             }
                         });
-                //  sendUsersNotification();
-
             }
         });
     }
+*/
 
     private void sendUsersNotification() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
@@ -327,7 +311,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         //Add LunchSpot to SharedPreferences
         //addSpotLunchInSharedPreferences(currentPlaceId);
         //Add restaurant to user in Firebase
-        UserHelper.updateLunchSpot(restaurant.getUid(), uid).addOnFailureListener(this.onFailureListener());
+        UserHelper.updateLunchSpot(restaurant.getUid(), currentUserId).addOnFailureListener(this.onFailureListener());
         String website = null;
         if (restaurant.getWebsiteUrl() != null) {
             website = (restaurant.getWebsiteUrl());
@@ -336,14 +320,13 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             //Add restaurant in firebase
             RestaurantHelper.createRestaurant(restaurant.getUid(), restaurant.getName(), restaurant.getAddress(), restaurant.getPhotoUrl(), restaurant.getRating(), 1,
                     null, restaurant.getLocation(), website, restaurant.getPhone()).addOnFailureListener(this.onFailureListener());
-
         }
     }
 
     //Add favourite in Firebase
     private void addFavouriteInFirebase(List<String> restaurants, String idLunchSpot) {
         //Add restaurant to user in Firebase
-        UserHelper.updateFavoriteRestaurants(restaurants, uid).addOnFailureListener(this.onFailureListener());
+        UserHelper.updateFavoriteRestaurants(restaurants, currentUserId).addOnFailureListener(this.onFailureListener());
     }
 
     //Add Like to a restaurant
@@ -371,40 +354,39 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     }
 
     private void getUserDataFromFirestore() {
-        // 5 - Get additional data from Firestore
-        if (this.getCurrentUser() != null) {
-            UserHelper.getUser(this.getCurrentUser().getUid()).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot documentSnapshot = task.getResult();
-                    lunchSpot = Objects.requireNonNull(documentSnapshot.toObject(User.class)).getLunchSpot();
-                    favouriteRestaurantsList = Objects.requireNonNull(documentSnapshot.toObject(User.class)).getFavoriteRestaurants();
-                    if (favouriteRestaurantsList != null) {
-                        addFavorite(favouriteRestaurantsList);
-                    }
-                    if (lunchSpot != null) {
-                        isLunchSpot = lunchSpot.equals(currentPlaceId);
-                        if (!isLunchSpot) {
-                            addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
-                        } else {
-                            addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
-                        }
-                    } else {
-                        isLunchSpot = false;
-                        addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
-                    }
-                }
-            });
-        }
+        userViewModel.getIsLunchSpot().observe(this, isLunchSpot -> {
+            placeDetailBinding.setUserViewModel(userViewModel);
+//            UserHelper.getUser(this.getCurrentUser().getUid()).addOnCompleteListener(task -> {
+//                if (task.isSuccessful()) {
+//                    DocumentSnapshot documentSnapshot = task.getResult();
+//                    lunchSpot = Objects.requireNonNull(documentSnapshot.toObject(User.class)).getLunchSpot();
+//                    favouriteRestaurantsList = Objects.requireNonNull(documentSnapshot.toObject(User.class)).getFavoriteRestaurants();
+//                    if (favouriteRestaurantsList != null) {
+//                        addFavorite(favouriteRestaurantsList);
+//                    }
+//                    if (lunchSpot != null) {
+//                        isLunchSpot = lunchSpot.equals(currentPlaceId);
+//                        if (!isLunchSpot) {
+//                            addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
+//                        } else {
+//                            addSpotLunch.setImageResource(R.drawable.ic_baseline_check_circle_24);
+//                        }
+//                    } else {
+//                        isLunchSpot = false;
+//                        addSpotLunch.setImageResource(R.drawable.ic_baseline_add_circle_24);
+//                    }
+//                }
+//            });
+        });
     }
-
 
     // Configure RecyclerView with a Query
     private void configureRecyclerView(String placeId) {
         this.usersListAdapter = new UsersListAdapter(this);
-        userViewModel.getUsersList().observe(this, users -> {
+        userViewModel.getUserListLunchInThatSpot().observe(this, users -> {
             users.removeIf(user -> {
                 if (user.getLunchSpot() != null) {
-                    return (user.getUid().equals(uid) || !user.getLunchSpot().equals(placeId));
+                    return (user.getUid().equals(currentUserId) || !user.getLunchSpot().equals(placeId));
                 }
                 return true;
             });
@@ -414,7 +396,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             for (User user : workmatesList) {
                 System.out.println("ViewModel is working in workmatesFragment" + user.getUserEmail());
                 Log.e(TAG, "size rx1: " + user.getLunchSpot() + " :" + placeId);
-
             }
         });
         usersRecyclerView.setHasFixedSize(true);

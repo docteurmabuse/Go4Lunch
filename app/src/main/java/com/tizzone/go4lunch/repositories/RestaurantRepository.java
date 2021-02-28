@@ -1,32 +1,30 @@
 package com.tizzone.go4lunch.repositories;
 
-import android.util.Log;
-
-import androidx.lifecycle.MutableLiveData;
-
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.tizzone.go4lunch.di.CollectionRestaurants;
 import com.tizzone.go4lunch.models.Restaurant;
-import com.tizzone.go4lunch.utils.RestaurantHelper;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static android.content.ContentValues.TAG;
+import javax.inject.Inject;
 
 public class RestaurantRepository {
-    public MutableLiveData<List<Restaurant>> getFirebaseRestaurants() {
-        MutableLiveData<List<Restaurant>> firebaseRestaurants = new MutableLiveData<>();
-        RestaurantHelper.getRestaurants().
-                addSnapshotListener((value, error) -> {
-                    if (error != null) {
-                        Log.w(TAG, "Listener failed.", error);
-                        List<Restaurant> mRestaurants = new ArrayList<>();
-                        firebaseRestaurants.setValue(mRestaurants);
-                    } else {
-                        List<Restaurant> mRestaurants = new ArrayList<>();
-                        firebaseRestaurants.setValue(value.toObjects(Restaurant.class));
-                    }
-                });
-        return firebaseRestaurants;
+
+    private final CollectionReference restaurantsRef;
+
+    @Inject
+    public RestaurantRepository(@CollectionRestaurants CollectionReference restaurantsRef) {
+        this.restaurantsRef = restaurantsRef;
+    }
+
+    // --- READ ---
+    public Task<DocumentSnapshot> getRestaurantsById(String uid) {
+        return restaurantsRef.document(uid).get();
+    }
+
+    // --- CREATE ---
+    public Task<Void> createRestaurant(Restaurant restaurant) {
+        return restaurantsRef.document(restaurant.getUid()).set(restaurant);
     }
 
 }

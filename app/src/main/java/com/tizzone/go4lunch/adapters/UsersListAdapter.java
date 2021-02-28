@@ -19,7 +19,6 @@ import java.util.List;
 
 public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.UserViewHolder> {
 
-    private Context context;
     private Restaurant restaurant;
     private List<User> userList;
     private static final String TAG = "FirebaseAuthAppTag";
@@ -33,9 +32,8 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.User
     @NonNull
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        context = parent.getContext();
+        Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        //FOR COMMUNICATION
         UsersListItemBinding userBinding = DataBindingUtil.inflate(inflater, R.layout.users_list_item, parent, false);
         return new UserViewHolder(userBinding.getRoot());
     }
