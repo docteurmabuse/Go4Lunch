@@ -73,10 +73,16 @@ public class UserViewModel extends ViewModel {
 
     public void updateFavoriteLunchSpotUser(Boolean isFavoriteLunchSpot, List<String> favoriteRestaurants, String restaurantId, String userId) {
         if (isFavoriteLunchSpot) {
+            if (favoriteRestaurants == null) {
+                favoriteRestaurants = new ArrayList<>();
+            }
             favoriteRestaurants.remove(restaurantId);
             userRepository.updateFavoriteRestaurants(null, userId);
             isFavoriteLunchSpotLiveData.setValue(false);
         } else {
+            if (favoriteRestaurants == null) {
+                favoriteRestaurants = new ArrayList<>();
+            }
             favoriteRestaurants.add(restaurantId);
             userRepository.updateFavoriteRestaurants(favoriteRestaurants, userId);
             isFavoriteLunchSpotLiveData.setValue(true);

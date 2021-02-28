@@ -107,7 +107,8 @@
         <include
             android:id="@+id/content_layout_place_detail_activity"
             layout="@layout/content_layout_place_detail_activity"
-            bind:restaurantDetail="@{restaurant}" />
+            bind:restaurantDetail="@{restaurant}"
+            bind:userViewModel="@{userViewModel}" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/add_spot_lunch_button"

@@ -94,8 +94,8 @@ public class ViewBinding {
     }
 
     @BindingAdapter(value = {"isTrue", "placeHolderTrue", "placeHolderFalse"}, requireAll = true)
-    public static void bindFloatingActionButton(FloatingActionButton floatingActionButton, Boolean isLunchSpot, Drawable placeHolderTrue, Drawable placeHolderFalse) {
-        if (isLunchSpot != null && !isLunchSpot) {
+    public static void bindFloatingActionButton(FloatingActionButton floatingActionButton, Boolean isTrue, Drawable placeHolderTrue, Drawable placeHolderFalse) {
+        if (isTrue != null && !isTrue) {
             floatingActionButton.setImageDrawable(placeHolderFalse);
         } else {
             floatingActionButton.setImageDrawable(placeHolderTrue);

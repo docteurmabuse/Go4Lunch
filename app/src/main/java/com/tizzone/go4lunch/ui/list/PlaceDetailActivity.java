@@ -162,11 +162,14 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     }
 
     private void observeData(Restaurant restaurant) {
-        getUserDataFromFirestore();
         userViewModel.getUserLunchInThatSpotList(currentPlaceId);
         if (this.getCurrentUser() != null) {
             userViewModel.getIsLunchSpotFromFirestore(this.getCurrentUser().getUid(), currentPlaceId);
         }
+        userViewModel.getIsLunchSpot().observe(this, isLunchSpot -> {
+            placeDetailBinding.setUserViewModel(userViewModel);
+        });
+
         placeDetailBinding.setRestaurant(restaurant);
         this.restaurant = restaurant;
         placePhone = restaurant.getPhone();
