@@ -4,12 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -19,18 +19,17 @@ import com.firebase.ui.auth.AuthUI;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityMainBinding;
 import com.tizzone.go4lunch.databinding.NavHeaderMainBinding;
-import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.ui.MainFragmentFactory;
 import com.tizzone.go4lunch.ui.MainNavHostFragment;
 import com.tizzone.go4lunch.ui.auth.AuthActivity;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.ui.settings.SettingsActivity;
-import com.tizzone.go4lunch.utils.UserHelper;
+import com.tizzone.go4lunch.viewmodels.UserViewModel;
+
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -49,12 +48,12 @@ public class MainActivity extends BaseActivity {
 
     @Inject
     public MainFragmentFactory fragmentFactory;
+    private UserViewModel userViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        initNotifications();
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         mBinding.setNavigationItemSelectedListener(this);
         View view = mBinding.getRoot();
@@ -65,17 +64,12 @@ public class MainActivity extends BaseActivity {
                         .findFragmentById(R.id.nav_host_fragment);
         assert navHostFragment != null;
         NavController navController = navHostFragment.getNavController();
-        sharedPreferences = getSharedPreferences(myPreference,
-                Context.MODE_PRIVATE);
-
         Toolbar toolbar = mBinding.toolbar;
         setSupportActionBar(toolbar);
         DrawerLayout drawer = mBinding.drawerLayout;
         NavigationView navigationView = mBinding.drawerNavView;
         BottomNavigationView bottomNavigationView = mBinding.bottomNavView;
-
-        String uid = this.getCurrentUser().getUid();
-
+        String uid = Objects.requireNonNull(this.getCurrentUser()).getUid();
         mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph())
                 .setOpenableLayout(drawer)
                 .build();
@@ -83,7 +77,6 @@ public class MainActivity extends BaseActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
-
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.navigation_map) {
@@ -116,37 +109,16 @@ public class MainActivity extends BaseActivity {
             if (id == R.id.nav_settings) {
                 launchSettingsActivity();
             }
-
             drawer.closeDrawer(GravityCompat.START);
             return true;
         });
 
         View headerView = mBinding.drawerNavView.getHeaderView(0);
-
         navHeaderMainBinding = NavHeaderMainBinding.bind(headerView);
+        sharedPreferences = getSharedPreferences(myPreference,
+                Context.MODE_PRIVATE);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         updateProfileWhenCreating();
-    }
-
-    private void initNotifications() {
-        // Handle possible data accompanying notification message.
-        if (getIntent().getExtras() != null) {
-            for (String key : getIntent().getExtras().keySet()) {
-                Object value = getIntent().getExtras().get(key);
-                Log.d(TAG, "Key: " + key + " Value: " + value);
-            }
-        }
-        FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(task -> {
-                    if (!task.isSuccessful()) {
-                        Log.w(TAG, "Fetching FCM registration token failed", task.getException());
-                        return;
-                    }
-                    // Get new FCM registration token
-                    String token = task.getResult();
-                    // Log and toast
-                    String msg = getString(R.string.msg_token_fmt, token);
-                    Log.d(TAG, msg);
-                });
     }
 
     private void launchSettingsActivity() {
@@ -161,14 +133,11 @@ public class MainActivity extends BaseActivity {
 
     private void updateProfileWhenCreating() {
         if (this.getCurrentUser() != null) {
-            UserHelper.getUser(this.getCurrentUser().getUid()).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot documentSnapshot = task.getResult();
-                    User user = documentSnapshot.toObject(User.class);
-                    navHeaderMainBinding.setUser(user);
-                }
-            });
+            userViewModel.getUserInfoFromFirestore(this.getCurrentUser().getUid());
         }
+        userViewModel.getCurrentUser().observe(this, user -> {
+            navHeaderMainBinding.setUser(user);
+        });
     }
 
     @Override

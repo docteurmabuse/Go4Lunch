@@ -11,7 +11,7 @@ public class ReminderBroadcast extends BroadcastReceiver {
         // This method is called when the BroadcastReceiver is receiving
         // an Intent broadcast.
         // NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "notifyGo4Lunch")
-//                .setContentTitle(getCurrentUser().getDisplayName() + " just choose a lunch spot")
+//                .setContentTitle(getCurrentUserId().getDisplayName() + " just choose a lunch spot")
 //                .setContentText("He's lunching at " + restaurant.getName())
 //                .setContentIntent(notificationPendingIntent)
 //                .setAutoCancel(true)

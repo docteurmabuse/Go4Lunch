@@ -39,7 +39,7 @@ public class UserViewModel extends ViewModel {
     public MutableLiveData<User> userMutableLiveData = new MutableLiveData<>();
     public MutableLiveData<List<User>> firebaseUserLunchInThatSpotList = new MutableLiveData<>();
     public MutableLiveData<List<String>> favoriteLunchSpotListLiveData = new MutableLiveData<>();
-
+    public MutableLiveData<User> userLiveData = new MutableLiveData<>();
     public MutableLiveData<String> userIdLiveData = new MutableLiveData<>();
     public MutableLiveData<Boolean> isLunchSpotLiveData = new MutableLiveData<>();
     public MutableLiveData<Boolean> isFavoriteLunchSpotLiveData = new MutableLiveData<>();
@@ -69,6 +69,11 @@ public class UserViewModel extends ViewModel {
     public LiveData<String> getCurrentUserId() {
         return userIdLiveData;
     }
+
+    public LiveData<User> getCurrentUser() {
+        return userLiveData;
+    }
+
 
     public LiveData<Boolean> getFabClickResult() {
         return clickLunchSpotLiveData;
@@ -120,13 +125,14 @@ public class UserViewModel extends ViewModel {
     }
 
 
-    public void getIsLunchSpotFromFirestore(String userId, String lunchSpotId) {
+    public void getUserLunchInfoFromFirestore(String userId, String lunchSpotId) {
         userMutableLiveData = new MutableLiveData<>();
         userRepository.getUser(userId).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 boolean isLunchSpot;
                 DocumentSnapshot documentSnapshot = task.getResult();
-                String lunchSpot = Objects.requireNonNull(documentSnapshot.toObject(User.class)).getLunchSpot();
+                User user = Objects.requireNonNull(documentSnapshot.toObject(User.class));
+                String lunchSpot = user.getLunchSpot();
                 if (lunchSpot != null) {
                     isLunchSpot = lunchSpot.equals(lunchSpotId);
                 } else {
@@ -134,7 +140,7 @@ public class UserViewModel extends ViewModel {
                 }
                 isLunchSpotLiveData.setValue(isLunchSpot);
                 boolean isFavoriteLunchSpot;
-                List<String> favoriteRestaurantsList = Objects.requireNonNull(documentSnapshot.toObject(User.class)).getFavoriteRestaurants();
+                List<String> favoriteRestaurantsList = user.getFavoriteRestaurants();
                 if (favoriteRestaurantsList != null) {
                     isFavoriteLunchSpot = favoriteRestaurantsList.contains(lunchSpotId);
                 } else {
@@ -146,8 +152,16 @@ public class UserViewModel extends ViewModel {
         });
     }
 
-    public static void logErrorMessage(String errorMessage) {
-        Log.d(TAG, errorMessage);
+    public void getUserInfoFromFirestore(String userId) {
+        userMutableLiveData = new MutableLiveData<>();
+        userRepository.getUser(userId).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                boolean isLunchSpot;
+                DocumentSnapshot documentSnapshot = task.getResult();
+                User user = Objects.requireNonNull(documentSnapshot.toObject(User.class));
+                userLiveData.setValue(user);
+            }
+        });
     }
 
     public void getUserLunchInThatSpotList(String lunchSpotId) {
