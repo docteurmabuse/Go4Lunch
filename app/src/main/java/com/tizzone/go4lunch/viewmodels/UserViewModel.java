@@ -43,6 +43,7 @@ public class UserViewModel extends ViewModel {
     public MutableLiveData<String> userIdLiveData = new MutableLiveData<>();
     public MutableLiveData<Boolean> isLunchSpotLiveData = new MutableLiveData<>();
     public MutableLiveData<Boolean> isFavoriteLunchSpotLiveData = new MutableLiveData<>();
+    public MutableLiveData<Boolean> clickLunchSpotLiveData = new MutableLiveData<>();
 
 
     @Inject
@@ -60,14 +61,20 @@ public class UserViewModel extends ViewModel {
         return userIdLiveData;
     }
 
+    public LiveData<Boolean> getFabClickResult() {
+        return clickLunchSpotLiveData;
+    }
+
     public void updateLunchSpotUser(Boolean isLunchSpot, Restaurant restaurant, String userId) {
         if (isLunchSpot) {
             userRepository.updateLunchSpot(null, userId);
             isLunchSpotLiveData.setValue(false);
+            clickLunchSpotLiveData.setValue(false);
         } else {
             userRepository.updateLunchSpot(restaurant.getUid(), userId);
             restaurantRepository.createRestaurant(restaurant);
             isLunchSpotLiveData.setValue(true);
+            clickLunchSpotLiveData.setValue(true);
         }
     }
 
@@ -118,14 +125,14 @@ public class UserViewModel extends ViewModel {
                 }
                 isLunchSpotLiveData.setValue(isLunchSpot);
                 boolean isFavoriteLunchSpot;
-                List<String> favouriteRestaurantsList = Objects.requireNonNull(documentSnapshot.toObject(User.class)).getFavoriteRestaurants();
-                if (favouriteRestaurantsList != null) {
-                    isFavoriteLunchSpot = favouriteRestaurantsList.contains(lunchSpotId);
+                List<String> favoriteRestaurantsList = Objects.requireNonNull(documentSnapshot.toObject(User.class)).getFavoriteRestaurants();
+                if (favoriteRestaurantsList != null) {
+                    isFavoriteLunchSpot = favoriteRestaurantsList.contains(lunchSpotId);
                 } else {
                     isFavoriteLunchSpot = false;
                 }
                 isFavoriteLunchSpotLiveData.setValue(isFavoriteLunchSpot);
-                favoriteLunchSpotListLiveData.setValue(favouriteRestaurantsList);
+                favoriteLunchSpotListLiveData.setValue(favoriteRestaurantsList);
             }
         });
     }
@@ -181,5 +188,7 @@ public class UserViewModel extends ViewModel {
         });
     }
 
-
+    public interface UserItemClickListener {
+        void onUserClick(Restaurant restaurant);
+    }
 }

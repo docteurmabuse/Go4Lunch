@@ -72,6 +72,7 @@
     <string name="notifications_label">Enable message notifications</string>
     <string name="email_connexion">Sign in by email</string>
     <string name="fui_sign_in_with_twittern">Sign in with Twitter</string>
+    <string name="no_workmates_are_lunching_in_this_restaurant">No workmates are lunching in this restaurant</string>
 
 
 </resources>
