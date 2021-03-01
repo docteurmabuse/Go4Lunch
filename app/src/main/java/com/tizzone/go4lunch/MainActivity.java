@@ -18,7 +18,6 @@ import androidx.navigation.ui.NavigationUI;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityMainBinding;
 import com.tizzone.go4lunch.databinding.NavHeaderMainBinding;
@@ -44,8 +43,6 @@ import static com.tizzone.go4lunch.utils.Constants.myPreference;
 
 @AndroidEntryPoint
 public class MainActivity extends BaseActivity {
-    private static final String TAG = "MainActivity";
-    private ActivityMainBinding mBinding;
     private AppBarConfiguration mAppBarConfiguration;
     private NavHeaderMainBinding navHeaderMainBinding;
     private SharedPreferences sharedPreferences;
@@ -58,7 +55,7 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        mBinding = ActivityMainBinding.inflate(getLayoutInflater());
+        com.tizzone.go4lunch.databinding.ActivityMainBinding mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         mBinding.setNavigationItemSelectedListener(this);
         View view = mBinding.getRoot();
         setContentView(view);
@@ -106,12 +103,7 @@ public class MainActivity extends BaseActivity {
                     lunchSpot.setName(sharedPreferences.getString(lunchSpotName, ""));
                     lunchSpot.setAddress(sharedPreferences.getString(lunchSpotAddress, ""));
                     lunchSpot.setPhotoUrl(sharedPreferences.getString(lunchSpotPhotoUrl, ""));
-                    if (lunchSpot != null) {
-                        viewRestaurantDetail(lunchSpot);
-                    } else {
-                        Snackbar.make(mBinding.getRoot(), R.string.no_lunch_spot_notification, Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
-                    }
+                    viewRestaurantDetail(lunchSpot);
                 }
             }
             if (id == R.id.nav_settings) {
@@ -145,9 +137,7 @@ public class MainActivity extends BaseActivity {
         if (this.getCurrentUser() != null) {
             userViewModel.getUserInfoFromFirestore(this.getCurrentUser().getUid());
         }
-        userViewModel.getCurrentUser().observe(this, user -> {
-            navHeaderMainBinding.setUser(user);
-        });
+        userViewModel.getCurrentUser().observe(this, user -> navHeaderMainBinding.setUser(user));
     }
 
     @Override
