@@ -79,6 +79,7 @@ public class UserViewModel extends ViewModel {
             favoriteRestaurants.remove(restaurantId);
             userRepository.updateFavoriteRestaurants(null, userId);
             isFavoriteLunchSpotLiveData.setValue(false);
+            favoriteLunchSpotListLiveData.setValue(favoriteRestaurants);
         } else {
             if (favoriteRestaurants == null) {
                 favoriteRestaurants = new ArrayList<>();
@@ -86,6 +87,7 @@ public class UserViewModel extends ViewModel {
             favoriteRestaurants.add(restaurantId);
             userRepository.updateFavoriteRestaurants(favoriteRestaurants, userId);
             isFavoriteLunchSpotLiveData.setValue(true);
+            favoriteLunchSpotListLiveData.setValue(favoriteRestaurants);
         }
     }
 

@@ -31,7 +31,7 @@ public class UserRepository {
     }
 
     public Query getQueryUsersByLunchSpotId(String lunchSpoId) {
-        return usersRef.orderBy("lunchSpot", ASCENDING).orderBy("userName", ASCENDING).whereEqualTo("lunchSpot", lunchSpoId);
+        return usersRef.whereEqualTo("lunchSpot", lunchSpoId);
     }
 
     public Task<Void> updateLunchSpot(String lunchSpot, String userId) {

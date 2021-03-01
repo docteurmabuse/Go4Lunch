@@ -169,7 +169,9 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         userViewModel.getIsLunchSpot().observe(this, isLunchSpot -> {
             placeDetailBinding.setUserViewModel(userViewModel);
         });
-
+        userViewModel.getIsFavoriteLunchSpot().observe(this, isFavoriteLunchSpot -> {
+            placeDetailBinding.setUserViewModel(userViewModel);
+        });
         placeDetailBinding.setRestaurant(restaurant);
         this.restaurant = restaurant;
         placePhone = restaurant.getPhone();
