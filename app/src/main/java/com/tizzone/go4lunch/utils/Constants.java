@@ -23,6 +23,10 @@ public class Constants {
     public static final String CHANNEL_ID = "primary_notification_channel";
     public static final int NOTIFICATION_ID = 0;
     public static final String lunchSpotId = "lunchSpotId";
+    public static final String lunchSpotName = "lunchSpotName";
+    public static final String lunchSpotAddress = "lunchSpotNamAddress";
+    public static final String lunchSpotPhotoUrl = "lunchSpotPhotoUrl";
+
     public static final String myPreference = "mypref";
     public static final String GOOGLE_MAP_API_KEY = BuildConfig.GOOGLE_MAPS_API_KEY;
 

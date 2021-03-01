@@ -22,6 +22,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityMainBinding;
 import com.tizzone.go4lunch.databinding.NavHeaderMainBinding;
+import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.ui.MainFragmentFactory;
 import com.tizzone.go4lunch.ui.MainNavHostFragment;
 import com.tizzone.go4lunch.ui.auth.AuthActivity;
@@ -35,7 +36,10 @@ import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+import static com.tizzone.go4lunch.utils.Constants.lunchSpotAddress;
 import static com.tizzone.go4lunch.utils.Constants.lunchSpotId;
+import static com.tizzone.go4lunch.utils.Constants.lunchSpotName;
+import static com.tizzone.go4lunch.utils.Constants.lunchSpotPhotoUrl;
 import static com.tizzone.go4lunch.utils.Constants.myPreference;
 
 @AndroidEntryPoint
@@ -97,9 +101,13 @@ public class MainActivity extends BaseActivity {
             }
             if (id == R.id.nav_lunch) {
                 if (sharedPreferences.contains(lunchSpotId)) {
-                    String spotId = (sharedPreferences.getString(lunchSpotId, ""));
-                    if (spotId != null) {
-                        viewRestaurantDetail(spotId);
+                    Restaurant lunchSpot = new Restaurant();
+                    lunchSpot.setUid(sharedPreferences.getString(lunchSpotId, ""));
+                    lunchSpot.setName(sharedPreferences.getString(lunchSpotName, ""));
+                    lunchSpot.setAddress(sharedPreferences.getString(lunchSpotAddress, ""));
+                    lunchSpot.setPhotoUrl(sharedPreferences.getString(lunchSpotPhotoUrl, ""));
+                    if (lunchSpot != null) {
+                        viewRestaurantDetail(lunchSpot);
                     } else {
                         Snackbar.make(mBinding.getRoot(), R.string.no_lunch_spot_notification, Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
@@ -125,9 +133,11 @@ public class MainActivity extends BaseActivity {
         startActivity(new Intent(MainActivity.this, SettingsActivity.class));
     }
 
-    private void viewRestaurantDetail(String restaurantId) {
+    private void viewRestaurantDetail(Restaurant restaurant) {
         Intent intent = new Intent(this, PlaceDetailActivity.class);
-        intent.putExtra("RESTAURANT", restaurantId);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("RESTAURANT", restaurant);
+        intent.putExtras(bundle);
         startActivity(intent);
     }
 

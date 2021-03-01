@@ -47,6 +47,9 @@ import static com.tizzone.go4lunch.utils.Constants.CHANNEL_ID;
 import static com.tizzone.go4lunch.utils.Constants.NOTIFICATION_ID;
 import static com.tizzone.go4lunch.utils.Constants.PRIMARY_CHANNEL_ID;
 import static com.tizzone.go4lunch.utils.Constants.TAG;
+import static com.tizzone.go4lunch.utils.Constants.lunchSpotAddress;
+import static com.tizzone.go4lunch.utils.Constants.lunchSpotName;
+import static com.tizzone.go4lunch.utils.Constants.lunchSpotPhotoUrl;
 import static com.tizzone.go4lunch.utils.Constants.myPreference;
 import static com.tizzone.go4lunch.utils.Constants.notificationId;
 
@@ -212,9 +215,9 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(getString(R.string.lunchSpotId), lunchSpot);
-        editor.putString("lunchSpotName", restaurant.getName());
-        editor.putString("lunchSpotNamAddress", restaurant.getName());
-        editor.putString("lunchSpotPhotoUrl", restaurant.getName());
+        editor.putString(lunchSpotName, restaurant.getName());
+        editor.putString(lunchSpotAddress, restaurant.getName());
+        editor.putString(lunchSpotPhotoUrl, restaurant.getName());
         editor.apply();
     }
 
