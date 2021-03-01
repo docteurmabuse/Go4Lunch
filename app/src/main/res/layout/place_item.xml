@@ -9,25 +9,30 @@
         <variable
             name="restaurant"
             type="com.tizzone.go4lunch.models.Restaurant" />
+
+        <variable
+            name="restaurantItemClick"
+            type="com.tizzone.go4lunch.adapters.PlacesListAdapter.RestaurantItemClickListener" />
+
     </data>
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="0dp"
+        android:onClick="@{() ->restaurantItemClick.onRestaurantClick(restaurant)}">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraint"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/textViewName"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginStart="0dp">
-
-            <TextView
-                android:id="@+id/textViewName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_marginStart="5dp"
-                android:layout_marginEnd="5dp"
-                android:ellipsize="end"
-                android:maxLines="1"
+            android:layout_gravity="start"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:ellipsize="end"
+            android:maxLines="1"
                 android:text="@{restaurant.name}"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                 android:textSize="14sp"

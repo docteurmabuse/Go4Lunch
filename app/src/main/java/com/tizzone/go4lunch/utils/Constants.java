@@ -7,6 +7,7 @@ public class Constants {
     public static final String COLLECTION_USER_NAME = "users";
     public static final String COLLECTION_RESTAURANT_NAME = "restaurants";
     public static final String USER_NAME_PROPERTY = "UserName";
+    public static final String USER_ID = "userId";
     public static final String RESTAURANT_NAME_PROPERTY = "name";
     public static final int RC_SIGN_IN = 9903;
     public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 546;
@@ -26,7 +27,7 @@ public class Constants {
     public static final String lunchSpotName = "lunchSpotName";
     public static final String lunchSpotAddress = "lunchSpotNamAddress";
     public static final String lunchSpotPhotoUrl = "lunchSpotPhotoUrl";
-
+    public static final String RESTAURANT = "RESTAURANT";
     public static final String myPreference = "mypref";
     public static final String GOOGLE_MAP_API_KEY = BuildConfig.GOOGLE_MAPS_API_KEY;
 

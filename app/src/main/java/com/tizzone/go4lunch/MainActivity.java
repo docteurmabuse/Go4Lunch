@@ -1,8 +1,6 @@
 package com.tizzone.go4lunch;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 
@@ -18,6 +16,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityMainBinding;
 import com.tizzone.go4lunch.databinding.NavHeaderMainBinding;
@@ -27,6 +26,7 @@ import com.tizzone.go4lunch.ui.MainNavHostFragment;
 import com.tizzone.go4lunch.ui.auth.AuthActivity;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.ui.settings.SettingsActivity;
+import com.tizzone.go4lunch.utils.Utils;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
 import java.util.Objects;
@@ -35,18 +35,12 @@ import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
-import static com.tizzone.go4lunch.utils.Constants.lunchSpotAddress;
-import static com.tizzone.go4lunch.utils.Constants.lunchSpotId;
-import static com.tizzone.go4lunch.utils.Constants.lunchSpotName;
-import static com.tizzone.go4lunch.utils.Constants.lunchSpotPhotoUrl;
-import static com.tizzone.go4lunch.utils.Constants.myPreference;
+import static com.tizzone.go4lunch.utils.Constants.RESTAURANT;
 
 @AndroidEntryPoint
 public class MainActivity extends BaseActivity {
     private AppBarConfiguration mAppBarConfiguration;
     private NavHeaderMainBinding navHeaderMainBinding;
-    private SharedPreferences sharedPreferences;
-
     @Inject
     public MainFragmentFactory fragmentFactory;
     private UserViewModel userViewModel;
@@ -59,7 +53,6 @@ public class MainActivity extends BaseActivity {
         mBinding.setNavigationItemSelectedListener(this);
         View view = mBinding.getRoot();
         setContentView(view);
-
         MainNavHostFragment navHostFragment =
                 (MainNavHostFragment) getSupportFragmentManager()
                         .findFragmentById(R.id.nav_host_fragment);
@@ -97,13 +90,12 @@ public class MainActivity extends BaseActivity {
                 signOutUserFromFirebase();
             }
             if (id == R.id.nav_lunch) {
-                if (sharedPreferences.contains(lunchSpotId)) {
-                    Restaurant lunchSpot = new Restaurant();
-                    lunchSpot.setUid(sharedPreferences.getString(lunchSpotId, ""));
-                    lunchSpot.setName(sharedPreferences.getString(lunchSpotName, ""));
-                    lunchSpot.setAddress(sharedPreferences.getString(lunchSpotAddress, ""));
-                    lunchSpot.setPhotoUrl(sharedPreferences.getString(lunchSpotPhotoUrl, ""));
+                Restaurant lunchSpot = Utils.getRestaurantFromSharedPreferences(view.getContext());
+                if (lunchSpot.getUid() != null) {
                     viewRestaurantDetail(lunchSpot);
+                } else {
+                    Snackbar.make(mBinding.getRoot(), R.string.no_lunch_spot_notification, Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
                 }
             }
             if (id == R.id.nav_settings) {
@@ -115,9 +107,10 @@ public class MainActivity extends BaseActivity {
 
         View headerView = mBinding.drawerNavView.getHeaderView(0);
         navHeaderMainBinding = NavHeaderMainBinding.bind(headerView);
-        sharedPreferences = getSharedPreferences(myPreference,
-                Context.MODE_PRIVATE);
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        if (this.getCurrentUser() != null) {
+            userViewModel.getUserInfoFromFirestore(this.getCurrentUser().getUid());
+        }
         updateProfileWhenCreating();
     }
 
@@ -128,15 +121,12 @@ public class MainActivity extends BaseActivity {
     private void viewRestaurantDetail(Restaurant restaurant) {
         Intent intent = new Intent(this, PlaceDetailActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putSerializable("RESTAURANT", restaurant);
+        bundle.putSerializable(RESTAURANT, restaurant);
         intent.putExtras(bundle);
         startActivity(intent);
     }
 
     private void updateProfileWhenCreating() {
-        if (this.getCurrentUser() != null) {
-            userViewModel.getUserInfoFromFirestore(this.getCurrentUser().getUid());
-        }
         userViewModel.getCurrentUser().observe(this, user -> navHeaderMainBinding.setUser(user));
     }
 

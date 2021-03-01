@@ -110,4 +110,12 @@ public class ViewBinding {
             appCompatImageButton.setBackgroundDrawable(placeHolderTrue);
         }
     }
+
+    @BindingAdapter("gone")
+    public static void bindGone(View view, Boolean isGone) {
+        if (isGone) view.setVisibility(View.INVISIBLE);
+        else {
+            view.setVisibility(View.VISIBLE);
+        }
+    }
 }

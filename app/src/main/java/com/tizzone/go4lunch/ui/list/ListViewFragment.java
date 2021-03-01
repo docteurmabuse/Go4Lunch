@@ -2,6 +2,7 @@ package com.tizzone.go4lunch.ui.list;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,21 +37,18 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 import static android.content.ContentValues.TAG;
 import static com.tizzone.go4lunch.utils.Constants.PROXIMITY_RADIUS;
+import static com.tizzone.go4lunch.utils.Constants.RESTAURANT;
 import static com.tizzone.go4lunch.utils.Constants.SESSION_TOKEN;
 
 @AndroidEntryPoint
-public class ListViewFragment extends Fragment {
+public class ListViewFragment extends Fragment implements PlacesListAdapter.RestaurantItemClickListener {
 
     private PlacesListAdapter placesListAdapter;
     private FragmentListBinding fragmentListBinding;
-
     private LocationViewModel locationViewModel;
-
     public PlacesViewModel placesViewModel;
-
     private List<Restaurant> restaurants;
     private LatLng currentLocation;
-
     @Inject
     public LiveData<List<Restaurant>> restaurantsList;
 
@@ -69,7 +67,7 @@ public class ListViewFragment extends Fragment {
         fragmentListBinding = FragmentListBinding.inflate(inflater, container, false);
         fragmentListBinding.listViewPlaces.setLayoutManager(new LinearLayoutManager(getContext()));
         fragmentListBinding.listViewPlaces.addItemDecoration(new DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL));
-        placesListAdapter = new PlacesListAdapter();
+        placesListAdapter = new PlacesListAdapter(this);
         fragmentListBinding.listViewPlaces.setAdapter(placesListAdapter);
         setHasOptionsMenu(true);
         return fragmentListBinding.getRoot();
@@ -114,19 +112,14 @@ public class ListViewFragment extends Fragment {
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.options_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
-//        // Associate searchable configuration with the SearchView
+        // Associate searchable configuration with the SearchView
         SearchManager searchManager =
-                (SearchManager) getContext().getSystemService(Context.SEARCH_SERVICE);
+                (SearchManager) requireActivity().getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView =
                 (SearchView) menu.findItem(R.id.search).getActionView();
-        //searchView.setBackgroundColor(Color.WHITE);
-
         searchView.setSearchableInfo(
-                searchManager.getSearchableInfo(getActivity().getComponentName()));
-
+                searchManager.getSearchableInfo(requireActivity().getComponentName()));
         searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
-        // searchView.setBackgroundColor(Color.WHITE);
-
         searchView.findViewById(R.id.search_close_btn)
                 .setOnClickListener(v -> {
                     Log.d("called", "this is called.");
@@ -150,5 +143,15 @@ public class ListViewFragment extends Fragment {
                 return true;
             }
         });
+    }
+
+    @Override
+    public void onRestaurantClick(Restaurant restaurant) {
+        Intent intent = new Intent(getContext(), PlaceDetailActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(RESTAURANT, restaurant);
+        intent.putExtras(bundle);
+        startActivity(intent);
+        Log.e(TAG, RESTAURANT + ": " + (restaurant.getName()));
     }
 }

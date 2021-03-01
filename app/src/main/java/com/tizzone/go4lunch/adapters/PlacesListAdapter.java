@@ -1,9 +1,7 @@
 package com.tizzone.go4lunch.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -18,7 +16,6 @@ import com.google.maps.android.SphericalUtil;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.PlaceItemBinding;
 import com.tizzone.go4lunch.models.Restaurant;
-import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.utils.UserHelper;
 
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +28,10 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     private List<Restaurant> mPlaces;
     private LatLng currentLocation;
     private Context context;
-    public PlacesListAdapter() {
+    private final RestaurantItemClickListener mListener;
+
+    public PlacesListAdapter(RestaurantItemClickListener mListener) {
+        this.mListener = mListener;
         notifyDataSetChanged();
     }
 
@@ -55,15 +55,7 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
             int mDistance = (int) Math.floor(SphericalUtil.computeDistanceBetween(currentLocation, place.getLocation()));
             holder.distance.setText(resources.getString(R.string.distance, mDistance));
         }
-
-        holder.itemView.setOnClickListener(view -> {
-            final Context context = holder.itemView.getContext();
-            Intent intent = new Intent(context, PlaceDetailActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("RESTAURANT", place);
-            intent.putExtras(bundle);
-            context.startActivity(intent);
-        });
+        holder.placeItemBinding.setRestaurantItemClick(mListener);
     }
 
     private void getUsersCountFromFirestore(String placeId, ViewHolder holder) {
@@ -105,6 +97,10 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
             distance = placeItemBinding.distanceTextView;
             workmatesCount = placeItemBinding.workmatesCount;
         }
+    }
+
+    public interface RestaurantItemClickListener {
+        void onRestaurantClick(Restaurant restaurant);
     }
 }
 

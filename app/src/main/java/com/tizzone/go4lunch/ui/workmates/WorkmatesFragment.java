@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,6 +30,9 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
+
+import static com.tizzone.go4lunch.utils.Constants.RESTAURANT;
+import static com.tizzone.go4lunch.utils.Constants.USER_ID;
 
 @AndroidEntryPoint
 public class WorkmatesFragment extends Fragment implements UsersListAdapter.UserItemClickListener {
@@ -62,6 +66,7 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.User
         View root = workmatesBinding.getRoot();
         textView = workmatesBinding.textNotifications;
         workmatesRecyclerView = workmatesBinding.workmatesRecyclerView;
+        workmatesRecyclerView.addItemDecoration(new DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL));
         getWorkmatesList();
         return root;
     }
@@ -69,7 +74,7 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.User
     private void getWorkmatesList() {
         userViewModel.getUsersList().observe(getViewLifecycleOwner(), users -> {
             assert this.getArguments() != null;
-            String uid = this.getArguments().getString("userId");
+            String uid = this.getArguments().getString(USER_ID);
             Log.e(TAG, "Workmates list size " + (users.size()));
             users.removeIf(user -> (user.getUid().equals(uid)));
             workmatesList = new ArrayList<>(users);
@@ -80,7 +85,6 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.User
         workmatesRecyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
         workmatesRecyclerView.setAdapter(this.adapter);
     }
-
 
     @Override
     public void onStart() {
@@ -102,9 +106,9 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.User
     public void onUserClick(Restaurant restaurant) {
         Intent intent = new Intent(getContext(), PlaceDetailActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putSerializable("RESTAURANT", restaurant);
+        bundle.putSerializable(RESTAURANT, restaurant);
         intent.putExtras(bundle);
         startActivity(intent);
-        Log.e(TAG, "restaurant: " + (restaurant.getName()));
+        Log.e(TAG, RESTAURANT + ": " + (restaurant.getName()));
     }
 }

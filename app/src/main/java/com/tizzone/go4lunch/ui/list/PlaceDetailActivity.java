@@ -46,6 +46,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 import static com.tizzone.go4lunch.utils.Constants.CHANNEL_ID;
 import static com.tizzone.go4lunch.utils.Constants.NOTIFICATION_ID;
 import static com.tizzone.go4lunch.utils.Constants.PRIMARY_CHANNEL_ID;
+import static com.tizzone.go4lunch.utils.Constants.RESTAURANT;
 import static com.tizzone.go4lunch.utils.Constants.TAG;
 import static com.tizzone.go4lunch.utils.Constants.lunchSpotAddress;
 import static com.tizzone.go4lunch.utils.Constants.lunchSpotName;
@@ -71,8 +72,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     private String currentPlaceId;
     private TextView noWorkmates;
 
-    private SharedPreferences sharedPreferences;
-    private AppCompatImageButton likeButton;
     private AppCompatImageButton website;
     private AppCompatImageButton call;
     private RecyclerView usersRecyclerView;
@@ -107,8 +106,8 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         initViews();
         Intent intent = this.getIntent();
         if (intent != null) {
-            if (intent.getSerializableExtra("RESTAURANT") != null) {
-                restaurant = (Restaurant) intent.getSerializableExtra("RESTAURANT");
+            if (intent.getSerializableExtra(RESTAURANT) != null) {
+                restaurant = (Restaurant) intent.getSerializableExtra(RESTAURANT);
             }
             placeDetailBinding.setRestaurant(restaurant);
             currentPlaceId = restaurant.getUid();
@@ -123,7 +122,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         appbar = placeDetailBinding.appBarDetail;
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         usersRecyclerView = placeDetailBinding.contentLayoutPlaceDetailActivity.usersSpotList;
-        likeButton = placeDetailBinding.contentLayoutPlaceDetailActivity.starButton;
         website = placeDetailBinding.contentLayoutPlaceDetailActivity.websiteButton;
         call = placeDetailBinding.contentLayoutPlaceDetailActivity.callButton;
         placesViewModel.getRestaurant().observe(this, this::observeData);
