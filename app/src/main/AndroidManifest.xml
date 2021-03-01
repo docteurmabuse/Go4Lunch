@@ -14,6 +14,13 @@
     <uses-permission android:name="android.permission.CALL_PHONE" /> <!-- Required only when requesting background location access on Android 10 (API level 29). -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="http" />
+        </intent>
+    </queries>
+
     <application
         android:name=".BaseApplication"
         android:allowBackup="false"
@@ -36,7 +43,6 @@
         <activity android:name=".ui.list.PlaceDetailActivity">
             <intent-filter>
                 <action android:name="android.intent.action.DIAL_PHONE" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.VIEW" />
             </intent-filter>
@@ -58,7 +64,6 @@
             android:theme="@style/Theme.Go4Lunch.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -83,17 +88,9 @@
             </intent-filter>
         </service>
 
-        <!--
- Set custom default icon. This is used when no icon is set for incoming notification messages.
-     See README(https://goo.gl/l4GJaQ) for more.
-        -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_logo_go4lunch" />
-        <!--
- Set color used with incoming notification messages. This is used when no color is set for the incoming
-             notification message. See README(https://goo.gl/6BKBk7) for more.
-        -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />

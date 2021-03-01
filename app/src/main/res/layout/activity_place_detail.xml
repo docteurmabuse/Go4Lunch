@@ -63,8 +63,10 @@
 
                 <androidx.appcompat.widget.Toolbar
                     android:id="@+id/detail_toolbar"
+                    android:layout_height="75dp"
+                    app:subtitle="@{restaurant.address}"
                     android:layout_width="match_parent"
-                    android:layout_height="69dp"
+                    app:title="@{restaurant.name}"
                     app:layout_anchor="@+id/mDetailImage"
                     app:layout_anchorGravity="bottom|end"
                     app:layout_collapseMode="pin"
@@ -76,7 +78,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
-                        <TextView
+                        <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/place_details_title"
                             style="@android:style/TextAppearance.Holo.Widget.ActionBar.Title.Inverse"
                             android:layout_width="match_parent"
@@ -86,9 +88,10 @@
                             android:paddingTop="@dimen/padding_normal"
                             android:text="@{restaurant.name}"
                             android:textColor="@color/white"
+                            android:visibility="@{userViewModel.isAppBarCollapsed ? View.VISIBLE : View.GONE}"
                             android:textSize="16sp" />
 
-                        <TextView
+                        <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/place_details_address"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -96,6 +99,7 @@
                             android:maxLines="2"
                             android:paddingTop="5dp"
                             android:text="@{restaurant.address}"
+                            android:visibility="@{userViewModel.isAppBarCollapsed ? View.VISIBLE : View.GONE}"
                             android:textColor="@color/white"
                             android:textSize="12sp" />
                     </LinearLayout>

@@ -63,8 +63,8 @@ public class MainActivity extends BaseActivity {
         MainNavHostFragment navHostFragment =
                 (MainNavHostFragment) getSupportFragmentManager()
                         .findFragmentById(R.id.nav_host_fragment);
+        assert navHostFragment != null;
         NavController navController = navHostFragment.getNavController();
-
         sharedPreferences = getSharedPreferences(myPreference,
                 Context.MODE_PRIVATE);
 
@@ -108,7 +108,7 @@ public class MainActivity extends BaseActivity {
                     if (spotId != null) {
                         viewRestaurantDetail(spotId);
                     } else {
-                        Snackbar.make(mBinding.getRoot(), "You didn't choose any lunch spot yet!", Snackbar.LENGTH_LONG)
+                        Snackbar.make(mBinding.getRoot(), R.string.no_lunch_spot_notification, Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
                     }
                 }

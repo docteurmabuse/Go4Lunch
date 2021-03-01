@@ -43,6 +43,7 @@ public class UserViewModel extends ViewModel {
     public MutableLiveData<String> userIdLiveData = new MutableLiveData<>();
     public MutableLiveData<Boolean> isLunchSpotLiveData = new MutableLiveData<>();
     public MutableLiveData<Boolean> isFavoriteLunchSpotLiveData = new MutableLiveData<>();
+    public MutableLiveData<Boolean> isAppBarCollapsed = new MutableLiveData<>();
     public MutableLiveData<Boolean> clickLunchSpotLiveData = new MutableLiveData<>();
 
 
@@ -51,6 +52,14 @@ public class UserViewModel extends ViewModel {
         this.savedStateHandle = savedStateHandle;
         this.userRepository = userRepository;
         this.restaurantRepository = restaurantRepository;
+    }
+
+    public void setAppBarIsCollapsed(Boolean isCollapsed) {
+        isAppBarCollapsed.setValue(isCollapsed);
+    }
+
+    public LiveData<Boolean> getIsAppBarCollapsed() {
+        return isAppBarCollapsed;
     }
 
     public void setUserId(String uid) {
@@ -186,9 +195,5 @@ public class UserViewModel extends ViewModel {
                 }
             }
         });
-    }
-
-    public interface UserItemClickListener {
-        void onUserClick(Restaurant restaurant);
     }
 }

@@ -73,6 +73,8 @@
     <string name="email_connexion">Sign in by email</string>
     <string name="fui_sign_in_with_twittern">Sign in with Twitter</string>
     <string name="no_workmates_are_lunching_in_this_restaurant">No workmates are lunching in this restaurant</string>
+    <string name="no_website_notification">This restaurant doesn\'t have website yet!</string>
+    <string name="no_lunch_spot_notification">You don\'t have any lunch spo yet!</string>
 
 
 </resources>
