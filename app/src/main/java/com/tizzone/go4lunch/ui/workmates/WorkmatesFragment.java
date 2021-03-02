@@ -37,7 +37,6 @@ import static com.tizzone.go4lunch.utils.Constants.USER_ID;
 @AndroidEntryPoint
 public class WorkmatesFragment extends Fragment implements UsersListAdapter.UserItemClickListener {
 
-    private WorkmatesViewModel workmatesViewModel;
     private static final String TAG = "FirebaseAuthAppTag";
     private FragmentWorkmatesBinding workmatesBinding;
     @Inject
@@ -55,8 +54,6 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.User
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        workmatesViewModel =
-                new ViewModelProvider(this).get(WorkmatesViewModel.class);
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
     }
 

@@ -2,7 +2,6 @@ package com.tizzone.go4lunch.adapters;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -12,19 +11,18 @@ import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.maps.android.SphericalUtil;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.PlaceItemBinding;
 import com.tizzone.go4lunch.models.Restaurant;
-import com.tizzone.go4lunch.utils.UserHelper;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import static com.tizzone.go4lunch.utils.Utils.getDistanceFromRestaurant;
+
 public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.ViewHolder> {
 
-    private static final String TAG = "ERROR";
     private List<Restaurant> mPlaces;
     private LatLng currentLocation;
     private Context context;
@@ -49,25 +47,11 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
         Restaurant place = mPlaces.get(position);
         Resources resources = context.getResources();
         holder.placeItemBinding.setRestaurant(place);
-        getUsersCountFromFirestore(place.getUid(), holder);
-
         if (place.getLocation() != null) {
-            int mDistance = (int) Math.floor(SphericalUtil.computeDistanceBetween(currentLocation, place.getLocation()));
+            int mDistance = getDistanceFromRestaurant(currentLocation, place.getLocation());
             holder.distance.setText(resources.getString(R.string.distance, mDistance));
         }
         holder.placeItemBinding.setRestaurantItemClick(mListener);
-    }
-
-    private void getUsersCountFromFirestore(String placeId, ViewHolder holder) {
-        UserHelper.getUsersLunchSpot(placeId).addSnapshotListener((value, error) -> {
-            if (error != null) {
-                Log.w(TAG, "Listener failed.", error);
-                return;
-            }
-            assert value != null;
-            int usersCount = value.size();
-            holder.workmatesCount.setText("(" + usersCount + ")");
-        });
     }
 
     public void setCurrentLocation(LatLng currentLocation) {
@@ -87,7 +71,6 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView workmatesCount;
         public TextView distance;
         private final PlaceItemBinding placeItemBinding;
 
@@ -95,7 +78,6 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
             super(placeItemBinding.getRoot());
             this.placeItemBinding = placeItemBinding;
             distance = placeItemBinding.distanceTextView;
-            workmatesCount = placeItemBinding.workmatesCount;
         }
     }
 

@@ -4,7 +4,6 @@ import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,7 +30,6 @@ public class UserViewModel extends ViewModel {
     private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private final FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
     private final CollectionReference usersRef = rootRef.collection("USERS");
-    private final SavedStateHandle savedStateHandle;
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
     private final MutableLiveData<List<User>> userListMutableLiveData = new MutableLiveData<>();
@@ -46,10 +44,8 @@ public class UserViewModel extends ViewModel {
     public MutableLiveData<Boolean> isAppBarCollapsed = new MutableLiveData<>();
     public MutableLiveData<Boolean> clickLunchSpotLiveData = new MutableLiveData<>();
 
-
     @Inject
-    public UserViewModel(SavedStateHandle savedStateHandle, UserRepository userRepository, RestaurantRepository restaurantRepository) {
-        this.savedStateHandle = savedStateHandle;
+    public UserViewModel(UserRepository userRepository, RestaurantRepository restaurantRepository) {
         this.userRepository = userRepository;
         this.restaurantRepository = restaurantRepository;
     }
@@ -182,7 +178,6 @@ public class UserViewModel extends ViewModel {
             }
         });
     }
-
 
     public LiveData<List<User>> getUserListLunchInThatSpot() {
         return firebaseUserLunchInThatSpotList;

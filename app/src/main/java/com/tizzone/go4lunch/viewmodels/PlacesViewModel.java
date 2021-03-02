@@ -6,13 +6,13 @@ import android.util.Log;
 import androidx.databinding.ObservableBoolean;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.detail.Result;
 import com.tizzone.go4lunch.models.prediction.Prediction;
 import com.tizzone.go4lunch.repositories.PlaceRepository;
+import com.tizzone.go4lunch.repositories.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,30 +28,23 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 @HiltViewModel
 public class PlacesViewModel extends ViewModel {
     private static final String TAG = "PlacesViewModel";
-    public String location;
-    public String key;
-
+    public static int userCount = 0;
     private final PlaceRepository placeRepository;
-
-    private final SavedStateHandle savedStateHandle;
+    private final UserRepository userRepository;
 
     public MutableLiveData<List<Restaurant>> matesRestaurantsList = new MutableLiveData<>();
-
-
     public MutableLiveData<List<Restaurant>> restaurantsList = new MutableLiveData<>();
-
-    private UserViewModel userViewModel;
-
     private final MutableLiveData<List<Restaurant>> filteredRestaurants = new MutableLiveData<>();
     private final MutableLiveData<Restaurant> restaurantMutableLiveData = new MutableLiveData<>();
-
     private final MutableLiveData<Integer> radius = new MutableLiveData<>();
+    private final MutableLiveData<Integer> counter = new MutableLiveData<>();
+
     public ObservableBoolean isLoading = new ObservableBoolean(false);
 
     @Inject
-    public PlacesViewModel(SavedStateHandle savedStateHandle, PlaceRepository placeRepository) {
-        this.savedStateHandle = savedStateHandle;
+    public PlacesViewModel(PlaceRepository placeRepository, UserRepository userRepository) {
         this.placeRepository = placeRepository;
+        this.userRepository = userRepository;
     }
 
     public MutableLiveData<Integer> setRadius(int mRadius) {
@@ -79,12 +72,11 @@ public class PlacesViewModel extends ViewModel {
         return matesRestaurantsList;
     }
 
-
     public MutableLiveData<List<Restaurant>> getFilteredRestaurantsList() {
         return filteredRestaurants;
     }
 
-    public MutableLiveData<List<Restaurant>> setRestaurants(String location, int radius) {
+    public void setRestaurants(String location, int radius) {
         List<com.tizzone.go4lunch.models.places.Result> placesResultsList;
         placeRepository.getNearByPlacesApi(location, radius)
                 .subscribeOn(Schedulers.io())
@@ -92,28 +84,40 @@ public class PlacesViewModel extends ViewModel {
                     isLoading.set(true);
                     List<com.tizzone.go4lunch.models.places.Result> placesResultsList1 = placesResults.getResults();
                     List<Restaurant> restaurants = new ArrayList<>();
-
                     for (com.tizzone.go4lunch.models.places.Result result : placesResultsList1) {
                         Boolean isOpen = null;
-                        if (result.getOpeningHours() != null)
+                        if (result.getOpeningHours() != null) {
                             isOpen = result.getOpeningHours().getOpenNow();
-
-                        Restaurant restaurant = new Restaurant(result.getPlaceId(), result.getName(), result.getVicinity(), result.getPhotoUrl(), result.getRating(), 0,
+                        }
+                        Restaurant restaurant = new Restaurant(result.getPlaceId(), result.getName(), result.getVicinity(), result.getPhotoUrl(), result.getRating(), userCount,
                                 isOpen, result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng(), null, null);
                         restaurants.add(restaurant);
+
+                        userRepository.getQueryUsersByLunchSpotId(result.getPlaceId()).addSnapshotListener((value, error) -> {
+                            if (error != null) {
+                                Log.w(TAG, "Listen failed.", error);
+                            } else {
+                                if (value != null) {
+                                    userCount = value.size();
+                                    restaurant.setRestaurant_counter(userCount);
+                                } else {
+                                    Log.d(TAG, "Current data: null");
+                                    restaurant.setRestaurant_counter(0);
+                                }
+                            }
+                        });
+
                     }
                     Log.e(TAG, "apply: " + placesResultsList1.get(0).getName());
                     return restaurants;
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(result -> {
-                            //  restaurantsList.setValue(new ArrayList<>());
                             restaurantsList.setValue(result);
                             isLoading.set(false);
                         },
                         error -> Log.e(TAG, "setRestaurants:" + error.getMessage())
                 );
-        return restaurantsList;
     }
 
     public void setRestaurant(String uid) {
@@ -158,7 +162,6 @@ public class PlacesViewModel extends ViewModel {
                     } else {
                         filtered.addAll(restaurants);
                     }
-
                     return filtered;
                 })
                 .observeOn(AndroidSchedulers.mainThread())
@@ -166,6 +169,4 @@ public class PlacesViewModel extends ViewModel {
                         error -> Log.e(TAG, "setPredictions:" + error.getMessage())
                 );
     }
-
-
 }

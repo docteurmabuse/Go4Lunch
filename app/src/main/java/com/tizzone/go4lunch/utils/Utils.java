@@ -11,6 +11,8 @@ import android.os.Build;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.graphics.drawable.DrawableCompat;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.SphericalUtil;
 import com.tizzone.go4lunch.models.Restaurant;
 
 import static com.tizzone.go4lunch.utils.Constants.lunchSpotAddress;
@@ -48,6 +50,10 @@ public class Utils {
             lunchSpot.setPhotoUrl(sharedPreferences.getString(lunchSpotPhotoUrl, ""));
         }
         return lunchSpot;
+    }
+
+    public static int getDistanceFromRestaurant(LatLng currentLocation, LatLng restaurantLocation) {
+        return (int) Math.floor(SphericalUtil.computeDistanceBetween(currentLocation, restaurantLocation));
     }
 
 }
