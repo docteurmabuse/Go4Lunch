@@ -165,7 +165,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
             }
         });
         userViewModel.getUserMutableLiveData();
-
     }
 
     @Override
@@ -217,22 +216,25 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
                 }
             }
         }
+        initMatesList();
+    }
+
+    private void initMatesList() {
         if (this.restaurantsList != null) {
             for (Restaurant restaurant : this.restaurantsList) {
                 if (placeIsMatesSpot(restaurant)) {
-                    if (restaurant.getLocation() != null) {
-                        setMarkers(restaurant, R.drawable.ic_restaurant_pin_green);
-                    }
+                    setMarkers(restaurant, R.drawable.ic_restaurant_pin_green);
                 }
 
             }
         }
-
-
     }
 
     private void initRestaurantsList(List<Restaurant> mRestaurants) {
         this.restaurantsList.addAll(mRestaurants);
+        if (mMap != null) {
+            mMap.clear();
+        }
         for (Restaurant restaurant : mRestaurants) {
             if (!placeIsMatesSpot(restaurant)) {
                 setMarkers(restaurant, R.drawable.ic_restaurant_pin_red);
@@ -271,6 +273,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     public void onResume() {
         super.onResume();
         initRestaurantsList(restaurantsList);
+        initMatesList();
     }
 
     @Override
