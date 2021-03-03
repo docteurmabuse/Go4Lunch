@@ -146,7 +146,7 @@ dependencies {
     implementation 'androidx.hilt:hilt-navigation-fragment:1.0.0-alpha03'
 
     //Test
-    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:3.5.13'
     testImplementation("com.squareup.okhttp3:mockwebserver:4.9.0")
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
@@ -155,8 +155,6 @@ dependencies {
     androidTestImplementation("com.google.dagger:hilt-android-testing:$hilt_version")
     testAnnotationProcessor 'com.google.dagger:hilt-android-compiler:2.31.2-alpha'
     androidTestAnnotationProcessor 'com.google.dagger:hilt-android-compiler:2.31.2-alpha'
-
-    testImplementation("andoidx.fragment:fragment-testing:1.0.0")
 
     // Testing Navigation
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"

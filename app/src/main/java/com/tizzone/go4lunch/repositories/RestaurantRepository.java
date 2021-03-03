@@ -23,8 +23,8 @@ public class RestaurantRepository {
     }
 
     // --- CREATE ---
-    public Task<Void> createRestaurant(Restaurant restaurant) {
-        return restaurantsRef.document(restaurant.getUid()).set(restaurant);
+    public void createRestaurant(Restaurant restaurant) {
+        restaurantsRef.document(restaurant.getUid()).set(restaurant);
     }
 
 }

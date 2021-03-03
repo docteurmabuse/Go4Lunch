@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,8 +29,6 @@ import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -49,12 +46,6 @@ public class ListViewFragment extends Fragment implements PlacesListAdapter.Rest
     public PlacesViewModel placesViewModel;
     private List<Restaurant> restaurants;
     private LatLng currentLocation;
-    @Inject
-    public LiveData<List<Restaurant>> restaurantsList;
-
-    public ListViewFragment(LiveData<List<Restaurant>> restaurantsList) {
-        this.restaurantsList = restaurantsList;
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -84,10 +75,9 @@ public class ListViewFragment extends Fragment implements PlacesListAdapter.Rest
 
     private void observeData() {
         placesViewModel.getRestaurantsList().observe(requireActivity(), restaurantsList -> {
-            Log.e(TAG, "onChanged: " + restaurantsList.size());
-            placesListAdapter.setPlaces(restaurantsList, currentLocation);
-            restaurants = new ArrayList<>();
-            restaurants.addAll(restaurantsList);
+            restaurants = new ArrayList<>(restaurantsList);
+            placesListAdapter.setPlaces(restaurants, currentLocation);
+            Log.e(TAG, "onChanged: " + restaurants.size());
         });
         locationViewModel.getUserLocation().observe(requireActivity(), locationModel -> {
             if (locationModel != null) {
@@ -100,6 +90,7 @@ public class ListViewFragment extends Fragment implements PlacesListAdapter.Rest
 
     public void onResume() {
         super.onResume();
+        placesListAdapter.setPlaces(restaurants, currentLocation);
     }
 
     @Override

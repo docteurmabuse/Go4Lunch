@@ -60,8 +60,8 @@ public class AppModule {
 
     @Singleton
     @Provides
-    static FragmentFactory provideMainFragmentFactory(LiveData<List<Restaurant>> restaurantList) {
-        return new MainFragmentFactory(restaurantList);
+    static FragmentFactory provideMainFragmentFactory(List<Restaurant> restaurantsList) {
+        return new MainFragmentFactory(restaurantsList);
     }
 
     @Singleton

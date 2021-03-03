@@ -112,12 +112,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         .setContentText(lunchingText)
                         .setAutoCancel(true)
                         .setStyle(new NotificationCompat.BigTextStyle().bigText(lunchingText))
-                        //.setSound(defaultSoundUri)
+                        .setSound(defaultSoundUri)
                         .setContentIntent(pendingIntent);
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-// Since android Oreo notification channel is needed.
+        // Since android Oreo notification channel is needed.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(channelId,
                     "Channel human readable title",
@@ -132,14 +132,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         super.onMessageSent(s);
     }
 
-    /**
-     * Persist token to third-party servers.
-     * <p>
-     * Modify this method to associate the user's FCM registration token with any
-     * server-side account maintained by your application.
-     *
-     * @param token The new token.
-     */
     private void sendRegistrationToServer(String token) {
         // TODO: Implement this method to send token to your app server.
     }

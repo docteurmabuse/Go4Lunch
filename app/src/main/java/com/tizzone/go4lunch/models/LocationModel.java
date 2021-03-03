@@ -6,7 +6,6 @@ public class LocationModel {
     private LatLng location;
 
     public LocationModel() {
-
     }
 
     public LocationModel(LatLng location) {

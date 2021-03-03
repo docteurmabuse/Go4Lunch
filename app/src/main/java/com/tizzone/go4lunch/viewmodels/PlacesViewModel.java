@@ -32,12 +32,9 @@ public class PlacesViewModel extends ViewModel {
     private final PlaceRepository placeRepository;
     private final UserRepository userRepository;
 
-    public MutableLiveData<List<Restaurant>> matesRestaurantsList = new MutableLiveData<>();
     public MutableLiveData<List<Restaurant>> restaurantsList = new MutableLiveData<>();
     private final MutableLiveData<List<Restaurant>> filteredRestaurants = new MutableLiveData<>();
     private final MutableLiveData<Restaurant> restaurantMutableLiveData = new MutableLiveData<>();
-    private final MutableLiveData<Integer> radius = new MutableLiveData<>();
-    private final MutableLiveData<Integer> counter = new MutableLiveData<>();
 
     public ObservableBoolean isLoading = new ObservableBoolean(false);
 
@@ -47,19 +44,7 @@ public class PlacesViewModel extends ViewModel {
         this.userRepository = userRepository;
     }
 
-    public MutableLiveData<Integer> setRadius(int mRadius) {
-        radius.setValue(mRadius);
-        return radius;
-    }
-
-    public LiveData<Integer> getRadius() {
-        return radius;
-    }
-
     public LiveData<List<Restaurant>> getRestaurantsList() {
-        if (restaurantsList == null) {
-            restaurantsList = new MutableLiveData<>();
-        }
         return restaurantsList;
     }
 
@@ -67,17 +52,11 @@ public class PlacesViewModel extends ViewModel {
         return restaurantMutableLiveData;
     }
 
-    public MutableLiveData<List<Restaurant>> getMatesRestaurantsList() {
-
-        return matesRestaurantsList;
-    }
-
     public MutableLiveData<List<Restaurant>> getFilteredRestaurantsList() {
         return filteredRestaurants;
     }
 
     public void setRestaurants(String location, int radius) {
-        List<com.tizzone.go4lunch.models.places.Result> placesResultsList;
         placeRepository.getNearByPlacesApi(location, radius)
                 .subscribeOn(Schedulers.io())
                 .map(placesResults -> {
@@ -92,7 +71,6 @@ public class PlacesViewModel extends ViewModel {
                         Restaurant restaurant = new Restaurant(result.getPlaceId(), result.getName(), result.getVicinity(), result.getPhotoUrl(), result.getRating(), userCount,
                                 isOpen, result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng(), null, null);
                         restaurants.add(restaurant);
-
                         userRepository.getQueryUsersByLunchSpotId(result.getPlaceId()).addSnapshotListener((value, error) -> {
                             if (error != null) {
                                 Log.w(TAG, "Listen failed.", error);
@@ -100,6 +78,7 @@ public class PlacesViewModel extends ViewModel {
                                 if (value != null) {
                                     userCount = value.size();
                                     restaurant.setRestaurant_counter(userCount);
+                                    Log.e(TAG, "apply: " + restaurant.getRestaurant_counter());
                                 } else {
                                     Log.d(TAG, "Current data: null");
                                     restaurant.setRestaurant_counter(0);
@@ -126,12 +105,13 @@ public class PlacesViewModel extends ViewModel {
                 .map(placeDetail -> {
                     Result result = placeDetail.getResult();
                     Restaurant restaurant = new Restaurant();
-                    Float rating = null;
+                    Float rating;
                     if (placeDetail.getResult() != null) {
                         Log.e(TAG, "apply: " + result.getName());
                         rating = result.getRating();
                         restaurant = new Restaurant(uid, result.getName(), result.getFormattedAddress(), result.getPhotoUrl(), rating, 0,
                                 null, result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng(), result.getWebsite(), result.getInternationalPhoneNumber());
+
                     }
                     return restaurant;
                 })

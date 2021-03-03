@@ -56,4 +56,7 @@ public class Utils {
         return (int) Math.floor(SphericalUtil.computeDistanceBetween(currentLocation, restaurantLocation));
     }
 
+    public static float transformFiveStarsIntoThree(float rating) {
+        return ((rating * 3) / 5);
+    }
 }

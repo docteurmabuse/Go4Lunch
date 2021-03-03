@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 
 public class PermissionsManager {
 
@@ -26,13 +25,6 @@ public class PermissionsManager {
         return ContextCompat.checkSelfPermission(context, accessFineLocation) == PackageManager.PERMISSION_GRANTED;
     }
 
-    public void requestLocationPermission(Fragment fragment) {
-        requestPermission(fragment);
-    }
-
-    private void requestPermission(Fragment fragment) {
-        fragment.requestPermissions(new String[]{(Manifest.permission.ACCESS_FINE_LOCATION)}, PermissionsManager.LOCATION_PERMISSION_REQUEST_CODE);
-    }
 
     // [START maps_current_place_location_permission]
     private void getLocationPermission(Activity activity, Context context) {

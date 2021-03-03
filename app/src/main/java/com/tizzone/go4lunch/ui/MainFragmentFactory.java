@@ -3,7 +3,6 @@ package com.tizzone.go4lunch.ui;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
-import androidx.lifecycle.LiveData;
 
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.ui.list.ListViewFragment;
@@ -15,15 +14,13 @@ import java.util.List;
 import javax.inject.Inject;
 
 public class MainFragmentFactory extends FragmentFactory {
-
-    private final LiveData<List<Restaurant>> restaurantsList;
+    public List<Restaurant> restaurantsList;
 
     @Inject
-    public MainFragmentFactory(LiveData<List<Restaurant>> restaurantsList) {
+    public MainFragmentFactory(List<Restaurant> restaurantsList) {
         super();
         this.restaurantsList = restaurantsList;
     }
-
 
     @NonNull
     @Override
@@ -33,7 +30,7 @@ public class MainFragmentFactory extends FragmentFactory {
             return new MapFragment(restaurantsList);
         }
         if (fragmentClass == ListViewFragment.class) {
-            return new ListViewFragment(restaurantsList);
+            return new ListViewFragment();
         }
         if (fragmentClass == WorkmatesFragment.class) {
             return new WorkmatesFragment();

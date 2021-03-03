@@ -6,10 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
@@ -27,9 +24,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class UserViewModel extends ViewModel {
     private static final String TAG = "FirebaseAuthAppTag";
-    private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-    private final FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
-    private final CollectionReference usersRef = rootRef.collection("USERS");
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
     private final MutableLiveData<List<User>> userListMutableLiveData = new MutableLiveData<>();
@@ -120,7 +114,6 @@ public class UserViewModel extends ViewModel {
         return favoriteLunchSpotListLiveData;
     }
 
-
     public void getUserLunchInfoFromFirestore(String userId, String lunchSpotId) {
         userMutableLiveData = new MutableLiveData<>();
         userRepository.getUser(userId).addOnCompleteListener(task -> {
@@ -152,7 +145,6 @@ public class UserViewModel extends ViewModel {
         userMutableLiveData = new MutableLiveData<>();
         userRepository.getUser(userId).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                boolean isLunchSpot;
                 DocumentSnapshot documentSnapshot = task.getResult();
                 User user = Objects.requireNonNull(documentSnapshot.toObject(User.class));
                 userLiveData.setValue(user);
@@ -183,10 +175,6 @@ public class UserViewModel extends ViewModel {
         return firebaseUserLunchInThatSpotList;
     }
 
-    public LiveData<List<User>> getUsersList() {
-        return userListMutableLiveData;
-    }
-
     public void getUserMutableLiveData() {
         userRepository.getQueryUsersByName().addSnapshotListener((value, error) -> {
             if (error != null) {
@@ -205,4 +193,9 @@ public class UserViewModel extends ViewModel {
             }
         });
     }
+
+    public LiveData<List<User>> getUsersList() {
+        return userListMutableLiveData;
+    }
+
 }

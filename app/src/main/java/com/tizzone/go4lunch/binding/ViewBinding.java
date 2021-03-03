@@ -93,7 +93,7 @@ public class ViewBinding {
         }
     }
 
-    @BindingAdapter(value = {"isTrue", "placeHolderTrue", "placeHolderFalse"}, requireAll = true)
+    @BindingAdapter(value = {"isTrue", "placeHolderTrue", "placeHolderFalse"})
     public static void bindFloatingActionButton(FloatingActionButton floatingActionButton, Boolean isTrue, Drawable placeHolderTrue, Drawable placeHolderFalse) {
         if (isTrue != null && !isTrue) {
             floatingActionButton.setImageDrawable(placeHolderFalse);
@@ -102,7 +102,7 @@ public class ViewBinding {
         }
     }
 
-    @BindingAdapter(value = {"isTrue", "placeHolderTrue", "placeHolderFalse"}, requireAll = true)
+    @BindingAdapter(value = {"isTrue", "placeHolderTrue", "placeHolderFalse"})
     public static void bindAppCompatImageButton(AppCompatImageButton appCompatImageButton, Boolean isTrue, Drawable placeHolderTrue, Drawable placeHolderFalse) {
         if (isTrue != null && !isTrue) {
             appCompatImageButton.setBackgroundDrawable(placeHolderFalse);

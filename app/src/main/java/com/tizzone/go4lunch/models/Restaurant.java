@@ -15,6 +15,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 
+import static com.tizzone.go4lunch.utils.Utils.transformFiveStarsIntoThree;
+
 
 public class Restaurant extends BaseObservable implements Serializable, Parcelable {
     private String uid;
@@ -149,7 +151,7 @@ public class Restaurant extends BaseObservable implements Serializable, Parcelab
         } else {
             ratingFiveStar = (float) 1.5;
         }
-        rating = ((ratingFiveStar * 3) / 5);
+        rating = transformFiveStarsIntoThree(ratingFiveStar);
         return rating;
     }
 
@@ -158,10 +160,12 @@ public class Restaurant extends BaseObservable implements Serializable, Parcelab
     }
 
     @Bindable
+
     public int getRestaurant_counter() {
         return restaurant_counter;
     }
 
+    @Bindable
     public void setRestaurant_counter(int restaurant_counter) {
         this.restaurant_counter = restaurant_counter;
     }

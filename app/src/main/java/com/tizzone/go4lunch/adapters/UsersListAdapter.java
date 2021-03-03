@@ -21,7 +21,6 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.User
 
     private Restaurant restaurant;
     private List<User> userList;
-    private static final String TAG = "FirebaseAuthAppTag";
     private final UserItemClickListener mListener;
 
     public UsersListAdapter(UserItemClickListener mListener) {

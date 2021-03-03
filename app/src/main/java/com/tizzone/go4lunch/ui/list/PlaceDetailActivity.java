@@ -11,15 +11,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -52,7 +49,6 @@ import static com.tizzone.go4lunch.utils.Constants.lunchSpotAddress;
 import static com.tizzone.go4lunch.utils.Constants.lunchSpotName;
 import static com.tizzone.go4lunch.utils.Constants.lunchSpotPhotoUrl;
 import static com.tizzone.go4lunch.utils.Constants.myPreference;
-import static com.tizzone.go4lunch.utils.Constants.notificationId;
 
 
 @AndroidEntryPoint
@@ -60,18 +56,11 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
     private String placePhone;
     private String currentUserId;
-    private List<String> favouriteRestaurantsList;
-
     private PlacesViewModel placesViewModel;
-    @Nullable
-    boolean isOpen;
     private ActivityPlaceDetailBinding placeDetailBinding;
-    private Toolbar toolbar;
     private AppBarLayout appbar;
     // Define a Place ID.
     private String currentPlaceId;
-    private TextView noWorkmates;
-
     private AppCompatImageButton website;
     private AppCompatImageButton call;
     private RecyclerView usersRecyclerView;
@@ -102,7 +91,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         restaurant = new Restaurant();
         placeDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_place_detail);
         placeDetailBinding.setUserViewModel(userViewModel);
-        favouriteRestaurantsList = new ArrayList<>();
         initViews();
         Intent intent = this.getIntent();
         if (intent != null) {
@@ -117,7 +105,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     }
 
     private void initViews() {
-        toolbar = placeDetailBinding.detailToolbar;
+        Toolbar toolbar = placeDetailBinding.detailToolbar;
         setSupportActionBar(toolbar);
         appbar = placeDetailBinding.appBarDetail;
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -134,13 +122,9 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         }
         userViewModel.getIsLunchSpot().observe(this, isLunchSpot -> {
         });
-        userViewModel.getIsFavoriteLunchSpot().observe(this, isFavoriteLunchSpot -> {
-            placeDetailBinding.setUserViewModel(userViewModel);
-        });
+        userViewModel.getIsFavoriteLunchSpot().observe(this, isFavoriteLunchSpot -> placeDetailBinding.setUserViewModel(userViewModel));
         userViewModel.getFabClickResult().observe(this, this::fabOnClick);
-        userViewModel.getIsAppBarCollapsed().observe(this, isCollapsed -> {
-            placeDetailBinding.setUserViewModel(userViewModel);
-        });
+        userViewModel.getIsAppBarCollapsed().observe(this, isCollapsed -> placeDetailBinding.setUserViewModel(userViewModel));
         placeDetailBinding.setRestaurant(restaurant);
         this.restaurant = restaurant;
         placePhone = restaurant.getPhone();
@@ -152,38 +136,13 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         Intent intent = new Intent(this, PlaceDetailActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.id.logo_go4lunch)
-                .setContentTitle(Objects.requireNonNull(getCurrentUser()).getDisplayName() + "just choose a lunch spot")
-                .setContentText("He's lunching at" + restaurant.getName())
-                .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText("Join" + getCurrentUser().getDisplayName() + "for lunch ..."))
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true);
     }
 
     private void addOnOffsetChangedListener() {
         // Set title of Detail page
         appbar.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
-            //Collapsed
-            // Expanded
             userViewModel.setAppBarIsCollapsed(Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() == 0);
         });
-    }
-
-    private void sendUsersNotification() {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.id.logo_go4lunch)
-                .setContentTitle(Objects.requireNonNull(getCurrentUser()).getDisplayName() + "just choose a lunch spot")
-                .setContentText("He's lunching at" + restaurant.getName())
-                .setChannelId(CHANNEL_ID)
-                .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText("Much longer text that cannot fit one line..."))
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        notificationManager.notify(notificationId, builder.build());
     }
 
     //Dial restaurant's phone number
