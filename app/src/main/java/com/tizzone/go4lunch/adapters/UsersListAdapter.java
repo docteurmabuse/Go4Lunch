@@ -13,13 +13,11 @@ import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.UsersListItemBinding;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
-import com.tizzone.go4lunch.utils.RestaurantHelper;
 
 import java.util.List;
 
 public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.UserViewHolder> {
 
-    private Restaurant restaurant;
     private List<User> userList;
     private final UserItemClickListener mListener;
 
@@ -41,13 +39,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.User
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
         User user = userList.get(position);
         holder.userBinding.setWorkmates(user);
-        if (user.getLunchSpot() != null) {
-            RestaurantHelper.getRestaurantsById(user.getLunchSpot()).addOnSuccessListener(documentSnapshot -> {
-                this.restaurant = documentSnapshot.toObject(Restaurant.class);
-                holder.userBinding.setRestaurant(restaurant);
-            });
-            holder.userBinding.setUserItemClick(mListener);
-        }
+        holder.userBinding.setUserItemClick(mListener);
     }
 
     public void setUserList(List<User> userList) {

@@ -5,6 +5,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.tizzone.go4lunch.di.CollectionUsers;
+import com.tizzone.go4lunch.models.User;
 
 import java.util.List;
 
@@ -26,20 +27,35 @@ public class UserRepository {
         return usersRef.document(uid).get();
     }
 
+    // Users list
     public Query getQueryUsersByName() {
         return usersRef.orderBy("userName", ASCENDING);
+    }
+
+    //Workmates list
+    public Query getWorkmatesLunchInThatSpot(String lunchSpot, String uid) {
+        return usersRef.whereNotEqualTo("uid", uid).whereEqualTo("lunchSpot", lunchSpot);
     }
 
     public Query getQueryUsersByLunchSpotId(String lunchSpoId) {
         return usersRef.whereEqualTo("lunchSpot", lunchSpoId);
     }
 
-    public Task<Void> updateLunchSpot(String lunchSpot, String userId) {
-        return usersRef.document(userId).update("lunchSpot", lunchSpot);
+    public void updateLunchSpot(String lunchSpotId, String lunchSpotName, String userId) {
+        usersRef.document(userId).update(
+                "lunchSpotId", lunchSpotId,
+                "lunchSpotName", lunchSpotName);
     }
 
-    public Task<Void> updateFavoriteRestaurants(List<String> favoriteRestaurants, String userId) {
-        return usersRef.document(userId).update("favoriteRestaurants", favoriteRestaurants);
+    public void updateFavoriteRestaurants(List<String> favoriteRestaurants, String userId) {
+        usersRef.document(userId).update("favoriteRestaurants", favoriteRestaurants);
     }
+
+    //Create user
+    public Task<Void> createUser(String uid, String userEmail, String userName, String photoUrl, List<String> favouriteRestaurants, String lunchSpotId, String lunchSpotName) {
+        User userToCreate = new User(uid, userEmail, userName, photoUrl, favouriteRestaurants, lunchSpotId, lunchSpotName);
+        return usersRef.document(uid).set(userToCreate);
+    }
+
 
 }

@@ -2,10 +2,13 @@ package com.tizzone.go4lunch.viewmodels;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.tizzone.go4lunch.models.Restaurant;
@@ -24,6 +27,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class UserViewModel extends ViewModel {
     private static final String TAG = "FirebaseAuthAppTag";
+    private static final String TAG_CREATE_USER = "FIREBASE CREATE USER";
+
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
     private final MutableLiveData<List<User>> userListMutableLiveData = new MutableLiveData<>();
@@ -33,8 +38,8 @@ public class UserViewModel extends ViewModel {
     public MutableLiveData<List<String>> favoriteLunchSpotListLiveData = new MutableLiveData<>();
     public MutableLiveData<User> userLiveData = new MutableLiveData<>();
     public MutableLiveData<String> userIdLiveData = new MutableLiveData<>();
-    public MutableLiveData<Boolean> isLunchSpotLiveData = new MutableLiveData<>();
-    public MutableLiveData<Boolean> isFavoriteLunchSpotLiveData = new MutableLiveData<>();
+    public MutableLiveData<Boolean> isLunchSpotLiveData = new MutableLiveData<>(false);
+    public MutableLiveData<Boolean> isFavoriteLunchSpotLiveData = new MutableLiveData<>(false);
     public MutableLiveData<Boolean> isAppBarCollapsed = new MutableLiveData<>();
     public MutableLiveData<Boolean> clickLunchSpotLiveData = new MutableLiveData<>();
 
@@ -71,11 +76,11 @@ public class UserViewModel extends ViewModel {
 
     public void updateLunchSpotUser(Boolean isLunchSpot, Restaurant restaurant, String userId) {
         if (isLunchSpot) {
-            userRepository.updateLunchSpot(null, userId);
+            userRepository.updateLunchSpot(null, null, userId);
             isLunchSpotLiveData.setValue(false);
             clickLunchSpotLiveData.setValue(false);
         } else {
-            userRepository.updateLunchSpot(restaurant.getUid(), userId);
+            userRepository.updateLunchSpot(restaurant.getUid(), restaurant.getName(), userId);
             restaurantRepository.createRestaurant(restaurant);
             isLunchSpotLiveData.setValue(true);
             clickLunchSpotLiveData.setValue(true);
@@ -121,7 +126,7 @@ public class UserViewModel extends ViewModel {
                 boolean isLunchSpot;
                 DocumentSnapshot documentSnapshot = task.getResult();
                 User user = Objects.requireNonNull(documentSnapshot.toObject(User.class));
-                String lunchSpot = user.getLunchSpot();
+                String lunchSpot = user.getLunchSpotId();
                 if (lunchSpot != null) {
                     isLunchSpot = lunchSpot.equals(lunchSpotId);
                 } else {
@@ -198,4 +203,16 @@ public class UserViewModel extends ViewModel {
         return userListMutableLiveData;
     }
 
+    public void createUser(FirebaseUser currentUser) {
+        String urlPicture = (currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : null);
+        String username = currentUser.getDisplayName();
+        String uid = currentUser.getUid();
+        String userEmail = currentUser.getEmail();
+        userRepository.createUser(uid, userEmail, username, urlPicture, null, null, null).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG_CREATE_USER, "Error:" + e);
+            }
+        });
+    }
 }

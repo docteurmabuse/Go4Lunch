@@ -60,7 +60,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/avatarView"
                 app:layout_constraintTop_toTopOf="@+id/avatarView"
-                app:restaurantName="@{restaurant.name}"
+                app:restaurantName="@{workmates.getLunchSpotName()}"
                 app:userName="@{workmates.userName}" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

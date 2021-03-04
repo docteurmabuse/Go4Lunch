@@ -91,31 +91,32 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         restaurant = new Restaurant();
         placeDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_place_detail);
         placeDetailBinding.setUserViewModel(userViewModel);
-        initViews();
+
         Intent intent = this.getIntent();
         if (intent != null) {
             if (intent.getSerializableExtra(RESTAURANT) != null) {
                 restaurant = (Restaurant) intent.getSerializableExtra(RESTAURANT);
             }
-            placeDetailBinding.setRestaurant(restaurant);
             currentPlaceId = restaurant.getUid();
             placesViewModel.setRestaurant(currentPlaceId);
-            addOnOffsetChangedListener();
         }
+        initViews();
     }
 
     private void initViews() {
         Toolbar toolbar = placeDetailBinding.detailToolbar;
         setSupportActionBar(toolbar);
         appbar = placeDetailBinding.appBarDetail;
+        addOnOffsetChangedListener();
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         usersRecyclerView = placeDetailBinding.contentLayoutPlaceDetailActivity.usersSpotList;
         website = placeDetailBinding.contentLayoutPlaceDetailActivity.websiteButton;
         call = placeDetailBinding.contentLayoutPlaceDetailActivity.callButton;
-        placesViewModel.getRestaurant().observe(this, this::observeData);
+        observeData();
     }
 
-    private void observeData(Restaurant restaurant) {
+    private void observeData() {
+        placesViewModel.getRestaurant().observe(this, this::getRestaurantDetailFromApi);
         userViewModel.getUserLunchInThatSpotList(currentPlaceId);
         if (this.getCurrentUser() != null) {
             userViewModel.getUserLunchInfoFromFirestore(this.getCurrentUser().getUid(), currentPlaceId);
@@ -125,8 +126,14 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         userViewModel.getIsFavoriteLunchSpot().observe(this, isFavoriteLunchSpot -> placeDetailBinding.setUserViewModel(userViewModel));
         userViewModel.getFabClickResult().observe(this, this::fabOnClick);
         userViewModel.getIsAppBarCollapsed().observe(this, isCollapsed -> placeDetailBinding.setUserViewModel(userViewModel));
+    }
+
+    private void getRestaurantDetailFromApi(Restaurant restaurant) {
+        if (restaurant != null) {
+            this.restaurant = restaurant;
+        }
         placeDetailBinding.setRestaurant(restaurant);
-        this.restaurant = restaurant;
+        assert restaurant != null;
         placePhone = restaurant.getPhone();
         call.setOnClickListener(view1 -> dialPhoneNumber(placePhone));
         website.setOnClickListener(view12 -> openWebPage(restaurant.getWebsiteUrl()));
@@ -183,16 +190,13 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         this.usersListAdapter = new UsersListAdapter(this);
         userViewModel.getUserListLunchInThatSpot().observe(this, users -> {
             users.removeIf(user -> {
-                if (user.getLunchSpot() != null) {
-                    return (user.getUid().equals(currentUserId) || !user.getLunchSpot().equals(placeId));
+                if (user.getLunchSpotId() != null) {
+                    return (user.getUid().equals(currentUserId) || !user.getLunchSpotId().equals(placeId));
                 }
                 return true;
             });
             List<User> workmatesList = new ArrayList<>(users);
             usersListAdapter.setUserList(workmatesList);
-            for (User user : workmatesList) {
-                System.out.println("ViewModel is working in workmatesFragment" + user.getUserEmail());
-            }
         });
         usersRecyclerView.setHasFixedSize(true);
         usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));

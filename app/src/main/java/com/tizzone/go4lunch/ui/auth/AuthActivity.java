@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
@@ -14,26 +15,25 @@ import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
 import com.tizzone.go4lunch.MainActivity;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityAuthBinding;
-import com.tizzone.go4lunch.utils.UserHelper;
+import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 import static android.content.ContentValues.TAG;
 import static com.tizzone.go4lunch.utils.Constants.RC_SIGN_IN;
 
+@AndroidEntryPoint
 public class AuthActivity extends BaseActivity {
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
-    private List<AuthUI.IdpConfig> providers;
-    private ActivityAuthBinding mBinding;
     private CoordinatorLayout coordinatorLayout;
+    private UserViewModel userViewModel;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -59,24 +59,25 @@ public class AuthActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBinding = ActivityAuthBinding.inflate(getLayoutInflater());
+        com.tizzone.go4lunch.databinding.ActivityAuthBinding mBinding = ActivityAuthBinding.inflate(getLayoutInflater());
         View view = mBinding.getRoot();
         setContentView(view);
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
         coordinatorLayout = mBinding.mainLayout;
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         checkGooglePlayService();
     }
 
-    private Boolean checkGooglePlayService() {
+    private void checkGooglePlayService() {
         int status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
         if (status != ConnectionResult.SUCCESS) {
             Log.e(TAG, "Error");
-            return false;
+            showSnackBar(this.coordinatorLayout, getString(R.string.common_google_play_services_updating_text));
+
         } else {
             Log.i(TAG, "Google play services updated");
-            return true;
         }
     }
 
@@ -102,7 +103,8 @@ public class AuthActivity extends BaseActivity {
                 // .setTosAndPrivacyPolicyId(R.id.baz)
                 .build();
 
-        providers = Arrays.asList(
+        //  new AuthUI.IdpConfig.PhoneBuilder().build(),
+        List<AuthUI.IdpConfig> providers = Arrays.asList(
                 new AuthUI.IdpConfig.EmailBuilder().build(),
                 //  new AuthUI.IdpConfig.PhoneBuilder().build(),
                 new AuthUI.IdpConfig.GoogleBuilder().build(),
@@ -131,11 +133,7 @@ public class AuthActivity extends BaseActivity {
 
     private void createUserInFirestore() {
         if (this.getCurrentUser() != null) {
-            String urlPicture = (this.getCurrentUser().getPhotoUrl() != null) ? this.getCurrentUser().getPhotoUrl().toString() : null;
-            String username = this.getCurrentUser().getDisplayName();
-            String uid = this.getCurrentUser().getUid();
-            String userEmail = this.getCurrentUser().getEmail();
-            UserHelper.createUser(uid, userEmail, username, urlPicture, null, null).addOnFailureListener(this.onFailureListener());
+            userViewModel.createUser(this.getCurrentUser());
         }
     }
 }

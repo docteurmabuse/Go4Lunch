@@ -117,6 +117,10 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         setupSharedPreferences();
+        // Init  ViewModels
+        userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
+        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
     }
 
     private void setupSharedPreferences() {
@@ -138,10 +142,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Init  ViewModels
-        userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
-        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
-        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
+
         //Init users list
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
@@ -156,7 +157,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         placesViewModel.getRestaurantsList().observe(requireActivity(), this::initRestaurantsList);
         placesViewModel.getFilteredRestaurantsList().observe(getViewLifecycleOwner(), restaurants -> {
             mMap.clear();
-            initRestaurantsList(restaurants);
+            initMarkers(restaurants);
         });
         userViewModel.getUsersList().observe(getViewLifecycleOwner(), this::usersSpotList);
         locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
@@ -211,38 +212,34 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         if (users != null) {
             matesSpotList = new ArrayList<>();
             for (User user : users) {
-                if (user.getLunchSpot() != null) {
-                    matesSpotList.add(user.getLunchSpot());
+                if (user.getLunchSpotId() != null) {
+                    matesSpotList.add(user.getLunchSpotId());
                 }
             }
         }
-        initMatesList();
+        initMarkers(restaurantsList);
     }
 
-    private void initMatesList() {
+    private void initMarkers(List<Restaurant> mRestaurants) {
         if (this.restaurantsList != null) {
-            for (Restaurant restaurant : this.restaurantsList) {
-                if (placeIsMatesSpot(restaurant)) {
+            if (mMap != null) {
+                mMap.clear();
+            }
+            for (Restaurant restaurant : restaurantsList) {
+                if (!placeIsMatesSpot(restaurant)) {
+                    setMarkers(restaurant, R.drawable.ic_restaurant_pin_red);
+                } else {
                     setMarkers(restaurant, R.drawable.ic_restaurant_pin_green);
                 }
-
             }
         }
     }
 
     private void initRestaurantsList(List<Restaurant> mRestaurants) {
         this.restaurantsList.addAll(mRestaurants);
-        if (mMap != null) {
-            mMap.clear();
-        }
-        for (Restaurant restaurant : mRestaurants) {
-            if (!placeIsMatesSpot(restaurant)) {
-                setMarkers(restaurant, R.drawable.ic_restaurant_pin_red);
-            } else {
-                setMarkers(restaurant, R.drawable.ic_restaurant_pin_green);
-            }
-        }
+        initMarkers(mRestaurants);
     }
+
 
     private boolean placeIsMatesSpot(Restaurant restaurant) {
         if (matesSpotList != null)
@@ -272,8 +269,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     @Override
     public void onResume() {
         super.onResume();
-        initRestaurantsList(restaurantsList);
-        initMatesList();
+        initMarkers(restaurantsList);
     }
 
     @Override

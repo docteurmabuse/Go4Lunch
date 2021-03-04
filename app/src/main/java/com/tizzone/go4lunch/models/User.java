@@ -18,19 +18,22 @@ public class User extends BaseObservable implements Serializable {
     @Nullable
     private List<String> favoriteRestaurants;
     @Nullable
-    private String lunchSpot;
+    private String lunchSpotId;
+    @Nullable
+    private String lunchSpotName;
 
     public User() {
 
     }
 
-    public User(String uid, String userEmail, String userName, @Nullable String photoUrl, @Nullable List<String> favoriteRestaurants, @Nullable String lunchSpot) {
+    public User(String uid, String userEmail, String userName, @Nullable String photoUrl, @Nullable List<String> favoriteRestaurants, @Nullable String lunchSpotId, @Nullable String lunchSpotName) {
         this.uid = uid;
         this.userEmail = userEmail;
         this.userName = userName;
         this.photoUrl = photoUrl;
         this.favoriteRestaurants = favoriteRestaurants;
-        this.lunchSpot = lunchSpot;
+        this.lunchSpotId = lunchSpotId;
+        this.lunchSpotName = lunchSpotName;
     }
 
     public String getUid() {
@@ -40,7 +43,6 @@ public class User extends BaseObservable implements Serializable {
     public void setUid(String uid) {
         this.uid = uid;
     }
-
 
     public String getUserName() {
         return userName;
@@ -80,13 +82,21 @@ public class User extends BaseObservable implements Serializable {
 
     @Bindable
     @Nullable
-    public String getLunchSpot() {
-        return lunchSpot;
+    public String getLunchSpotId() {
+        return lunchSpotId;
     }
 
-    public void setLunchSpot(@Nullable String lunchSpot) {
-        this.lunchSpot = lunchSpot;
+    public void setLunchSpotId(@Nullable String lunchSpotId) {
+        this.lunchSpotId = lunchSpotId;
     }
 
+    @Bindable
+    @Nullable
+    public String getLunchSpotName() {
+        return this.lunchSpotName;
+    }
 
+    public void setLunchSpotName(@Nullable String lunchSpotName) {
+        this.lunchSpotName = lunchSpotName;
+    }
 }

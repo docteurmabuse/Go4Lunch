@@ -26,11 +26,13 @@ import com.tizzone.go4lunch.MainActivity;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
+import com.tizzone.go4lunch.repositories.UserRepository;
 import com.tizzone.go4lunch.utils.RestaurantHelper;
-import com.tizzone.go4lunch.utils.UserHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public static final String lunchSpotId = "lunchSpotId";
@@ -40,8 +42,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private LocalBroadcastManager broadcastManager;
     private String lunchingText;
     private String joiningMates;
+    public UserRepository userRepository;
 
-    public MyFirebaseMessagingService() {
+    @Inject
+    public MyFirebaseMessagingService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     /**
@@ -77,7 +82,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (sharedPreferences.contains(lunchSpotId)) {
             String spotId = (sharedPreferences.getString(lunchSpotId, ""));
             String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            UserHelper.getUsersLunchSpotWithoutCurrentUser(spotId, uid).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            userRepository.getWorkmatesLunchInThatSpot(spotId, uid).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     List<User> users = task.getResult().toObjects(User.class);
