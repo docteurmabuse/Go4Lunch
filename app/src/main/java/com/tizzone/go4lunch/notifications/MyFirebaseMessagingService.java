@@ -1,5 +1,6 @@
-package com.tizzone.go4lunch.services;
+package com.tizzone.go4lunch.notifications;
 
+import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -31,6 +32,7 @@ import com.tizzone.go4lunch.utils.RestaurantHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -43,19 +45,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private String lunchingText;
     private String joiningMates;
     public UserRepository userRepository;
+    private AlarmManager alarmMgr;
+    private PendingIntent alarmIntent;
 
     @Inject
     public MyFirebaseMessagingService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Called by the system when the service is first created.  Do not call this method directly.
-     */
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        broadcastManager = LocalBroadcastManager.getInstance(this);
+    public static void registerNotification(Context context) {
+
+//        alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+//                AlarmManager.INTERVAL_DAY, sendNotification(remoteMessage,));
     }
 
     @Override
@@ -74,6 +75,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         super.onMessageReceived(remoteMessage);
         getUserRestaurant(remoteMessage);
         //sendNotification(remoteMessage);
+    }
+
+    /**
+     * Called by the system when the service is first created.  Do not call this method directly.
+     */
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        broadcastManager = LocalBroadcastManager.getInstance(this);
+
+
     }
 
     private void getUserRestaurant(RemoteMessage remoteMessage) {
@@ -112,8 +124,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationCompat.Builder notificationBuilder;
         notificationBuilder =
                 new NotificationCompat.Builder(this, channelId)
-                        .setSmallIcon(R.drawable.ic_logo_go4lunch)
-                        .setContentTitle(remoteMessage.getNotification().getTitle())
+                        .setSmallIcon(R.drawable.ic_logogo4lunch_white)
+                        .setContentTitle(Objects.requireNonNull(remoteMessage.getNotification()).getTitle())
                         .setContentText(lunchingText)
                         .setAutoCancel(true)
                         .setStyle(new NotificationCompat.BigTextStyle().bigText(lunchingText))

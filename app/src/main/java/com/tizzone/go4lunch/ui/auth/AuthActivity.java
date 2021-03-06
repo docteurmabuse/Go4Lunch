@@ -114,7 +114,7 @@ public class AuthActivity extends BaseActivity {
         startActivityForResult(AuthUI.getInstance()
                 .createSignInIntentBuilder()
                 .setAuthMethodPickerLayout(customLayout)
-                .setLogo(R.drawable.ic_logo_go4lunch)
+                .setLogo(R.drawable.ic_logogo4lunch)
                 .setTheme(R.style.LoginTheme)
                 .setIsSmartLockEnabled(false, true)
                 .setAvailableProviders(providers) //EMAIL

@@ -55,7 +55,6 @@ public class Restaurant extends BaseObservable implements Serializable, Parcelab
 
 
     public Restaurant() {
-
     }
 
     public Restaurant(String uid, String name, String address, @Nullable String photoUrl, @Nullable Float rating, int restaurant_counter, @Nullable Boolean open_now, @Nullable

@@ -76,6 +76,7 @@
     <string name="no_website_notification">This restaurant doesn\'t have website yet!</string>
     <string name="no_lunch_spot_notification">You don\'t have any lunch spo yet!</string>
     <string name="restaurantCounter">(%d)</string>
+    <string name="notification_title">Ready for lunch?</string>
 
 
 </resources>

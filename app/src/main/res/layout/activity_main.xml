@@ -87,7 +87,7 @@
                 android:contentDescription="@string/go4lunch"
                 android:cropToPadding="true"
                 android:scaleType="fitCenter"
-                app:srcCompat="@drawable/ic_logo_go4lunch" />
+                app:srcCompat="@drawable/ic_logogo4lunch_white" />
         </com.google.android.material.navigation.NavigationView>
     </androidx.drawerlayout.widget.DrawerLayout>
 </layout>

@@ -1,22 +1,17 @@
 package com.tizzone.go4lunch.ui.list;
 
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NotificationCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,13 +19,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.adapters.UsersListAdapter;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityPlaceDetailBinding;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
+import com.tizzone.go4lunch.notifications.NotificationHelper;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
@@ -40,11 +35,7 @@ import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
-import static com.tizzone.go4lunch.utils.Constants.CHANNEL_ID;
-import static com.tizzone.go4lunch.utils.Constants.NOTIFICATION_ID;
-import static com.tizzone.go4lunch.utils.Constants.PRIMARY_CHANNEL_ID;
 import static com.tizzone.go4lunch.utils.Constants.RESTAURANT;
-import static com.tizzone.go4lunch.utils.Constants.TAG;
 import static com.tizzone.go4lunch.utils.Constants.lunchSpotAddress;
 import static com.tizzone.go4lunch.utils.Constants.lunchSpotName;
 import static com.tizzone.go4lunch.utils.Constants.lunchSpotPhotoUrl;
@@ -81,7 +72,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        createNotificationChannel();
         if (this.getCurrentUser() != null) {
             currentUserId = this.getCurrentUser().getUid();
         }
@@ -209,63 +199,28 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         placeDetailBinding = null;
     }
 
-    public void createNotificationChannel() {
-        mNotifyManager = (NotificationManager)
-                getSystemService(NOTIFICATION_SERVICE);
-        if (android.os.Build.VERSION.SDK_INT >=
-                android.os.Build.VERSION_CODES.O) {
-            // Create a NotificationChannel
-            NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID,
-                    "Go4Lunch Notification", NotificationManager
-                    .IMPORTANCE_HIGH);
-            notificationChannel.enableLights(true);
-            notificationChannel.setLightColor(Color.RED);
-            notificationChannel.enableVibration(true);
-            notificationChannel.setDescription("Notification from Go4Lunch");
-            mNotifyManager.createNotificationChannel(notificationChannel);
-        }
-    }
-
-    private NotificationCompat.Builder getNotificationBuilder() {
-        Intent notificationIntent = new Intent(this, PlaceDetailActivity.class);
-        PendingIntent notificationPendingIntent = PendingIntent.getActivity(this,
-                NOTIFICATION_ID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        return new NotificationCompat.Builder(this, PRIMARY_CHANNEL_ID)
-                .setContentTitle(Objects.requireNonNull(getCurrentUser()).getDisplayName() + " just choose a lunch spot")
-                .setContentText("He's lunching at " + restaurant.getName())
-                .setContentIntent(notificationPendingIntent)
-                .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setDefaults(NotificationCompat.DEFAULT_ALL)
-                .setSmallIcon(R.drawable.ic_logo_go4lunch);
-    }
-
     public void fabOnClick(boolean isLunchSpot) {
         if (isLunchSpot) {
+            registerNotification();
+            addSpotLunchInSharedPreferences(restaurant.getUid());
             Snackbar.make(placeDetailBinding.getRoot(), "You're going to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
-            //sendUsersNotification();
-            addSpotLunchInSharedPreferences(restaurant.getUid());
-            NotificationCompat.Builder notifyBuilder = getNotificationBuilder();
-            mNotifyManager.notify(NOTIFICATION_ID, notifyBuilder.build());
-            FirebaseMessaging.getInstance().subscribeToTopic("lunch")
-                    .addOnCompleteListener(task -> {
-                        String msg = getString(R.string.msg_subscribed);
-                        if (!task.isSuccessful()) {
-                            msg = getString(R.string.msg_subscribe_failed);
-                        }
-                        Log.d(TAG, msg);
-                        System.out.println(" tokens were subscribed successfully");
-                        Toast.makeText(PlaceDetailActivity.this, msg, Toast.LENGTH_SHORT).show();
-                    });
-
         } else {
             addSpotLunchInSharedPreferences(null);
+            cancelNotification();
             Snackbar.make(placeDetailBinding.getRoot(), "You're not going anymore to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
-            FirebaseMessaging.getInstance().unsubscribeFromTopic("lunch")
-                    .addOnCompleteListener(task -> System.out.println(" tokens were unsubscribed successfully"));
         }
+    }
+
+    private void registerNotification() {
+        NotificationHelper.scheduleRepeatingRTCNotification(getApplication());
+        NotificationHelper.enableBootReceiver(getApplication());
+    }
+
+    private void cancelNotification() {
+        NotificationHelper.cancelAlarm();
+        NotificationHelper.disableBootReceiver(getApplication());
     }
 
     @Override

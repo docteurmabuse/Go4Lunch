@@ -117,7 +117,7 @@
                     android:onClick="@{() -> userViewModel.updateFavoriteLunchSpotUser(userViewModel.isFavoriteLunchSpot, userViewModel.favoriteListLunchSpot, restaurantDetail.uid,  userViewModel.currentUserId)}"
                     android:tint="@color/colorPrimary"
                     app:isTrue="@{userViewModel.isFavoriteLunchSpot}"
-                    app:layout_constraintBottom_toBottomOf="@+id/textView2"
+                    app:layout_constraintBottom_toBottomOf="@+id/star_text"
                     app:layout_constraintEnd_toStartOf="@+id/textView3"
                     app:layout_constraintStart_toEndOf="@+id/call_button"
                     app:layout_constraintTop_toBottomOf="@+id/detail_title_layout"
@@ -125,7 +125,7 @@
                     app:placeHolderTrue="@{@drawable/ic_baseline_star_24}" />
 
                 <TextView
-                    android:id="@+id/textView2"
+                    android:id="@+id/star_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="1dp"
