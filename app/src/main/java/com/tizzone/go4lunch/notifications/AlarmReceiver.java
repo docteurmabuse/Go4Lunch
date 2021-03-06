@@ -10,15 +10,10 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.common.base.Joiner;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.tizzone.go4lunch.MainActivity;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.models.Restaurant;
@@ -45,8 +40,6 @@ public class AlarmReceiver extends BroadcastReceiver {
     public UserRepository userRepository;
     @Inject
     public RestaurantRepository restaurantRepository;
-    private SharedPreferences sharedPreferences;
-    private LocalBroadcastManager broadcastManager;
     private String lunchingText;
     private String joiningMates;
     private Notification dailyNotification;
@@ -55,26 +48,17 @@ public class AlarmReceiver extends BroadcastReceiver {
     public AlarmReceiver() {
     }
 
-    public AlarmReceiver(UserRepository userRepository, RestaurantRepository restaurantRepository, String lunchingText) {
-        this.userRepository = userRepository;
-        this.restaurantRepository = restaurantRepository;
-        this.lunchingText = lunchingText;
-    }
-
     @Override
     public void onReceive(Context context, Intent intent) {
         //Launch app on click
         Intent intentToRepeat = new Intent(context, MainActivity.class);
         Log.e(TAG, "notification alarm received! ");
-
         //Get workmates who lunch with the user and restaurants
-        getUserRestaurantLunchingText(context);
+        getWorkmatesLunchingText(context);
         //Set flag to relaunch the app
         intentToRepeat.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         //Pending intent to launch activity above
         pendingIntent = PendingIntent.getActivity(context, ALARM_TYPE_RTC, intentToRepeat, PendingIntent.FLAG_UPDATE_CURRENT);
-
-
     }
 
     private NotificationCompat.Builder buildLocalNotification(Context context, PendingIntent pendingIntent) {
@@ -92,36 +76,40 @@ public class AlarmReceiver extends BroadcastReceiver {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
     }
 
-    private void getUserRestaurantLunchingText(Context context) {
-        sharedPreferences = context.getSharedPreferences(myPreference,
+    private void getWorkmatesLunchingText(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(myPreference,
                 Context.MODE_PRIVATE);
         if (sharedPreferences.contains(lunchSpotId)) {
             String spotId = (sharedPreferences.getString(lunchSpotId, ""));
             String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
             if (uid != null && spotId != null) {
-                userRepository.getWorkmatesLunchInThatSpot(spotId, uid).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            List<User> users = task.getResult().toObjects(User.class);
-                            List<String> usersList = new ArrayList();
-                            for (User user : users) {
-                                if (user.getUserName() != null) usersList.add(user.getUserName());
-                            }
-                            joiningMates = Joiner.on(", ").join(usersList);
+                userRepository.getWorkmatesLunchInThatSpot(spotId, uid).get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<User> users = task.getResult().toObjects(User.class);
+                        List<String> usersList = new ArrayList<>();
+                        for (User user : users) {
+                            if (user.getUserName() != null) usersList.add(user.getUserName());
                         }
+                        joiningMates = Joiner.on(", ").join(usersList);
+                        getRestaurantLunchingText(context, spotId, joiningMates);
                     }
-                });
-                restaurantRepository.getRestaurantsById(spotId).addOnSuccessListener(documentSnapshot -> {
-                    Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
-                    this.lunchingText = String.format(context.getResources().getString(R.string.notification_lunching_text), restaurant.getName(), restaurant.getAddress(), joiningMates);
-                    //Build notification
-                    dailyNotification = buildLocalNotification(context, pendingIntent).build();
-                    //Send local Notification
-                    NotificationHelper.getNotificationManager(context).notify(ALARM_TYPE_RTC, dailyNotification);
                 });
             }
         }
+    }
 
+    private void getRestaurantLunchingText(Context context, String lunchSpotId, String joiningMates) {
+        restaurantRepository.getRestaurantsById(lunchSpotId).addOnSuccessListener(documentSnapshot -> {
+            Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
+            if (joiningMates != null) {
+                lunchingText = String.format(context.getResources().getString(R.string.notification_lunching_text), restaurant.getName(), restaurant.getAddress(), joiningMates);
+            } else {
+                lunchingText = String.format(context.getResources().getString(R.string.notification_lunching_alone_text), restaurant.getName(), restaurant.getAddress());
+            }
+            //Build notification
+            dailyNotification = buildLocalNotification(context, pendingIntent).build();
+            //Send local Notification
+            NotificationHelper.getNotificationManager(context).notify(ALARM_TYPE_RTC, dailyNotification);
+        });
     }
 }

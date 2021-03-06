@@ -67,6 +67,7 @@
     <string name="default_notification_channel_name">go4Lunch</string>
     <string name="msg_token_fmt">FCM registration Token: %s</string>
     <string name="notification_lunching_text">You\'re lunching at %1$s on %2$s with %3$s</string>
+    <string name="notification_lunching_alone_text">You\'re lunching alone at %1$s on %2$s.</string>
     <string name="msg_subscribed">subscribed</string>
     <string name="msg_subscribe_failed">subsribed failed</string>
     <string name="notifications_label">Enable message notifications</string>
