@@ -1,6 +1,5 @@
 package com.tizzone.go4lunch.notifications;
 
-import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -50,13 +49,8 @@ public class AlarmReceiver extends BroadcastReceiver {
     private LocalBroadcastManager broadcastManager;
     private String lunchingText;
     private String joiningMates;
-    private AlarmManager alarmMgr;
-    private PendingIntent alarmIntent;
-
-    public AlarmReceiver(String lunchingText) {
-        this.lunchingText = lunchingText;
-    }
-
+    private Notification dailyNotification;
+    private PendingIntent pendingIntent;
 
     public AlarmReceiver() {
     }
@@ -78,11 +72,9 @@ public class AlarmReceiver extends BroadcastReceiver {
         //Set flag to relaunch the app
         intentToRepeat.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         //Pending intent to launch activity above
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, ALARM_TYPE_RTC, intentToRepeat, PendingIntent.FLAG_UPDATE_CURRENT);
-        //Build notification
-        Notification dailyNotification = buildLocalNotification(context, pendingIntent).build();
-        //Send local Notification
-        NotificationHelper.getNotificationManager(context).notify(ALARM_TYPE_RTC, dailyNotification);
+        pendingIntent = PendingIntent.getActivity(context, ALARM_TYPE_RTC, intentToRepeat, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
     }
 
     private NotificationCompat.Builder buildLocalNotification(Context context, PendingIntent pendingIntent) {
@@ -123,6 +115,10 @@ public class AlarmReceiver extends BroadcastReceiver {
                 restaurantRepository.getRestaurantsById(spotId).addOnSuccessListener(documentSnapshot -> {
                     Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
                     this.lunchingText = String.format(context.getResources().getString(R.string.notification_lunching_text), restaurant.getName(), restaurant.getAddress(), joiningMates);
+                    //Build notification
+                    dailyNotification = buildLocalNotification(context, pendingIntent).build();
+                    //Send local Notification
+                    NotificationHelper.getNotificationManager(context).notify(ALARM_TYPE_RTC, dailyNotification);
                 });
             }
         }

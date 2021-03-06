@@ -20,27 +20,20 @@ import com.tizzone.go4lunch.adapters.UsersListAdapter;
 import com.tizzone.go4lunch.databinding.FragmentWorkmatesBinding;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
-import com.tizzone.go4lunch.repositories.UserRepository;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
-import dagger.hilt.android.AndroidEntryPoint;
-
 import static com.tizzone.go4lunch.utils.Constants.RESTAURANT;
 import static com.tizzone.go4lunch.utils.Constants.USER_ID;
 
-@AndroidEntryPoint
 public class WorkmatesFragment extends Fragment implements UsersListAdapter.UserItemClickListener {
 
     private static final String TAG = "FirebaseAuthAppTag";
     private FragmentWorkmatesBinding workmatesBinding;
-    @Inject
-    public UserRepository userRepository;
+
     private RecyclerView workmatesRecyclerView;
     private UsersListAdapter adapter;
     private TextView textView;
@@ -106,6 +99,5 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.User
         bundle.putSerializable(RESTAURANT, restaurant);
         intent.putExtras(bundle);
         startActivity(intent);
-        Log.e(TAG, RESTAURANT + ": " + (restaurant.getName()));
     }
 }
