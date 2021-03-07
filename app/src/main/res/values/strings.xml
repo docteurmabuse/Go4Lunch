@@ -44,7 +44,7 @@
     <string name="channel_description">Your workmate choose a lunch spot</string>
     <string name="lunchSpotId">lunchSpotId</string>
     <string name="currentUserId">currentUserId</string>
-    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_settings">Settings</string>
 
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>

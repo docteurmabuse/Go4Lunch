@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.tizzone.go4lunch.adapters.UsersListAdapter;
 import com.tizzone.go4lunch.databinding.FragmentWorkmatesBinding;
-import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
@@ -26,7 +25,7 @@ import com.tizzone.go4lunch.viewmodels.UserViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.tizzone.go4lunch.utils.Constants.RESTAURANT;
+import static com.tizzone.go4lunch.utils.Constants.RESTAURANT_ID;
 import static com.tizzone.go4lunch.utils.Constants.USER_ID;
 
 public class WorkmatesFragment extends Fragment implements UsersListAdapter.UserItemClickListener {
@@ -93,10 +92,10 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.User
     }
 
     @Override
-    public void onUserClick(Restaurant restaurant) {
+    public void onUserClick(User user) {
         Intent intent = new Intent(getContext(), PlaceDetailActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putSerializable(RESTAURANT, restaurant);
+        bundle.putString(RESTAURANT_ID, user.getLunchSpotId());
         intent.putExtras(bundle);
         startActivity(intent);
     }

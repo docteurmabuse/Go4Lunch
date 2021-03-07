@@ -91,7 +91,6 @@ public class AuthActivity extends BaseActivity {
         }
     }
 
-
     private void startSignInActivity() {
         //Login
         AuthMethodPickerLayout customLayout = new AuthMethodPickerLayout

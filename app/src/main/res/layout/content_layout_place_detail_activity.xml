@@ -50,18 +50,18 @@
 
                     <LinearLayout
                         android:id="@+id/detail_title_rating_layout"
+                        android:paddingTop="@dimen/padding_normal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@color/colorPrimary"
-                        android:layout_marginStart="@dimen/activity_horizontal_margin"
-                        android:layout_marginTop="@dimen/activity_vertical_margin"
-                        android:layout_marginEnd="@dimen/activity_horizontal_margin"
                         android:orientation="horizontal">
 
-                        <androidx.appcompat.widget.AppCompatTextView
+                        <TextView
                             android:id="@+id/detail_place_name"
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_horizontal_margin"
+                            android:layout_marginTop="@dimen/activity_vertical_margin"
                             android:text="@{restaurantDetail.name}"
                             android:textColor="@color/white"
                             android:textSize="16sp" />
@@ -78,9 +78,9 @@
                             android:theme="@style/RatingBar" />
                     </LinearLayout>
 
-                    <androidx.appcompat.widget.AppCompatTextView
+                    <TextView
                         android:id="@+id/detail_place_address"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/activity_horizontal_margin"
                         android:layout_marginBottom="@dimen/activity_vertical_margin"
@@ -99,7 +99,7 @@
                     app:layout_constraintEnd_toStartOf="@+id/star_button"
                     app:layout_constraintStart_toStartOf="parent" />
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <TextView
                     android:id="@+id/textView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -125,7 +125,7 @@
                     app:placeHolderFalse="@{@drawable/ic_baseline_star_border_24}"
                     app:placeHolderTrue="@{@drawable/ic_baseline_star_24}" />
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <TextView
                     android:id="@+id/star_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -147,7 +147,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/star_button" />
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <TextView
                     android:id="@+id/textView3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -170,7 +170,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     tools:listitem="@layout/users_list_item" />
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <TextView
                     android:id="@+id/no_workmates_text_view"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

@@ -31,11 +31,6 @@
 
     </fragment>
 
-    <fragment
-        android:id="@+id/nav_settings"
-        android:name="com.tizzone.go4lunch.ui.settings.SlideshowFragment"
-        android:label="@string/menu_settings"
-        tools:layout="@layout/fragment_slideshow" />
     <activity
         android:id="@+id/placeDetailActivity"
         android:name="com.tizzone.go4lunch.ui.list.PlaceDetailActivity"

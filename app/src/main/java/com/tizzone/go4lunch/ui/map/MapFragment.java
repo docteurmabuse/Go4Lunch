@@ -134,7 +134,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        com.tizzone.go4lunch.databinding.FragmentMapBinding mapBinding = FragmentMapBinding.inflate(inflater, container, false);
+        FragmentMapBinding mapBinding = FragmentMapBinding.inflate(inflater, container, false);
         return mapBinding.getRoot();
     }
 
@@ -155,7 +155,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
 
     private void observeData() {
         placesViewModel.getRestaurantsList().observe(requireActivity(), this::initRestaurantsList);
-        placesViewModel.getFilteredRestaurantsList().observe(getViewLifecycleOwner(), restaurants -> {
+        placesViewModel.getFilteredRestaurantsList().observe(requireActivity(), restaurants -> {
             mMap.clear();
             initMarkers(restaurants);
         });
@@ -221,11 +221,11 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     }
 
     private void initMarkers(List<Restaurant> mRestaurants) {
-        if (this.restaurantsList != null) {
+        if (mRestaurants != null) {
             if (mMap != null) {
                 mMap.clear();
             }
-            for (Restaurant restaurant : restaurantsList) {
+            for (Restaurant restaurant : mRestaurants) {
                 if (!placeIsMatesSpot(restaurant)) {
                     setMarkers(restaurant, R.drawable.ic_restaurant_pin_red);
                 } else {

@@ -3,7 +3,6 @@ plugins {
 }
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.jakewharton.butterknife'
 apply plugin: "androidx.navigation.safeargs"
 apply plugin: 'dagger.hilt.android.plugin'
 
@@ -89,11 +88,6 @@ dependencies {
     //Declare the dependency for the Facebook Authentication Library
     implementation 'com.facebook.android:facebook-android-sdk:7.1.0'
 
-    // Declare the dependencies for the Firebase Cloud Messaging and Analytics libraries
-    // When using the BoM, you don't specify versions in Firebase library dependencies
-    implementation 'com.google.firebase:firebase-messaging'
-
-
     //Declare the dependency for Google Play service location
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.android.gms:play-services-location:18.0.0'
@@ -123,7 +117,6 @@ dependencies {
 
     // Import the BoM for the Firebase platform
     implementation platform('com.google.firebase:firebase-bom:26.2.0')
-    implementation 'com.google.firebase:firebase-messaging:21.0.1'
 
     //RxJava
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'

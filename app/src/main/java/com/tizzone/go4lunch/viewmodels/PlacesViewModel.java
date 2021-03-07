@@ -116,7 +116,9 @@ public class PlacesViewModel extends ViewModel {
                     return restaurant;
                 })
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(restaurantMutableLiveData::setValue);
+                .subscribe(restaurantMutableLiveData::setValue,
+                        error -> Log.e(TAG, "setRestaurants:" + error.getMessage())
+                );
     }
 
     public void setPredictions(String input, String location, int radius, int sessionToken) {

@@ -151,7 +151,7 @@ public class UserViewModel extends ViewModel {
         userRepository.getUser(userId).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot documentSnapshot = task.getResult();
-                User user = Objects.requireNonNull(documentSnapshot.toObject(User.class));
+                User user = documentSnapshot.toObject(User.class);
                 userLiveData.setValue(user);
             }
         });

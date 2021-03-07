@@ -69,7 +69,6 @@ public class NetworkModule {
                         .onlyIfCached()
                         .maxStale(1, TimeUnit.DAYS)
                         .build();
-
                 Request offlineRequest = chain.request().newBuilder()
                         .cacheControl(cacheControl)
                         .build();
@@ -80,30 +79,24 @@ public class NetworkModule {
 
     @Provides
     public Interceptor provideCacheInterceptor() {
-
         return chain -> {
             Request request = chain.request();
             Response originalResponse = chain.proceed(request);
             String cacheControl = originalResponse.header("Cache-Control");
-
             if (cacheControl == null || cacheControl.contains("no-store") || cacheControl.contains("no-cache") ||
                     cacheControl.contains("must-revalidate") || cacheControl.contains("max-stale=0")) {
                 CacheControl cc = new CacheControl.Builder()
                         .maxStale(1, TimeUnit.DAYS)
                         .build();
-
                 request = request.newBuilder()
                         .cacheControl(cc)
                         .build();
-
                 return chain.proceed(request);
 
             } else {
                 return originalResponse;
             }
         };
-
     }
-
 }
 

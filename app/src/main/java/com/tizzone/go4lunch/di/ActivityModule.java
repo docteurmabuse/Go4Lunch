@@ -20,8 +20,7 @@ import dagger.Provides;
 import dagger.hilt.InstallIn;
 import dagger.hilt.components.SingletonComponent;
 
-import static com.tizzone.go4lunch.R2.id.nav_host_fragment;
-
+import static com.tizzone.go4lunch.R.id.nav_host_fragment;
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
 @interface MainActivity {

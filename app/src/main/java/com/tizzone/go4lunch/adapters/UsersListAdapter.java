@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.UsersListItemBinding;
-import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
 
 import java.util.List;
@@ -53,7 +52,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.User
     }
 
     public interface UserItemClickListener {
-        void onUserClick(Restaurant restaurant);
+        void onUserClick(User user);
     }
 
     public static class UserViewHolder extends RecyclerView.ViewHolder {

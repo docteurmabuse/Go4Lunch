@@ -23,6 +23,7 @@ import com.tizzone.go4lunch.repositories.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -81,8 +82,8 @@ public class AlarmReceiver extends BroadcastReceiver {
                 Context.MODE_PRIVATE);
         if (sharedPreferences.contains(lunchSpotId)) {
             String spotId = (sharedPreferences.getString(lunchSpotId, ""));
-            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            if (uid != null && spotId != null) {
+            String uid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+            if (spotId != null) {
                 userRepository.getWorkmatesLunchInThatSpot(spotId, uid).get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         List<User> users = task.getResult().toObjects(User.class);
@@ -101,6 +102,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     private void getRestaurantLunchingText(Context context, String lunchSpotId, String joiningMates) {
         restaurantRepository.getRestaurantsById(lunchSpotId).addOnSuccessListener(documentSnapshot -> {
             Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
+            assert restaurant != null;
             if (joiningMates != null) {
                 lunchingText = String.format(context.getResources().getString(R.string.notification_lunching_text), restaurant.getName(), restaurant.getAddress(), joiningMates);
             } else {

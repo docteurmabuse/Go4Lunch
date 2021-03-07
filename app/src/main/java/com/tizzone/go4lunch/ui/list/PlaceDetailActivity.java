@@ -1,7 +1,5 @@
 package com.tizzone.go4lunch.ui.list;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -36,6 +34,7 @@ import java.util.Objects;
 import dagger.hilt.android.AndroidEntryPoint;
 
 import static com.tizzone.go4lunch.utils.Constants.RESTAURANT;
+import static com.tizzone.go4lunch.utils.Constants.RESTAURANT_ID;
 import static com.tizzone.go4lunch.utils.Constants.lunchSpotAddress;
 import static com.tizzone.go4lunch.utils.Constants.lunchSpotName;
 import static com.tizzone.go4lunch.utils.Constants.lunchSpotPhotoUrl;
@@ -45,20 +44,20 @@ import static com.tizzone.go4lunch.utils.Constants.myPreference;
 @AndroidEntryPoint
 public class PlaceDetailActivity extends BaseActivity implements UsersListAdapter.UserItemClickListener {
 
-    private String placePhone;
-    private String currentUserId;
+
     private PlacesViewModel placesViewModel;
     private ActivityPlaceDetailBinding placeDetailBinding;
     private AppBarLayout appbar;
-    // Define a Place ID.
-    private String currentPlaceId;
     private AppCompatImageButton website;
     private AppCompatImageButton call;
     private RecyclerView usersRecyclerView;
     private Restaurant restaurant;
-    private NotificationManager mNotifyManager;
     private UsersListAdapter usersListAdapter;
     private UserViewModel userViewModel;
+    // Define a Place ID.
+    private String currentPlaceId;
+    private String placePhone;
+    private String currentUserId;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -86,8 +85,11 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         if (intent != null) {
             if (intent.getSerializableExtra(RESTAURANT) != null) {
                 restaurant = (Restaurant) intent.getSerializableExtra(RESTAURANT);
+                currentPlaceId = restaurant.getUid();
             }
-            currentPlaceId = restaurant.getUid();
+            if (intent.getStringExtra(RESTAURANT_ID) != null) {
+                currentPlaceId = intent.getStringExtra(RESTAURANT_ID);
+            }
             placesViewModel.setRestaurant(currentPlaceId);
         }
         initViews();
@@ -128,11 +130,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         call.setOnClickListener(view1 -> dialPhoneNumber(placePhone));
         website.setOnClickListener(view12 -> openWebPage(restaurant.getWebsiteUrl()));
         configureRecyclerView(currentPlaceId);
-
-        // Create an explicit intent for an Activity in your app
-        Intent intent = new Intent(this, PlaceDetailActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
     }
 
     private void addOnOffsetChangedListener() {
@@ -224,7 +221,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     }
 
     @Override
-    public void onUserClick(Restaurant restaurant) {
+    public void onUserClick(User user) {
     }
 }
 
