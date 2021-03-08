@@ -7,8 +7,18 @@ This repository contains a mini-application for the P7 of the Grande École du N
 The Go4Lunch app is a collaborative app used by all employees. It allows you to search for a restaurant in the area, then select the one of your choice by telling your colleagues. Likewise, it is possible to consult the restaurants selected by colleagues in order to join them. A little before lunchtime, the application notifies the various employees to invite them to join their colleagues.
 
 ## Interface preview
-![authentication_screen.png ](img/authentication_screen.png )![map_view_go4lunch.png](img/map_view_go4lunch.png)![restaurant_list_view_go4lunch.png](img/restaurant_list_view_go4lunch.png)![restaurant_detail_with-list_gor4lunch.png](img/restaurant_detail_with-list_gor4lunch.png)
-![workmates_view_go4lunch.png](img/workmates_view_go4lunch.png)![settings_view_go4lunch.png](img/settings_view_go4lunch.png)
+<img src="file:/D:/android/ocr/p7/Go4Lunch/img/authentication_screen.png" width="200px" alt="authentication_screen.png " />
+
+<img src="file:/D:/android/ocr/p7/Go4Lunch/img/map_view_go4lunch.png" width="200px" alt="map_view_go4lunch.png" />
+
+<img src="file:/D:/android/ocr/p7/Go4Lunch/img/restaurant_list_view_go4lunch.png" width="200px" alt="restaurant_list_view_go4lunch.png" />
+
+<img src="file:/D:/android/ocr/p7/Go4Lunch/img/restaurant_detail_with-list_gor4lunch.png" width="200px" alt="restaurant_detail_with-list_gor4lunch.png" />
+
+<img src="file:/D:/android/ocr/p7/Go4Lunch/img/workmates_view_go4lunch.png" alt="workmates_view_go4lunch.png" width="200px"/>
+<img src="file:/D:/android/ocr/p7/Go4Lunch/img/settings_view_go4lunch.png" alt="settings_view_go4lunch.png" width="200px"/>
+
+
 ## Configure the project in Android Studio
 ======================================
 
