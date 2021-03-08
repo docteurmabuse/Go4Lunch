@@ -33,12 +33,12 @@ public class UserRepository {
     }
 
     //Workmates list
-    public Query getWorkmatesLunchInThatSpot(String lunchSpot, String uid) {
-        return usersRef.whereNotEqualTo("uid", uid).whereEqualTo("lunchSpot", lunchSpot);
+    public Query getWorkmatesLunchInThatSpot(String lunchSpotId, String uid) {
+        return usersRef.whereNotEqualTo("uid", uid).whereEqualTo("lunchSpotId", lunchSpotId);
     }
 
-    public Query getQueryUsersByLunchSpotId(String lunchSpoId) {
-        return usersRef.whereEqualTo("lunchSpot", lunchSpoId);
+    public Query getQueryUsersByLunchSpotId(String lunchSpotId) {
+        return usersRef.whereEqualTo("lunchSpotId", lunchSpotId);
     }
 
     public void updateLunchSpot(String lunchSpotId, String lunchSpotName, String userId) {

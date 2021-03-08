@@ -12,56 +12,52 @@
             type="com.tizzone.go4lunch.models.User" />
 
         <variable
-            name="restaurant"
-            type="com.tizzone.go4lunch.models.Restaurant" />
-
-        <variable
             name="userItemClick"
             type="com.tizzone.go4lunch.adapters.UsersListAdapter.UserItemClickListener" />
     </data>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:onClick="@{() -> userItemClick.onUserClick(workmates)}">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/avatarView"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="10dp"
+            android:scaleType="centerCrop"
+            app:circleImageFromUrl="@{workmates.photoUrl}"
+            app:circlePlaceholder="@{@drawable/ic_baseline_workmates_black_circle_24}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:progressBar="@{progressBarImageUser}"
+            tools:srcCompat="@mipmap/ic_workmates" />
+
+        <ProgressBar
+            android:id="@+id/progressBarImageUser"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:layout_marginStart="10dp"
+            android:theme="@style/progressBarMint"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/isLunchingText"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:onClick="@{() -> userItemClick.onUserClick(workmates)}"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp">
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="5dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/avatarView"
+            app:layout_constraintTop_toTopOf="@+id/avatarView"
+            app:restaurantName="@{workmates.getLunchSpotName()}"
+            app:userName="@{workmates.userName}" />
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/avatarView"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:layout_marginStart="10dp"
-                android:scaleType="centerCrop"
-                app:circleImageFromUrl="@{workmates.photoUrl}"
-                app:circlePlaceholder="@{@drawable/ic_baseline_workmates_black_circle_24}"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:progressBar="@{progressBarImageUser}"
-                tools:srcCompat="@mipmap/ic_workmates" />
-
-            <ProgressBar
-                android:id="@+id/progressBarImageUser"
-                android:theme="@style/progressBarMint"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:layout_gravity="center_horizontal|center_vertical"
-                android:layout_marginStart="10dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/isLunchingText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="5dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/avatarView"
-                app:layout_constraintTop_toTopOf="@+id/avatarView"
-                app:restaurantName="@{workmates.getLunchSpotName()}"
-                app:userName="@{workmates.userName}" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

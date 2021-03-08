@@ -145,4 +145,11 @@ public class ListViewFragment extends Fragment implements PlacesListAdapter.Rest
         startActivity(intent);
         Log.e(TAG, RESTAURANT + ": " + (restaurant.getName()));
     }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        fragmentListBinding = null;
+    }
 }
