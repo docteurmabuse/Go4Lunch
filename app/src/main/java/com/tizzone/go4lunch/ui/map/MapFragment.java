@@ -77,13 +77,14 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     private LocationViewModel locationViewModel;
     private Context mContext;
     private LatLng currentLocation;
+    private List<User> matesList;
+    private UserViewModel userViewModel;
+    private ArrayList<String> matesSpotList;
     @Inject
     public List<Restaurant> restaurantsList;
     @Inject
     public LiveData<List<Restaurant>> restaurantsListLiveData;
-    private List<User> matesList;
-    private UserViewModel userViewModel;
-    private ArrayList<String> matesSpotList;
+
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
         @Override
         public void onMapReady(GoogleMap googleMap) {
@@ -124,7 +125,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     }
 
     private void setupSharedPreferences() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity());
         radius = Integer.parseInt(sharedPreferences.getString("radius", "1000"));
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
     }

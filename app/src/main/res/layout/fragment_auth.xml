@@ -9,7 +9,7 @@
         android:id="@+id/logo_go4lunch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/ic_logogo4lunch"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

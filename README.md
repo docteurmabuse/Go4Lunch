@@ -35,6 +35,7 @@ The **Go4Lunch** app is a collaborative app used by all employees. It allows you
 - [Retrofit](https://square.github.io/retrofit/)  - Turns your HTTP API into a Java interface.
 - [OkHttp](https://square.github.io/okhttp/) - Http client
 - [FirebaseUI](https://firebase.google.com/docs/auth/web/firebaseui?hl=en)  -  A library built on top of the Firebase Authentication SDK that provides drop-in UI flows for use in your app.
+- [FirebaseUi for Auth](https://github.com/firebase/FirebaseUI-Android/blob/master/auth/README.md)
 - [Facebook Login](https://developers.facebook.com/docs/facebook-login/android/) - Web-based generic OAuth Login into your app using the Firebase SDK
 - [Twitter Login](https://developer.twitter.com/en/portal/projects-and-apps) -  Web-based generic OAuth Login into your app using the Firebase SDK
 - [Firestore](https://firebase.google.com/docs/firestore) - Flexible scalable NoSQL cloud database to store and sync data for client- and server-side development

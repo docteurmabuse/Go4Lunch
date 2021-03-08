@@ -21,8 +21,14 @@ android {
         android.defaultConfig.vectorDrawables.useSupportLibrary = true
         // Read the API key from local.properties into R.string.maps_api_key
         buildConfigField "String", "GOOGLE_MAPS_API_KEY", project.findProperty("GOOGLE_MAPS_API_KEY")
+        buildConfigField "String", "APP_ID", project.findProperty("APP_ID")
+        buildConfigField "String", "fbAPP_ID", project.findProperty("fbAPP_ID")
         resValue "string", "google_maps_key",
                 (project.findProperty("GOOGLE_MAPS_API_KEY") ?: "")
+        resValue "string", "facebook_application_id",
+                (project.findProperty("APP_ID") ?: "")
+        resValue "string", "facebook_login_protocol_scheme",
+                (project.findProperty("fbAPP_ID") ?: "")
     }
 
     buildTypes {
