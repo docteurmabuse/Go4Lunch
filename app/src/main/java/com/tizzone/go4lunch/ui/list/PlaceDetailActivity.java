@@ -23,7 +23,6 @@ import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityPlaceDetailBinding;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
-import com.tizzone.go4lunch.notifications.NotificationHelper;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
@@ -198,26 +197,14 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
 
     public void fabOnClick(boolean isLunchSpot) {
         if (isLunchSpot) {
-            registerNotification();
             addSpotLunchInSharedPreferences(restaurant.getUid());
             Snackbar.make(placeDetailBinding.getRoot(), "You're going to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
         } else {
             addSpotLunchInSharedPreferences(null);
-            cancelNotification();
             Snackbar.make(placeDetailBinding.getRoot(), "You're not going anymore to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
         }
-    }
-
-    private void registerNotification() {
-        NotificationHelper.scheduleRepeatingRTCNotification(getApplication());
-        NotificationHelper.enableBootReceiver(getApplication());
-    }
-
-    private void cancelNotification() {
-        NotificationHelper.cancelAlarm();
-        NotificationHelper.disableBootReceiver(getApplication());
     }
 
     @Override

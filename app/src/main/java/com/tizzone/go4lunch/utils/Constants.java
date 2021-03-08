@@ -29,6 +29,7 @@ public class Constants {
     public static final String COLLECTION_RESTAURANT_NAME = "restaurants";
     public static final String USER_NAME_PROPERTY = "UserName";
     public static final String USER_ID = "userId";
+    public static final String TITLE_TAG = "Settings";
     public static final int ALARM_TYPE_RTC = 100;
 
 

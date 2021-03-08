@@ -19,7 +19,7 @@
         android:id="@+id/go4lunch_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="10dp"
         android:text="@string/go4lunch"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"

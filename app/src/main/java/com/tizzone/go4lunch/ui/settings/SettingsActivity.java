@@ -16,18 +16,19 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.SettingsActivityBinding;
+import com.tizzone.go4lunch.notifications.NotificationHelper;
 
 import org.jetbrains.annotations.NotNull;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 import static android.content.ContentValues.TAG;
+import static com.tizzone.go4lunch.utils.Constants.TITLE_TAG;
 
 @AndroidEntryPoint
 public class SettingsActivity extends AppCompatActivity implements
         PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
     public static final Preference.OnPreferenceChangeListener sBindPreferences = (preference, newValue) -> true;
-    private static final String TITLE_TAG = "Settings";
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -113,7 +114,27 @@ public class SettingsActivity extends AppCompatActivity implements
             if (s.equals("radius")) {
                 Log.e(TAG, "Preference value was updated to: " + sharedPreferences.getString(s, ""));
             }
+            if (s.equals("notifications")) {
+                Log.e(TAG, "Preference value was updated to: " + sharedPreferences.getBoolean(s, true));
+                boolean isNotificationEnabled = sharedPreferences.getBoolean(s, true);
+                if (isNotificationEnabled) {
+                    registerNotification();
+                } else {
+                    cancelNotification();
+                }
+            }
         }
+
+        private void registerNotification() {
+            NotificationHelper.scheduleRepeatingRTCNotification(requireActivity());
+            NotificationHelper.enableBootReceiver(requireActivity());
+        }
+
+        private void cancelNotification() {
+            NotificationHelper.cancelAlarm();
+            NotificationHelper.disableBootReceiver(requireActivity());
+        }
+
 
         @Override
         public void onResume() {

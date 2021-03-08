@@ -15,6 +15,7 @@
     <PreferenceCategory android:title="Notification">
         <SwitchPreferenceCompat
             app:key="notifications"
+            android:defaultValue="true"
             app:title="@string/notifications_label" />
     </PreferenceCategory>
 </PreferenceScreen>

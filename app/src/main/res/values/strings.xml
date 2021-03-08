@@ -29,7 +29,7 @@
     <string name="lunching_text">%1$s is lunching at %2$s</string>
     <string name="not_decided">%1$s hasn\'t decided yet</string>
     <string name="distance">%1$d\m</string>
-    <string name="place_name">Thios is place name example</string>
+    <string name="place_name">This is place name example</string>
     <string name="place_open">Open now</string>
     <string name="place_close">Close</string>
     <string name="channel_name">Go4Lunch</string>
@@ -61,7 +61,7 @@
     <string name="notification_lunching_text">You\'re lunching at %1$s on %2$s with %3$s</string>
     <string name="notification_lunching_alone_text">You\'re lunching alone at %1$s on %2$s.</string>
     <string name="msg_subscribed">subscribed</string>
-    <string name="msg_subscribe_failed">subsribed failed</string>
+    <string name="msg_subscribe_failed">subscribed failed</string>
     <string name="notifications_label">Enable message notifications</string>
     <string name="email_connexion">Sign in by email</string>
     <string name="fui_sign_in_with_twittern">Sign in with Twitter</string>
