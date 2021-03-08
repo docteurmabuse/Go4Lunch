@@ -38,9 +38,9 @@ The **Go4Lunch** app is a collaborative app used by all employees. It allows you
 - [Twitter Login](https://developer.twitter.com/en/portal/projects-and-apps) -  Web-based generic OAuth Login into your app using the Firebase SDK
 - [Firestore](https://firebase.google.com/docs/firestore) - Flexible scalable NoSQL cloud database to store and sync data for client- and server-side development
 - [Google Places API](https://developers.google.com/maps/documentation/places/web-service/overview) - The Places API is a service that returns information about places using HTTP requests. Places are defined within this API as establishments, geographic locations, or prominent points of interest.
-- NearBySearch Api
-- PlaceDetail
-- Predictions
+- [NearBySearch Api](https://developers.google.com/maps/documentation/places/web-service/search)
+- [PlaceDetail](https://developers.google.com/maps/documentation/places/web-service/details)
+- [Place Autocomplete](https://developers.google.com/maps/documentation/places/web-service/autocomplete)  - Predictions
 - [Google Maps SDK](https://developers.google.com/maps/documentation/android-sdk/overview?hl=fr) - Allwo to easely add mapto you app.
 - [Android Architecture Components](https://developer.android.com/topic/libraries/architecture) :
   - [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel) to stores UI-related data that isn't destroyed on app rotations.
