@@ -19,13 +19,14 @@ The **Go4Lunch** app is a collaborative app used by all employees. It allows you
 5. Synchronize the project with Gradle if necessary by clicking on the elephant icon.
 6. A Google Maps api key is necessary to run teh app. You will have to register ig you don't have one.
 7. Add your Google Map Api key in gradle.properties
-8. You need to register to [Firebase](https://firebase.google.com/)
-9. Add a project
-10. Enable Authentication and Sign-methods : Google, Email , Facebook, Twitter
-11. Enable Firestore and create rules accordingly
-12. Compile the project by clicking on the hammer icon.
-13. If necessary, select an android device and launch the project by clicking on the green arrow icon.
-14. Enjoy the project and don't hesitate to contribute or report a bug on the project's Github repository.
+8. Add gradle.properties in .gitignore file
+9. You need to register to [Firebase](https://firebase.google.com/)
+10. Add a project
+11. Enable Authentication and Sign-methods : Google, Email , Facebook, Twitter
+12. Enable Firestore and create rules accordingly
+13. Compile the project by clicking on the hammer icon.
+14. If necessary, select an android device and launch the project by clicking on the green arrow icon.
+15. Enjoy the project and don't hesitate to contribute or report a bug on the project's Github repository.
 
 ## Built With
 - [Java 8](https://www.oracle.com/java/technologies/java8.html) - World’s #1 development platform
