@@ -1,11 +1,5 @@
 <resources>
     <string name="app_name">Go4Lunch</string>
-    <string name="twitter_consumer_key" translatable="false">
-					856958671749775360-zigDhcOew8Fg7GwHPsTVrOtOoTEyukM</string>
-
-    <string name="twitter_consumer_secret" translatable="false">
-					Wx27TEzHTkITClUoejfQ8QH3cDqDjzzvYoUW1ylYF36Jd</string>
-
     <string name="title_activity_bottom_navigation">Navigation activity</string>
     <string name="title_map_view">Map View</string>
     <string name="title_hungry">I\'m Hungry!</string>
@@ -26,8 +20,6 @@
     <string name="website">WEBSITE</string>
     <string name="search_title">Search</string>
     <string name="search_hint">Search</string>
-    <string name="facebook_application_id" translatable="false">367361037800074</string>
-    <string name="facebook_login_protocol_scheme" translatable="false">fb367361037800074</string>
     <string name="error_unknown_error">unknown error</string>
     <string name="google_place_image">Google Place Image</string>
     <string name="connection_succeed">Connection Succeed</string>
@@ -78,6 +70,4 @@
     <string name="no_lunch_spot_notification">You don\'t have any lunch spo yet!</string>
     <string name="restaurantCounter">(%d)</string>
     <string name="notification_title">Ready for lunch?</string>
-
-
 </resources>
