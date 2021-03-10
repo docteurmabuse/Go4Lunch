@@ -19,10 +19,11 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class NetworkModule {
     @Provides
     @Singleton
-    public PlacesApiService provideGooglePlacesApiService() {
+    public PlacesApiService provideGooglePlacesApiService(OkHttpClient okHttpClient) {
         HttpUrl baseUrl = HttpUrl.get("https://maps.googleapis.com/maps/api/");
         return new Retrofit.Builder()
                 .baseUrl(baseUrl)
+                .callFactory(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                 .build()

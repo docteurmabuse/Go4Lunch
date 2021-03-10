@@ -62,7 +62,6 @@ public class MainActivity extends BaseActivity {
         DrawerLayout drawer = mBinding.drawerLayout;
         NavigationView navigationView = mBinding.drawerNavView;
         BottomNavigationView bottomNavigationView = mBinding.bottomNavView;
-        String uid = Objects.requireNonNull(this.getCurrentUser()).getUid();
         mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph())
                 .setOpenableLayout(drawer)
                 .build();
@@ -77,7 +76,7 @@ public class MainActivity extends BaseActivity {
                 navController.navigate(id);
             } else if (id == R.id.navigation_workmates) {
                 Bundle bundle = new Bundle();
-                bundle.putString("userId", uid);
+                bundle.putString("userId", Objects.requireNonNull(this.getCurrentUser()).getUid());
                 navController.navigate(id, bundle);
             }
             return true;

@@ -53,6 +53,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.ContentValues.TAG;
@@ -80,6 +81,9 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     private List<User> matesList;
     private UserViewModel userViewModel;
     private ArrayList<String> matesSpotList;
+    private Disposable disposable;
+
+
     @Inject
     public List<Restaurant> restaurantsList;
     @Inject
@@ -118,6 +122,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         setupSharedPreferences();
+
         // Init  ViewModels
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
         placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
