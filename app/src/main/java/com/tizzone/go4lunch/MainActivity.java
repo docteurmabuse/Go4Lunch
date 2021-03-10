@@ -29,8 +29,6 @@ import com.tizzone.go4lunch.ui.settings.SettingsActivity;
 import com.tizzone.go4lunch.utils.Utils;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
-import java.util.Objects;
-
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -76,7 +74,8 @@ public class MainActivity extends BaseActivity {
                 navController.navigate(id);
             } else if (id == R.id.navigation_workmates) {
                 Bundle bundle = new Bundle();
-                bundle.putString("userId", Objects.requireNonNull(this.getCurrentUser()).getUid());
+                if (this.getCurrentUser() != null)
+                    bundle.putString("userId", this.getCurrentUser().getUid());
                 navController.navigate(id, bundle);
             }
             return true;

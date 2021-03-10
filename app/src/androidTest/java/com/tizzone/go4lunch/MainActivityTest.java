@@ -74,12 +74,33 @@ public class MainActivityTest extends TestCase {
     }
 
     @Test
-    public void checkIfCurrentUserIsLoggingOutOnMenuButtonClick() {
+    public void checkIfAuthActivityIsShowingOnMenuButtonClick() {
         // Verify that performing a click on logout button in drawer show auth activity with Google Sign In button
         // Check that left drawer is closed at startup
         onView(withId(R.id.drawer_layout))
                 .check(matches(isClosed(Gravity.START))).perform(DrawerActions.open());// Left Drawer should be closed.
         onView(withId(R.id.nav_logout)).perform(click());
         onView(withId(R.id.google_signin)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void checkIfPlaceDetailActivityIsShowingOnMenuButtonClick() {
+        // Verify that performing a click on logout button in drawer show auth activity with Google Sign In button
+        // Check that left drawer is closed at startup
+        onView(withId(R.id.drawer_layout))
+                .check(matches(isClosed(Gravity.START))).perform(DrawerActions.open());// Left Drawer should be closed.
+        onView(withId(R.id.nav_lunch)).perform(click());
+        onView(withId(R.id.detail_activity_layout)).check(matches(isDisplayed()));
+    }
+
+
+    @Test
+    public void checkIfUserInfoAreDisplayedInDrawer() {
+        // Verify that performing a click on logout button in drawer show auth activity with Google Sign In button
+        // Check that left drawer is closed at startup
+        onView(withId(R.id.drawer_layout))
+                .check(matches(isClosed(Gravity.START))).perform(DrawerActions.open());// Left Drawer should be closed.
+        onView(withId(R.id.nav_lunch)).perform(click());
+        onView(withId(R.id.detail_activity_layout)).check(matches(isDisplayed()));
     }
 }
