@@ -10,7 +10,6 @@ import dagger.hilt.InstallIn;
 import dagger.hilt.components.SingletonComponent;
 import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory;
 import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -19,21 +18,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class NetworkModule {
     @Provides
     @Singleton
-    public PlacesApiService provideGooglePlacesApiService(OkHttpClient okHttpClient) {
+    public PlacesApiService provideGooglePlacesApiService() {
         HttpUrl baseUrl = HttpUrl.get("https://maps.googleapis.com/maps/api/");
         return new Retrofit.Builder()
                 .baseUrl(baseUrl)
-                .callFactory(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                 .build()
                 .create(PlacesApiService.class);
-    }
-
-    @Provides
-    public OkHttpClient provideHttpClient() {
-        return new OkHttpClient.Builder()
-                .build();
     }
 }
 

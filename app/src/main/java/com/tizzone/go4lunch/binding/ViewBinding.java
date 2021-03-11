@@ -27,6 +27,8 @@ public class ViewBinding {
         if (imageFromUrl != null && imageFromUrl.startsWith("http")) {
             Glide.with(imageView.getContext())
                     .load(imageFromUrl)
+                    .error(R.drawable.ic_baseline_restaurant_24)
+                    .placeholder(R.drawable.ic_baseline_restaurant_24)
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .listener(new RequestListener<Drawable>() {
                         @Override

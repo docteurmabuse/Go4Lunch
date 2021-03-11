@@ -93,10 +93,12 @@ public class WorkmatesFragment extends Fragment implements UsersListAdapter.User
 
     @Override
     public void onUserClick(User user) {
-        Intent intent = new Intent(getContext(), PlaceDetailActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString(RESTAURANT_ID, user.getLunchSpotId());
-        intent.putExtras(bundle);
-        startActivity(intent);
+        if (user.getLunchSpotId() != null) {
+            Intent intent = new Intent(getContext(), PlaceDetailActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString(RESTAURANT_ID, user.getLunchSpotId());
+            intent.putExtras(bundle);
+            startActivity(intent);
+        }
     }
 }

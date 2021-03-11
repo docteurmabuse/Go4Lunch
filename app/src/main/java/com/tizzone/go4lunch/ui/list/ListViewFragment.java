@@ -50,6 +50,8 @@ public class ListViewFragment extends Fragment implements PlacesListAdapter.Rest
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -68,8 +70,6 @@ public class ListViewFragment extends Fragment implements PlacesListAdapter.Rest
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //Init ViewModels
-        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
-        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
         observeData();
     }
 

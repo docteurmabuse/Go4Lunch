@@ -25,6 +25,7 @@ public class Constants {
     public static final String RESTAURANT_ID = "RESTAURANT_ID";
     public static final String myPreference = "mypref";
     public static final String GOOGLE_MAP_API_KEY = BuildConfig.GOOGLE_MAPS_API_KEY;
+    public static final String GOOGLE_PLACES_API_KEY = BuildConfig.GOOGLE_PLACES_API_KEY;
     public static final String COLLECTION_USER_NAME = "users";
     public static final String COLLECTION_RESTAURANT_NAME = "restaurants";
     public static final String USER_NAME_PROPERTY = "UserName";

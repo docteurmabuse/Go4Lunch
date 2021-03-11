@@ -82,8 +82,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     private UserViewModel userViewModel;
     private ArrayList<String> matesSpotList;
     private Disposable disposable;
-
-
     @Inject
     public List<Restaurant> restaurantsList;
     @Inject

@@ -21,13 +21,15 @@ android {
         android.defaultConfig.vectorDrawables.useSupportLibrary = true
         // Read the API key from local.properties into R.string.maps_api_key
         buildConfigField "String", "GOOGLE_MAPS_API_KEY", project.findProperty("GOOGLE_MAPS_API_KEY")
+        buildConfigField "String", "GOOGLE_PLACES_API_KEY", project.findProperty("GOOGLE_PLACES_API_KEY")
         buildConfigField "String", "APP_ID", project.findProperty("APP_ID")
         buildConfigField "String", "fbAPP_ID", project.findProperty("fbAPP_ID")
         buildConfigField "String", "TWITTER_CONSUMER_KEY", project.findProperty("TWITTER_CONSUMER_KEY")
         buildConfigField "String", "TWITTER_CONSUMER_SECRET", project.findProperty("TWITTER_CONSUMER_SECRET")
-
         resValue "string", "google_maps_key",
                 (project.findProperty("GOOGLE_MAPS_API_KEY") ?: "")
+        resValue "string", "google_places_key",
+                (project.findProperty("GOOGLE_PLACES_API_KEY") ?: "")
         resValue "string", "facebook_application_id",
                 (project.findProperty("APP_ID") ?: "")
         resValue "string", "facebook_login_protocol_scheme",
@@ -58,6 +60,7 @@ android {
 }
 
 dependencies {
+    implementation 'androidx.work:work-runtime:2.3.4'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
     def nav_version = "2.3.3"
@@ -92,10 +95,10 @@ dependencies {
 
     // FirebaseUI
     // Import the BoM for the Firebase platform
-    implementation platform('com.google.firebase:firebase-bom:26.5.0')
-    implementation 'com.firebaseui:firebase-ui-auth:6.3.0'
-    implementation 'com.firebaseui:firebase-ui-firestore:6.3.0'
-    implementation 'com.firebaseui:firebase-ui-storage:6.3.0'
+    implementation platform('com.google.firebase:firebase-bom:26.6.0')
+    implementation 'com.firebaseui:firebase-ui-auth:6.4.0'
+    implementation 'com.firebaseui:firebase-ui-firestore:6.4.0'
+    implementation 'com.firebaseui:firebase-ui-storage:6.4.0'
 
 
     //Declare the dependency for the Facebook Authentication Library
@@ -111,6 +114,11 @@ dependencies {
     // Utilities for Maps SDK for Android (requires Google Play Services)
     implementation 'com.google.maps.android:android-maps-utils:2.2.0'
     implementation 'com.google.android.libraries.places:places:2.4.0'
+
+    // Firebase Cloud Messaging
+    implementation 'com.google.firebase:firebase-messaging'
+    implementation 'com.google.firebase:firebase-messaging-directboot:21.0.1'
+
 
     // Add the dependency for the Firebase SDK for Google Analytics
     // When using the BoM, don't specify versions in Firebase dependencies
