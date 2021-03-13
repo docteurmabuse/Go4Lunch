@@ -7,7 +7,7 @@ This repository contains a mini-application for the P7 of the Grande École du N
 The **Go4Lunch** app is a collaborative app used by all employees. It allows you to search for a restaurant in the area, then select the one of your choice by telling your colleagues. Likewise, it is possible to consult the restaurants selected by colleagues in order to join them. A little before lunchtime, the application notifies the various employees to invite them to join their colleagues.
 
 ## Interface preview
-![authentication_screen.png](img/authentication_screen_2.png) ![map_view_go4lunch.png](img/map_view_go4lunch_1.png)![restaurant_list_view_go4lunch.png](img/restaurant_list_view_go4lunch_1.png)![restaurant_detail_with-list_gor4lunch.png](img/restaurant_detail_with-list_gor4lunch_1.png)
+![authentication_screen_3.png](img/authentication_screen_3.png) ![map_view_go4lunch.png](img/map_view_go4lunch_1.png)![restaurant_list_view_go4lunch.png](img/restaurant_list_view_go4lunch_1.png)![restaurant_detail_with-list_gor4lunch.png](img/restaurant_detail_with-list_gor4lunch_1.png)
 ![workmates_view_go4lunch.png](img/workmates_view_go4lunch.png)  ![settings_view_go4lunch.png](img/settings_view_go4lunch.png)
 ![drawer_view_go4lunch_1](img/drawer_view_go4lunch_1.png) ![notification_firebase_screen_326_607](img/notification_firebase_screen_326_607.png) 
 
