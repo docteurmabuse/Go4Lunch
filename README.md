@@ -11,7 +11,7 @@ The **Go4Lunch** app is a collaborative app used by all employees. It allows you
 ![workmates_view_go4lunch.png](img/workmates_view_go4lunch.png)  ![settings_view_go4lunch.png](img/settings_view_go4lunch.png)
 ![drawer_view_go4lunch_1](img/drawer_view_go4lunch_1.png) ![notification_firebase_screen_326_607](img/notification_firebase_screen_326_607.png) 
 
-
+ 
 ## Getting Started
 1. Download the project code, preferably with git clone.
 2. Open Android Studio and click on "Check out project from Version Control" and click on Git.
