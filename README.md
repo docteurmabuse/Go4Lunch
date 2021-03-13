@@ -9,7 +9,8 @@ The **Go4Lunch** app is a collaborative app used by all employees. It allows you
 ## Interface preview
 ![authentication_screen.png](img/authentication_screen_2.png) ![map_view_go4lunch.png](img/map_view_go4lunch_1.png)![restaurant_list_view_go4lunch.png](img/restaurant_list_view_go4lunch_1.png)![restaurant_detail_with-list_gor4lunch.png](img/restaurant_detail_with-list_gor4lunch_1.png)
 ![workmates_view_go4lunch.png](img/workmates_view_go4lunch.png)  ![settings_view_go4lunch.png](img/settings_view_go4lunch.png)
-![drawer_view_go4lunch_1](img/drawer_view_go4lunch_1.png)
+![drawer_view_go4lunch_1](img/drawer_view_go4lunch_1.png) ![notification_firebase_screen](img/notification_firebase_screen.png) 
+
 
 ## Getting Started
 1. Download the project code, preferably with git clone.
@@ -43,7 +44,7 @@ The **Go4Lunch** app is a collaborative app used by all employees. It allows you
 - [NearBySearch Api](https://developers.google.com/maps/documentation/places/web-service/search)
 - [PlaceDetail](https://developers.google.com/maps/documentation/places/web-service/details)
 - [Place Autocomplete](https://developers.google.com/maps/documentation/places/web-service/autocomplete)  - Predictions
-- [Google Maps SDK](https://developers.google.com/maps/documentation/android-sdk/overview?hl=fr) - Allwo to easely add mapto you app.
+- [Google Maps SDK](https://developers.google.com/maps/documentation/android-sdk/overview?hl=fr) - Allow to easily add map to you app.
 - [Android Architecture Components](https://developer.android.com/topic/libraries/architecture) :
   - [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel) to stores UI-related data that isn't destroyed on app rotations.
   - [ViewBinding](https://developer.android.com/topic/libraries/view-binding) to generates a binding class for each XML layout file present in that module.

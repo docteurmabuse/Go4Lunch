@@ -111,7 +111,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private NotificationCompat.Builder buildLocalNotification(Context context, PendingIntent pendingIntent) {
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        Log.e(TAG, "notification alarm build! ");
+        Log.e(TAG, "notification firebase build! ");
 
         return new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setContentIntent(pendingIntent)
@@ -128,6 +128,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void getWorkmatesLunchingText(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(myPreference,
                 Context.MODE_PRIVATE);
+        Log.d(TAG, "notification getWorkmatesLunchingText build! userId: " + Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid() + " lunch Id" + sharedPreferences.getString(lunchSpotId, ""));
+
         if (sharedPreferences.contains(lunchSpotId)) {
             String spotId = (sharedPreferences.getString(lunchSpotId, ""));
             String uid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
@@ -141,6 +143,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         }
                         joiningMates = Joiner.on(", ").join(usersList);
                         getRestaurantLunchingText(context, spotId, joiningMates);
+                    } else {
+                        Log.e(TAG, "notification getWorkmatesLunchingText error! userId: " + Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid() + "lunch Id" + sharedPreferences.getString(lunchSpotId, "") + task.getException());
+                        Log.e("tag", "Error getting documents: ", task.getException());
                     }
                 });
             }
@@ -152,10 +157,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
             assert restaurant != null;
             if (joiningMates != null) {
-                lunchingText = String.format(context.getResources().getString(R.string.notification_lunching_text), restaurant.getName(), restaurant.getAddress(), joiningMates);
+                this.lunchingText = String.format(context.getResources().getString(R.string.notification_lunching_text), restaurant.getName(), restaurant.getAddress(), joiningMates);
             } else {
-                lunchingText = String.format(context.getResources().getString(R.string.notification_lunching_alone_text), restaurant.getName(), restaurant.getAddress());
+                this.lunchingText = String.format(context.getResources().getString(R.string.notification_lunching_alone_text), restaurant.getName(), restaurant.getAddress());
             }
+            Log.e(TAG, "notification getRestaurantLunchingText build! userId: " + lunchingText);
+
             //Build notification
             Notification dailyNotification = buildLocalNotification(context, pendingIntent).build();
             //Send local Notification

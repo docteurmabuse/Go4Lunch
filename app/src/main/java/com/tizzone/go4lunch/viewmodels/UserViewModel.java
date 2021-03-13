@@ -213,11 +213,11 @@ public class UserViewModel extends ViewModel {
             userRepository.createUser(uid, userEmail, username, urlPicture, null, null, null).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Log.d(TAG_CREATE_USER, "Error:" + e);
+                    Log.w(TAG_CREATE_USER, "Error:" + e);
                 }
             });
         } else {
-            Log.d(TAG_CREATE_USER, "User already exist:" + Objects.requireNonNull(getUserInfoFromFirestore(uid).getValue()).getUid());
+            Log.w(TAG_CREATE_USER, "User already exist:" + Objects.requireNonNull(getUserInfoFromFirestore(uid).getValue()).getUid());
         }
     }
 }

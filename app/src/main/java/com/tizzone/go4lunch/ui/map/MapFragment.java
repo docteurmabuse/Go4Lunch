@@ -283,11 +283,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         try {
             if (mLocationPermissionGranted) {
                 mMap.setMyLocationEnabled(true);
-//                locationViewModel.getUserLocation().observe(getViewLifecycleOwner(), locationModel -> {
-//                    if (locationModel != null) {
-//                        this.currentLocation = locationModel.getLocation();
-//                    }
-//                });
                 mMap.getUiSettings().setMyLocationButtonEnabled(true);
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                         new LatLng(currentLocation.latitude,
@@ -340,7 +335,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
             mMap.getUiSettings().setZoomControlsEnabled(true);
-            //  mMap.clear();
             getDeviceLocation();
         } else {
             Permissions.requestLocationPermission(this.getActivity());
