@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageButton;
@@ -32,17 +33,13 @@ import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
-import static com.tizzone.go4lunch.utils.Constants.RESTAURANT;
 import static com.tizzone.go4lunch.utils.Constants.RESTAURANT_ID;
-import static com.tizzone.go4lunch.utils.Constants.lunchSpotAddress;
-import static com.tizzone.go4lunch.utils.Constants.lunchSpotName;
-import static com.tizzone.go4lunch.utils.Constants.lunchSpotPhotoUrl;
+import static com.tizzone.go4lunch.utils.Constants.lunchSpotId;
 import static com.tizzone.go4lunch.utils.Constants.myPreference;
 
 
 @AndroidEntryPoint
 public class PlaceDetailActivity extends BaseActivity implements UsersListAdapter.UserItemClickListener {
-
 
     private PlacesViewModel placesViewModel;
     private ActivityPlaceDetailBinding placeDetailBinding;
@@ -79,18 +76,11 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
         restaurant = new Restaurant();
         placeDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_place_detail);
         placeDetailBinding.setUserViewModel(userViewModel);
-
         Intent intent = this.getIntent();
-        if (intent != null) {
-            if (intent.getSerializableExtra(RESTAURANT) != null) {
-                restaurant = (Restaurant) intent.getSerializableExtra(RESTAURANT);
-                currentPlaceId = restaurant.getUid();
-            }
-            if (intent.getStringExtra(RESTAURANT_ID) != null) {
-                currentPlaceId = intent.getStringExtra(RESTAURANT_ID);
-            }
-            placesViewModel.setRestaurant(currentPlaceId);
+        if (intent.getStringExtra(RESTAURANT_ID) != null) {
+            currentPlaceId = intent.getStringExtra(RESTAURANT_ID);
         }
+        placesViewModel.setRestaurant(currentPlaceId);
         initViews();
     }
 
@@ -107,6 +97,7 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     }
 
     private void observeData() {
+        placesViewModel.setRestaurant(currentPlaceId);
         placesViewModel.getRestaurant().observe(this, this::getRestaurantDetailFromApi);
         userViewModel.getUserLunchInThatSpotList(currentPlaceId);
         if (this.getCurrentUser() != null) {
@@ -124,18 +115,16 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             this.restaurant = restaurant;
         }
         placeDetailBinding.setRestaurant(restaurant);
+        configureRecyclerView(currentPlaceId);
         assert restaurant != null;
         placePhone = restaurant.getPhone();
         call.setOnClickListener(view1 -> dialPhoneNumber(placePhone));
         website.setOnClickListener(view12 -> openWebPage(restaurant.getWebsiteUrl()));
-        configureRecyclerView(currentPlaceId);
     }
 
     private void addOnOffsetChangedListener() {
         // Set title of Detail page
-        appbar.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
-            userViewModel.setAppBarIsCollapsed(Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() == 0);
-        });
+        appbar.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> userViewModel.setAppBarIsCollapsed(Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() == 0));
     }
 
     //Dial restaurant's phone number
@@ -154,20 +143,16 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivity(intent);
             } else {
-                Snackbar.make(placeDetailBinding.getRoot(), R.string.no_website_notification, Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                showSnackBar(placeDetailBinding.getRoot(), getString(R.string.no_website_notification));
             }
         }
     }
 
-    private void addSpotLunchInSharedPreferences(String lunchSpot) {
+    private void addSpotLunchInSharedPreferences(String restaurantId) {
         SharedPreferences sharedPref = getSharedPreferences(myPreference,
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(getString(R.string.lunchSpotId), lunchSpot);
-        editor.putString(lunchSpotName, restaurant.getName());
-        editor.putString(lunchSpotAddress, restaurant.getName());
-        editor.putString(lunchSpotPhotoUrl, restaurant.getName());
+        editor.putString(lunchSpotId, restaurantId);
         editor.apply();
     }
 
@@ -198,17 +183,20 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     public void fabOnClick(boolean isLunchSpot) {
         if (isLunchSpot) {
             addSpotLunchInSharedPreferences(restaurant.getUid());
-            Snackbar.make(placeDetailBinding.getRoot(), "You're going to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
+            showSnackBar(placeDetailBinding.getRoot(), "You're going to " + restaurant.getName() + " for lunch!");
         } else {
             addSpotLunchInSharedPreferences(null);
-            Snackbar.make(placeDetailBinding.getRoot(), "You're not going anymore to " + restaurant.getName() + " for lunch!", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
+            showSnackBar(placeDetailBinding.getRoot(), "You're not going anymore to" + restaurant.getName() + " for lunch!");
         }
     }
 
     @Override
     public void onUserClick(User user) {
+    }
+
+    private void showSnackBar(View view, String message) {
+        Snackbar.make(view, message, Snackbar.LENGTH_SHORT)
+                .setAction("Action", null).show();
     }
 }
 

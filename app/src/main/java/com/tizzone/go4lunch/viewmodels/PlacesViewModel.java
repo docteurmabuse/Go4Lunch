@@ -61,9 +61,9 @@ public class PlacesViewModel extends ViewModel {
                 .subscribeOn(Schedulers.io())
                 .map(placesResults -> {
                     isLoading.set(true);
-                    List<com.tizzone.go4lunch.models.places.Result> placesResultsList1 = placesResults.getResults();
+                    List<com.tizzone.go4lunch.models.places.Result> placesResultsList = placesResults.getResults();
                     List<Restaurant> restaurants = new ArrayList<>();
-                    for (com.tizzone.go4lunch.models.places.Result result : placesResultsList1) {
+                    for (com.tizzone.go4lunch.models.places.Result result : placesResultsList) {
                         Boolean isOpen = null;
                         if (result.getOpeningHours() != null) {
                             isOpen = result.getOpeningHours().getOpenNow();
@@ -85,9 +85,9 @@ public class PlacesViewModel extends ViewModel {
                                 }
                             }
                         });
-
                     }
-                    Log.e(TAG, "apply: " + placesResultsList1.get(0).getName());
+                    if (placesResultsList.size() > 0)
+                        Log.e(TAG, "apply: " + placesResultsList.get(0).getName());
                     return restaurants;
                 })
                 .observeOn(AndroidSchedulers.mainThread())

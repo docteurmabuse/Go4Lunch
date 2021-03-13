@@ -27,12 +27,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class UserViewModel extends ViewModel {
     private static final String TAG = "FirebaseAuthAppTag";
-    private static final String TAG_CREATE_USER = "FIREBASE CREATE USER";
-
+    private static final String TAG_CREATE_USER = "FIREBASE_CREATE_USER";
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
     private final MutableLiveData<List<User>> userListMutableLiveData = new MutableLiveData<>();
-
     public MutableLiveData<User> userMutableLiveData = new MutableLiveData<>();
     public MutableLiveData<List<User>> firebaseUserLunchInThatSpotList = new MutableLiveData<>();
     public MutableLiveData<List<String>> favoriteLunchSpotListLiveData = new MutableLiveData<>();
@@ -146,15 +144,17 @@ public class UserViewModel extends ViewModel {
         });
     }
 
-    public void getUserInfoFromFirestore(String userId) {
-        userMutableLiveData = new MutableLiveData<>();
+    public MutableLiveData<User> getUserInfoFromFirestore(String userId) {
         userRepository.getUser(userId).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot documentSnapshot = task.getResult();
                 User user = documentSnapshot.toObject(User.class);
                 userLiveData.setValue(user);
+            } else {
+                Log.d(TAG, "Current user: null");
             }
         });
+        return userLiveData;
     }
 
     public void getUserLunchInThatSpotList(String lunchSpotId) {
@@ -208,11 +208,16 @@ public class UserViewModel extends ViewModel {
         String username = currentUser.getDisplayName();
         String uid = currentUser.getUid();
         String userEmail = currentUser.getEmail();
-        userRepository.createUser(uid, userEmail, username, urlPicture, null, null, null).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(TAG_CREATE_USER, "Error:" + e);
-            }
-        });
+        if (getUserInfoFromFirestore(uid).getValue() == null) {
+            Log.d(TAG_CREATE_USER, "User don't exist in firebase");
+            userRepository.createUser(uid, userEmail, username, urlPicture, null, null, null).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d(TAG_CREATE_USER, "Error:" + e);
+                }
+            });
+        } else {
+            Log.d(TAG_CREATE_USER, "User already exist:" + Objects.requireNonNull(getUserInfoFromFirestore(uid).getValue()).getUid());
+        }
     }
 }

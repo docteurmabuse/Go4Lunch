@@ -35,6 +35,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 import static android.content.ContentValues.TAG;
 import static com.tizzone.go4lunch.utils.Constants.PROXIMITY_RADIUS;
 import static com.tizzone.go4lunch.utils.Constants.RESTAURANT;
+import static com.tizzone.go4lunch.utils.Constants.RESTAURANT_ID;
 import static com.tizzone.go4lunch.utils.Constants.SESSION_TOKEN;
 
 @AndroidEntryPoint
@@ -137,13 +138,13 @@ public class ListViewFragment extends Fragment implements PlacesListAdapter.Rest
     }
 
     @Override
-    public void onRestaurantClick(Restaurant restaurant) {
+    public void onRestaurantClick(String lunchSpotId) {
         Intent intent = new Intent(getContext(), PlaceDetailActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putSerializable(RESTAURANT, restaurant);
+        bundle.putString(RESTAURANT_ID, lunchSpotId);
         intent.putExtras(bundle);
         startActivity(intent);
-        Log.e(TAG, RESTAURANT + ": " + (restaurant.getName()));
+        Log.e(TAG, RESTAURANT + ": " + lunchSpotId);
     }
 
 

@@ -72,6 +72,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 .setContentTitle(context.getString(R.string.notification_title))
                 .setContentText(lunchingText)
                 .setAutoCancel(true)
+                .setColor(context.getResources().getColor(R.color.colorAccent))
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(lunchingText))
                 .setSound(defaultSoundUri)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);

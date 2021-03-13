@@ -7,7 +7,7 @@ public class Constants {
     public static final double LATITUDE = 78.850559;
     public static final double LONGITUDE = 2.377078;
     public static final float DEFAULT_ZOOM = 15;
-    public static final int NOTIFICATION_ID = 0;
+    public static final int NOTIFICATION_ID = 456;
     public static final int RC_SIGN_IN = 9903;
     public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 546;
     public static final int SESSION_TOKEN = 54784;
@@ -16,7 +16,7 @@ public class Constants {
     public static final LatLng mDefaultLocation = new LatLng(65.850559, 2.377078);
     public static final String TAG = "1543";
     public static final String PRIMARY_CHANNEL_ID = "primary_notification_channel";
-    public static final String CHANNEL_ID = "primary_notification_channel";
+    public static final String CHANNEL_ID = "go4LunchNotification";
     public static final String lunchSpotId = "lunchSpotId";
     public static final String lunchSpotName = "lunchSpotName";
     public static final String lunchSpotAddress = "lunchSpotNamAddress";

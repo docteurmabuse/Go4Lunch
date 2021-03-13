@@ -8,6 +8,8 @@ import com.tizzone.go4lunch.R;
 import java.io.Serializable;
 import java.util.List;
 
+import static com.tizzone.go4lunch.utils.Constants.GOOGLE_PLACES_API_KEY;
+
 public class Result implements Serializable {
     private final static long serialVersionUID = 3834918294238241150L;
     @SerializedName("geometry")
@@ -151,7 +153,7 @@ public class Result implements Serializable {
         String GOOGLE_MAP_API_KEY = BuildConfig.GOOGLE_MAPS_API_KEY;
         if (this.photos != null) {
             String staticUrl = "https://maps.googleapis.com/maps/api/place/photo?";
-            photoUrl = staticUrl + "maxwidth=400&photoreference=" + getPhotos().get(0).getPhotoReference() + "&key=" + GOOGLE_MAP_API_KEY;
+            photoUrl = staticUrl + "maxwidth=400&photoreference=" + getPhotos().get(0).getPhotoReference() + "&key=" + GOOGLE_PLACES_API_KEY;
         } else {
             photoUrl = String.valueOf(R.drawable.ic_logo_go4lunch);
         }

@@ -56,6 +56,4 @@ public class UserRepository {
         User userToCreate = new User(uid, userEmail, userName, photoUrl, favouriteRestaurants, lunchSpotId, lunchSpotName);
         return usersRef.document(uid).set(userToCreate);
     }
-
-
 }

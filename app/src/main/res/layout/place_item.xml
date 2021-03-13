@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:layout_marginStart="0dp"
-        android:onClick="@{() ->restaurantItemClick.onRestaurantClick(restaurant)}">
+        android:onClick="@{() ->restaurantItemClick.onRestaurantClick(restaurant.uid)}">
 
         <TextView
             android:id="@+id/textViewName"

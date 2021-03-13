@@ -11,6 +11,13 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.tizzone.go4lunch.R;
+
 import java.util.Calendar;
 
 import static android.content.Context.ALARM_SERVICE;
@@ -69,5 +76,54 @@ public class NotificationHelper {
             notificationManager.createNotificationChannel(channel);
         }
         return notificationManager;
+    }
+
+
+    public static void registerNotificationInFirebase(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create channel to show notifications.
+            String channelId = context.getString(R.string.default_notification_channel_id);
+            String channelName = context.getString(R.string.default_notification_channel_name);
+            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(new NotificationChannel(channelId,
+                    channelName, NotificationManager.IMPORTANCE_LOW));
+        }
+
+        // [START subscribe_topics]
+        FirebaseMessaging.getInstance().subscribeToTopic("lunch")
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        String msg = context.getString(R.string.msg_subscribed);
+                        if (!task.isSuccessful()) {
+                            msg = context.getString(R.string.msg_subscribe_failed);
+                        }
+                        Log.d(TAG, msg);
+                    }
+                });
+    }
+
+    public static void unregisterNotificationInFirebase(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create channel to show notifications.
+            String channelId = context.getString(R.string.default_notification_channel_id);
+            String channelName = context.getString(R.string.default_notification_channel_name);
+            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(new NotificationChannel(channelId,
+                    channelName, NotificationManager.IMPORTANCE_LOW));
+        }
+
+        // [START subscribe_topics]
+        FirebaseMessaging.getInstance().unsubscribeFromTopic("lunch")
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        String msg = context.getString(R.string.msg_subscribed);
+                        if (!task.isSuccessful()) {
+                            msg = context.getString(R.string.msg_subscribe_failed);
+                        }
+                        Log.d(TAG, msg);
+                    }
+                });
     }
 }

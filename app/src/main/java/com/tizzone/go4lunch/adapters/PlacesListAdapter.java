@@ -82,7 +82,7 @@ public class PlacesListAdapter extends RecyclerView.Adapter<PlacesListAdapter.Vi
     }
 
     public interface RestaurantItemClickListener {
-        void onRestaurantClick(Restaurant restaurant);
+        void onRestaurantClick(String lunchSpotId);
     }
 }
 

@@ -9,23 +9,13 @@ import com.tizzone.go4lunch.models.LocationModel;
 
 public class LocationViewModel extends ViewModel {
     public final MutableLiveData<LocationModel> userLocation = new MutableLiveData<>();
-    public MutableLiveData<String> userId;
 
     public void setUserLocation(double latitude, double longitude) {
         userLocation.postValue(new LocationModel(new LatLng(latitude, longitude)));
     }
 
-    public LiveData<String> getUserId() {
-        return userId;
-    }
-
     public LiveData<LocationModel> getUserLocation() {
         return userLocation;
-    }
-
-    public void setUserId(String uid) {
-        userId = new MutableLiveData<>();
-        userId.postValue(uid);
     }
 
 }

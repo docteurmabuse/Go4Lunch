@@ -128,11 +128,14 @@ public class SettingsActivity extends AppCompatActivity implements
         private void registerNotification() {
             NotificationHelper.scheduleRepeatingRTCNotification(requireActivity());
             NotificationHelper.enableBootReceiver(requireActivity());
+            NotificationHelper.registerNotificationInFirebase(requireActivity());
         }
 
         private void cancelNotification() {
             NotificationHelper.cancelAlarm();
             NotificationHelper.disableBootReceiver(requireActivity());
+            NotificationHelper.unregisterNotificationInFirebase(requireActivity());
+
         }
 
 

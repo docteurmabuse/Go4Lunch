@@ -13,12 +13,8 @@ import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.SphericalUtil;
-import com.tizzone.go4lunch.models.Restaurant;
 
-import static com.tizzone.go4lunch.utils.Constants.lunchSpotAddress;
 import static com.tizzone.go4lunch.utils.Constants.lunchSpotId;
-import static com.tizzone.go4lunch.utils.Constants.lunchSpotName;
-import static com.tizzone.go4lunch.utils.Constants.lunchSpotPhotoUrl;
 import static com.tizzone.go4lunch.utils.Constants.myPreference;
 
 
@@ -38,18 +34,15 @@ public class Utils {
         return bitmap;
     }
 
-    public static Restaurant getRestaurantFromSharedPreferences(Context context) {
+    public static String getRestaurantIdFromSharedPreferences(Context context) {
         SharedPreferences sharedPreferences;
         sharedPreferences = context.getSharedPreferences(myPreference,
                 Context.MODE_PRIVATE);
-        Restaurant lunchSpot = new Restaurant();
+        String restaurantId = "";
         if (sharedPreferences.contains(lunchSpotId)) {
-            lunchSpot.setUid(sharedPreferences.getString(lunchSpotId, ""));
-            lunchSpot.setName(sharedPreferences.getString(lunchSpotName, ""));
-            lunchSpot.setAddress(sharedPreferences.getString(lunchSpotAddress, ""));
-            lunchSpot.setPhotoUrl(sharedPreferences.getString(lunchSpotPhotoUrl, ""));
+            restaurantId = sharedPreferences.getString(lunchSpotId, "");
         }
-        return lunchSpot;
+        return restaurantId;
     }
 
     public static int getDistanceFromRestaurant(LatLng currentLocation, LatLng restaurantLocation) {

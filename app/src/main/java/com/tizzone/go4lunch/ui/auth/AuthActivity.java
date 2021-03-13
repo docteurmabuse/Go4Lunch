@@ -2,7 +2,6 @@ package com.tizzone.go4lunch.ui.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -12,8 +11,6 @@ import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.material.snackbar.Snackbar;
 import com.tizzone.go4lunch.MainActivity;
 import com.tizzone.go4lunch.R;
@@ -27,14 +24,13 @@ import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
-import static android.content.ContentValues.TAG;
 import static com.tizzone.go4lunch.utils.Constants.RC_SIGN_IN;
 
 @AndroidEntryPoint
 public class AuthActivity extends BaseActivity {
     private CoordinatorLayout coordinatorLayout;
     private UserViewModel userViewModel;
-
+    private ActivityAuthBinding mBinding;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -43,14 +39,14 @@ public class AuthActivity extends BaseActivity {
             if (resultCode == RESULT_OK) { // SUCCESS
                 this.createUserInFirestore();
                 this.startMainActivity();
-                showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
+                showSnackBar(mBinding.getRoot(), getString(R.string.connection_succeed));
             } else { // ERRORS
                 if (response == null) {
-                    showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));
+                    showSnackBar(mBinding.getRoot(), getString(R.string.error_authentication_canceled));
                 } else if (Objects.requireNonNull(response.getError()).getErrorCode() == ErrorCodes.NO_NETWORK) {
-                    showSnackBar(this.coordinatorLayout, getString(R.string.error_no_internet));
+                    showSnackBar(mBinding.getRoot(), getString(R.string.error_no_internet));
                 } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
-                    showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
+                    showSnackBar(mBinding.getRoot(), getString(R.string.error_unknown_error));
                 }
             }
         }
@@ -59,7 +55,7 @@ public class AuthActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        com.tizzone.go4lunch.databinding.ActivityAuthBinding mBinding = ActivityAuthBinding.inflate(getLayoutInflater());
+        mBinding = ActivityAuthBinding.inflate(getLayoutInflater());
         View view = mBinding.getRoot();
         setContentView(view);
         if (getSupportActionBar() != null) {
@@ -67,18 +63,6 @@ public class AuthActivity extends BaseActivity {
         }
         coordinatorLayout = mBinding.mainLayout;
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
-        checkGooglePlayService();
-    }
-
-    private void checkGooglePlayService() {
-        int status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
-        if (status != ConnectionResult.SUCCESS) {
-            Log.e(TAG, "Error");
-            showSnackBar(this.coordinatorLayout, getString(R.string.common_google_play_services_updating_text));
-
-        } else {
-            Log.i(TAG, "Google play services updated");
-        }
     }
 
     @Override
@@ -120,9 +104,8 @@ public class AuthActivity extends BaseActivity {
                 .build(), RC_SIGN_IN);
     }
 
-    // 2 - Show Snack Bar with a message
-    private void showSnackBar(CoordinatorLayout coordinatorLayout, String message) {
-        Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_SHORT).show();
+    private void showSnackBar(View view, String message) {
+        Snackbar.make(view, message, Snackbar.LENGTH_SHORT).show();
     }
 
     private void startMainActivity() {

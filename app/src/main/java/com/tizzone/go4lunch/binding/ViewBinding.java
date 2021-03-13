@@ -18,6 +18,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.squareup.picasso.Picasso;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 
@@ -25,29 +26,53 @@ public class ViewBinding {
     @BindingAdapter(value = {"imageFromUrl", "placeHolder", "progressBar"}, requireAll = false)
     public static void bindImageFromUrl(AppCompatImageView imageView, String imageFromUrl, Drawable placeHolder, ProgressBar progressBar) {
         if (imageFromUrl != null && imageFromUrl.startsWith("http")) {
-            Glide.with(imageView.getContext())
-                    .load(imageFromUrl)
-                    .error(R.drawable.ic_baseline_restaurant_24)
-                    .placeholder(R.drawable.ic_baseline_restaurant_24)
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .listener(new RequestListener<Drawable>() {
+
+            Picasso.with(imageView.getContext()).load(imageFromUrl).fit().centerCrop()
+                    .placeholder(placeHolder)
+                    .error(placeHolder)
+                    .into(imageView, new com.squareup.picasso.Callback() {
                         @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                            progressBar.setVisibility(View.GONE);
-                            return false;
+                        public void onSuccess() {
+                            if (progressBar != null) {
+                                progressBar.setVisibility(View.GONE);
+                            }
                         }
 
                         @Override
-                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            progressBar.setVisibility(View.GONE);
-                            return false;
+                        public void onError() {
+                            if (progressBar != null) {
+                                progressBar.setVisibility(View.GONE);
+                            }
                         }
-                    })
-                    .into(imageView);
+                    });
         } else {
             imageView.setImageDrawable(placeHolder);
             progressBar.setVisibility(View.GONE);
         }
+
+//            Glide.with(imageView.getContext())
+//                    .load(imageFromUrl)
+//                    .error(R.drawable.ic_baseline_restaurant_24)
+//                    .placeholder(R.drawable.ic_baseline_restaurant_24)
+//                    .transition(DrawableTransitionOptions.withCrossFade())
+//                    .listener(new RequestListener<Drawable>() {
+//                        @Override
+//                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+//                            progressBar.setVisibility(View.GONE);
+//                            return false;
+//                        }
+//
+//                        @Override
+//                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+//                            progressBar.setVisibility(View.GONE);
+//                            return false;
+//                        }
+//                    })
+//                    .into(imageView);
+//        } else {
+//            imageView.setImageDrawable(placeHolder);
+//            progressBar.setVisibility(View.GONE);
+//        }
     }
 
     @BindingAdapter(value = {"circleImageFromUrl", "circlePlaceholder", "progressBar"}, requireAll = false)
