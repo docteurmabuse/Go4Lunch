@@ -1,5 +1,6 @@
 package com.tizzone.go4lunch.ui.map;
 
+import android.Manifest;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -38,12 +39,18 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.FragmentMapBinding;
-import com.tizzone.go4lunch.models.LocationModel;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
+import com.tizzone.go4lunch.utils.Utils;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
@@ -61,12 +68,12 @@ import static com.tizzone.go4lunch.utils.Constants.LATITUDE;
 import static com.tizzone.go4lunch.utils.Constants.LONGITUDE;
 import static com.tizzone.go4lunch.utils.Constants.RESTAURANT_ID;
 import static com.tizzone.go4lunch.utils.Constants.SESSION_TOKEN;
-import static com.tizzone.go4lunch.utils.Constants.mDefaultLocation;
+import static com.tizzone.go4lunch.utils.Constants.radius;
 import static com.tizzone.go4lunch.utils.Utils.getBitmapFromVectorDrawable;
 
 @AndroidEntryPoint
 public class MapFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener, OnMapReadyCallback {
-    private int radius;
+    private int mRadius;
     private static final int REQUEST_CODE_LOCATION = 1;
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation;
@@ -92,13 +99,33 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        setupSharedPreferences();
         // Init  ViewModels
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
         placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
+        setupSharedPreferences();
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+        Dexter.withContext(requireActivity())
+                .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                .withListener(new PermissionListener() {
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse response) {
+                        mLocationPermissionGranted = true;
+                    }
+
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse response) {
+                        Toast.makeText(requireActivity(), "You need to enable location in order to use the app! The app is base on your location!", Toast.LENGTH_LONG).show();
+                        mLocationPermissionGranted = false;
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
+
+                    }
+                }).check();
+
         observeData();
     }
 
@@ -155,7 +182,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
             public boolean onQueryTextChange(String newText) {
                 if (newText.length() > 2) {
                     searchView.setFocusable(false);
-                    placesViewModel.setPredictions(newText, currentLocation.latitude + "," + currentLocation.longitude, radius, SESSION_TOKEN);
+                    placesViewModel.setPredictions(newText, currentLocation.latitude + "," + currentLocation.longitude, mRadius, SESSION_TOKEN);
                     return true;
                 }
                 return true;
@@ -165,8 +192,11 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
 
     private void setupSharedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity());
-        radius = Integer.parseInt(sharedPreferences.getString("radius", "1000"));
+        mRadius = Integer.parseInt(sharedPreferences.getString("radius", "1000"));
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        currentLocation = Utils.getLocationFromSharedPreferences(requireActivity());
+        initCurrentLocation(currentLocation);
+        Toast.makeText(requireActivity(), String.valueOf(currentLocation), Toast.LENGTH_LONG).show();
     }
 
     private void observeData() {
@@ -176,14 +206,16 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
             restaurantsList = restaurants;
             initMarkers(restaurants);
         });
-        userViewModel.getUsersList().observe(requireActivity(), this::usersSpotList);
         userViewModel.getUserMutableLiveData();
+        userViewModel.getUsersList().observe(requireActivity(), this::usersSpotList);
     }
 
-    private void initCurrentLocation(LocationModel locationModel) {
-        currentLocation = locationModel.getLocation();
-        updateLocationUI();
-        Toast.makeText(requireActivity(), String.valueOf(currentLocation), Toast.LENGTH_LONG).show();
+    private void initCurrentLocation(LatLng location) {
+        Toast.makeText(requireActivity(), String.valueOf(location), Toast.LENGTH_LONG).show();
+        if (map != null)
+            movedCameraToCurrentPosition(location);
+        build_retrofit_and_get_response(currentLocation.latitude,
+                currentLocation.longitude);
     }
 
     private void usersSpotList(List<User> users) {
@@ -196,7 +228,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
             }
         }
         if (map != null) {
-            initMarkers(restaurantsList);
+            // initMarkers(restaurantsList);
         }
     }
 
@@ -268,39 +300,12 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
             if (mLocationPermissionGranted) {
                 map.setMyLocationEnabled(true);
                 map.getUiSettings().setMyLocationButtonEnabled(true);
-                movedCameraToCurrentPosition(currentLocation);
+                // movedCameraToCurrentPosition(currentLocation);
 
             } else {
                 map.setMyLocationEnabled(false);
                 map.getUiSettings().setMyLocationButtonEnabled(false);
-                mLastKnownLocation = null;
-            }
-        } catch (SecurityException e) {
-            Log.e("Exception: %s", e.getMessage());
-        }
-    }
-
-    private void getDeviceLocation2() {
-        try {
-            if (mLocationPermissionGranted) {
-                Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
-                locationResult.addOnCompleteListener(requireActivity(), task -> {
-                    if (task.isSuccessful()) {
-                        // Set the map's camera position to the current location of the device.
-                        mLastKnownLocation = task.getResult();
-                        if (mLastKnownLocation != null) {
-                            currentLocation = new LatLng(mLastKnownLocation.getLatitude(),
-                                    mLastKnownLocation.getLongitude());
-                        } else {
-                            currentLocation = new LatLng(LATITUDE, LONGITUDE);
-                        }
-                    } else {
-                        Log.d(TAG, "Current location is null. Using defaults.");
-                        Log.e(TAG, "Exception: %s", task.getException());
-                        currentLocation = mDefaultLocation;
-                    }
-                    updateLocationUI();
-                });
+                //mLastKnownLocation = null;
             }
         } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage());
@@ -308,8 +313,11 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     }
 
     private void build_retrofit_and_get_response(double latitude, double longitude) {
-        placesViewModel.setRestaurants(latitude + "," + longitude, radius);
-        locationViewModel.setUserLocation(latitude, longitude);
+        if (latitude != 0 && longitude != 0) {
+            placesViewModel.setRestaurants(latitude + "," + longitude, mRadius);
+            locationViewModel.setUserLocation(latitude, longitude);
+        }
+
     }
 
     private void viewRestaurantDetail(Restaurant lunchSpot) {
@@ -324,9 +332,9 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        if (s.equals("radius")) {
+        if (s.equals(radius)) {
             Log.e(TAG, "Preference radius value was updated to: " + sharedPreferences.getString(s, ""));
-            radius = Integer.parseInt(sharedPreferences.getString(s, ""));
+            mRadius = Integer.parseInt(sharedPreferences.getString(s, ""));
             map.clear();
             placesViewModel.setRestaurants(currentLocation.latitude + "," + currentLocation.longitude, Integer.parseInt(sharedPreferences.getString(s, "")));
         }
@@ -336,12 +344,10 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         updateLocationUI();
-        locationViewModel.getUserLocation().observe(requireActivity(), this::initCurrentLocation);
-
         map.setOnMyLocationClickListener(new GoogleMap.OnMyLocationClickListener() {
             @Override
             public void onMyLocationClick(@NonNull Location location) {
-                getDeviceLocation();
+                // getDeviceLocation();
             }
         });
         if (currentLocation != null) {

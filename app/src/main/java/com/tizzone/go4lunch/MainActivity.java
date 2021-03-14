@@ -2,7 +2,9 @@ package com.tizzone.go4lunch;
 
 import android.Manifest;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -54,6 +56,9 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 import static android.content.ContentValues.TAG;
 import static com.tizzone.go4lunch.utils.Constants.RESTAURANT_ID;
+import static com.tizzone.go4lunch.utils.Constants.latitude;
+import static com.tizzone.go4lunch.utils.Constants.longitude;
+import static com.tizzone.go4lunch.utils.Constants.myPreference;
 
 
 @AndroidEntryPoint
@@ -223,10 +228,6 @@ public class MainActivity extends BaseActivity {
     }
 
     private void getDeviceLocation() {
-        /*
-         * Get the best and most recent location of the device, which may be null in rare
-         * cases when a location is not available.
-         */
         try {
             if (mLocationPermissionGranted) {
                 Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
@@ -236,26 +237,34 @@ public class MainActivity extends BaseActivity {
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = task.getResult();
-                            Log.e(ContentValues.TAG, String.valueOf(mLastKnownLocation));
-
                             if (mLastKnownLocation != null) {
-                                currentLocation = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
-                                locationViewModel.setUserLocation(currentLocation.latitude,
-                                        currentLocation.longitude);
+                                setCurrentLocation(mLastKnownLocation);
                             }
                         } else {
-                            Log.d(TAG, "Current location is null. Using defaults.");
                             Log.e(TAG, "Exception: %s", task.getException());
-                            locationViewModel.setUserLocation(currentLocation.latitude,
-                                    currentLocation.longitude);
                         }
-                        Toast.makeText(getApplicationContext(), String.valueOf(currentLocation), Toast.LENGTH_LONG).show();
-
                     }
                 });
             }
         } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage(), e);
         }
+    }
+
+    private void setCurrentLocation(Location mLastKnownLocation) {
+        currentLocation = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+        locationViewModel.setUserLocation(currentLocation.latitude,
+                currentLocation.longitude);
+        addSpLocationInSharedPreferences(currentLocation.latitude,
+                currentLocation.longitude);
+    }
+
+    private void addSpLocationInSharedPreferences(double mLatitude, double mLongitude) {
+        SharedPreferences sharedPref = getSharedPreferences(myPreference,
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putFloat(latitude, (float) mLatitude);
+        editor.putFloat(longitude, (float) mLongitude);
+        editor.apply();
     }
 }

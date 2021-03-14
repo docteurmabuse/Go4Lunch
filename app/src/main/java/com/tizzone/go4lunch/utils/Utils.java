@@ -14,6 +14,8 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.SphericalUtil;
 
+import static com.tizzone.go4lunch.utils.Constants.latitude;
+import static com.tizzone.go4lunch.utils.Constants.longitude;
 import static com.tizzone.go4lunch.utils.Constants.lunchSpotId;
 import static com.tizzone.go4lunch.utils.Constants.myPreference;
 
@@ -43,6 +45,24 @@ public class Utils {
             restaurantId = sharedPreferences.getString(lunchSpotId, "");
         }
         return restaurantId;
+    }
+
+    public static LatLng getLocationFromSharedPreferences(Context context) {
+        SharedPreferences sharedPreferences;
+        sharedPreferences = context.getSharedPreferences(myPreference,
+                Context.MODE_PRIVATE);
+        LatLng currentLocation;
+        double currentLocationLatitude = 0;
+        double currentLocationLongitude = 0;
+
+        if (sharedPreferences.contains(latitude)) {
+            currentLocationLatitude = sharedPreferences.getFloat("latitude", (float) 0.2867811);
+        }
+        if (sharedPreferences.contains(longitude)) {
+            currentLocationLongitude = sharedPreferences.getFloat("longitude", (float) 0.204504);
+        }
+        currentLocation = new LatLng(currentLocationLatitude, currentLocationLongitude);
+        return currentLocation;
     }
 
     public static int getDistanceFromRestaurant(LatLng currentLocation, LatLng restaurantLocation) {
