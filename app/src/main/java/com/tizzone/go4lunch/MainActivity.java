@@ -1,11 +1,15 @@
 package com.tizzone.go4lunch;
 
+import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -18,9 +22,20 @@ import androidx.navigation.ui.NavigationUI;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityMainBinding;
 import com.tizzone.go4lunch.databinding.NavHeaderMainBinding;
@@ -30,13 +45,16 @@ import com.tizzone.go4lunch.ui.auth.AuthActivity;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.ui.settings.SettingsActivity;
 import com.tizzone.go4lunch.utils.Utils;
+import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+import static android.content.ContentValues.TAG;
 import static com.tizzone.go4lunch.utils.Constants.RESTAURANT_ID;
+
 
 @AndroidEntryPoint
 public class MainActivity extends BaseActivity {
@@ -47,12 +65,20 @@ public class MainActivity extends BaseActivity {
     public MainFragmentFactory fragmentFactory;
     private UserViewModel userViewModel;
 
+    private boolean mLocationPermissionGranted;
+    private Location mLastKnownLocation;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+    private LatLng currentLocation;
+    private LocationViewModel locationViewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         mBinding.setNavigationItemSelectedListener(this);
         View view = mBinding.getRoot();
+        // Construct a FusedLocationProviderClient.
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         setContentView(view);
         MainNavHostFragment navHostFragment =
                 (MainNavHostFragment) getSupportFragmentManager()
@@ -109,11 +135,37 @@ public class MainActivity extends BaseActivity {
         View headerView = mBinding.drawerNavView.getHeaderView(0);
         navHeaderMainBinding = NavHeaderMainBinding.bind(headerView);
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        locationViewModel = new ViewModelProvider(this).get(LocationViewModel.class);
+
         if (this.getCurrentUser() != null) {
             userViewModel.getUserInfoFromFirestore(this.getCurrentUser().getUid());
         }
         updateProfileWhenCreating();
         checkGooglePlayService();
+        getDexterPermission();
+    }
+
+    private void getDexterPermission() {
+        Dexter.withContext(this)
+                .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                .withListener(new PermissionListener() {
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse response) {
+                        mLocationPermissionGranted = true;
+                        getDeviceLocation();
+                    }
+
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse response) {
+                        Toast.makeText(getApplicationContext(), "You need to enable location in order to use the app! The app is base on your location!", Toast.LENGTH_LONG).show();
+                        mLocationPermissionGranted = false;
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
+
+                    }
+                }).check();
     }
 
     private void launchSettingsActivity() {
@@ -168,5 +220,42 @@ public class MainActivity extends BaseActivity {
     private void showSnackBar(View view, String message) {
         Snackbar.make(view, message, Snackbar.LENGTH_SHORT)
                 .setAction("Action", null).show();
+    }
+
+    private void getDeviceLocation() {
+        /*
+         * Get the best and most recent location of the device, which may be null in rare
+         * cases when a location is not available.
+         */
+        try {
+            if (mLocationPermissionGranted) {
+                Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
+                locationResult.addOnCompleteListener(this, new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Location> task) {
+                        if (task.isSuccessful()) {
+                            // Set the map's camera position to the current location of the device.
+                            mLastKnownLocation = task.getResult();
+                            Log.e(ContentValues.TAG, String.valueOf(mLastKnownLocation));
+
+                            if (mLastKnownLocation != null) {
+                                currentLocation = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+                                locationViewModel.setUserLocation(currentLocation.latitude,
+                                        currentLocation.longitude);
+                            }
+                        } else {
+                            Log.d(TAG, "Current location is null. Using defaults.");
+                            Log.e(TAG, "Exception: %s", task.getException());
+                            locationViewModel.setUserLocation(currentLocation.latitude,
+                                    currentLocation.longitude);
+                        }
+                        Toast.makeText(getApplicationContext(), String.valueOf(currentLocation), Toast.LENGTH_LONG).show();
+
+                    }
+                });
+            }
+        } catch (SecurityException e) {
+            Log.e("Exception: %s", e.getMessage(), e);
+        }
     }
 }

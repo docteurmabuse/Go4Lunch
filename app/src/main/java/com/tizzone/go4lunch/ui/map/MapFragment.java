@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,16 +32,18 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.FragmentMapBinding;
+import com.tizzone.go4lunch.models.LocationModel;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
-import com.tizzone.go4lunch.utils.Permissions;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
@@ -51,7 +54,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.rxjava3.disposables.Disposable;
 
 import static android.content.ContentValues.TAG;
 import static com.tizzone.go4lunch.utils.Constants.DEFAULT_ZOOM;
@@ -63,10 +65,9 @@ import static com.tizzone.go4lunch.utils.Constants.mDefaultLocation;
 import static com.tizzone.go4lunch.utils.Utils.getBitmapFromVectorDrawable;
 
 @AndroidEntryPoint
-public class MapFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
-
+public class MapFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener, OnMapReadyCallback {
     private int radius;
-    private GoogleMap mMap;
+    private static final int REQUEST_CODE_LOCATION = 1;
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation;
     private FusedLocationProviderClient mFusedLocationProviderClient;
@@ -77,28 +78,11 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     private List<User> matesList;
     private UserViewModel userViewModel;
     private ArrayList<String> matesSpotList;
-    private Disposable disposable;
     @Inject
     public List<Restaurant> restaurantsList;
     @Inject
     public LiveData<List<Restaurant>> restaurantsListLiveData;
-
-    private final OnMapReadyCallback callback = new OnMapReadyCallback() {
-        @Override
-        public void onMapReady(GoogleMap googleMap) {
-            mMap = googleMap;
-            mMap.getUiSettings().setMyLocationButtonEnabled(true);
-            mMap.getUiSettings().setZoomControlsEnabled(true);
-            // Turn on the My Location layer and the related control on the map.
-            //updateLocationUI();
-            // Get the current location of the device and set the position of the map.
-            //  getDeviceLocation();
-            getLocationPermission();
-            // Set a listener for info window events.
-            mMap.setOnInfoWindowClickListener(marker -> viewRestaurantDetail((Restaurant) marker.getTag()));
-        }
-    };
-
+    private GoogleMap map;
 
     public MapFragment(List<Restaurant> restaurantsList) {
         this.restaurantsList = restaurantsList;
@@ -128,38 +112,15 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
-            mapFragment.getMapAsync(callback);
+            mapFragment.getMapAsync(this);
         }
         return mapBinding.getRoot();
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
     }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         this.mContext = context;
-    }
-
-
-    private void setupSharedPreferences() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity());
-        radius = Integer.parseInt(sharedPreferences.getString("radius", "1000"));
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-    }
-
-    private void observeData() {
-        placesViewModel.getRestaurantsList().observe(requireActivity(), this::initRestaurantsList);
-        placesViewModel.getFilteredRestaurantsList().observe(requireActivity(), restaurants -> {
-            mMap.clear();
-            restaurantsList = restaurants;
-            initMarkers(restaurants);
-        });
-        userViewModel.getUsersList().observe(requireActivity(), this::usersSpotList);
-        userViewModel.getUserMutableLiveData();
     }
 
     @Override
@@ -202,6 +163,29 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         });
     }
 
+    private void setupSharedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity());
+        radius = Integer.parseInt(sharedPreferences.getString("radius", "1000"));
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    private void observeData() {
+        placesViewModel.getRestaurantsList().observe(requireActivity(), this::initRestaurantsList);
+        placesViewModel.getFilteredRestaurantsList().observe(requireActivity(), restaurants -> {
+            map.clear();
+            restaurantsList = restaurants;
+            initMarkers(restaurants);
+        });
+        userViewModel.getUsersList().observe(requireActivity(), this::usersSpotList);
+        userViewModel.getUserMutableLiveData();
+    }
+
+    private void initCurrentLocation(LocationModel locationModel) {
+        currentLocation = locationModel.getLocation();
+        updateLocationUI();
+        Toast.makeText(requireActivity(), String.valueOf(currentLocation), Toast.LENGTH_LONG).show();
+    }
+
     private void usersSpotList(List<User> users) {
         if (users != null) {
             matesSpotList = new ArrayList<>();
@@ -211,15 +195,15 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
                 }
             }
         }
-        if (mMap != null) {
+        if (map != null) {
             initMarkers(restaurantsList);
         }
     }
 
     private void initMarkers(List<Restaurant> mRestaurants) {
         if (mRestaurants != null) {
-            if (mMap != null) {
-                mMap.clear();
+            if (map != null) {
+                map.clear();
             }
             for (Restaurant restaurant : mRestaurants) {
                 if (!placeIsMatesSpot(restaurant)) {
@@ -233,7 +217,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
 
     private void initRestaurantsList(List<Restaurant> mRestaurants) {
         this.restaurantsList.addAll(mRestaurants);
-        if (mMap != null) {
+        if (map != null) {
             initMarkers(mRestaurants);
         }
     }
@@ -255,7 +239,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         markerOptions.title(restaurant.getName() + " : " + restaurant.getAddress());
         Bitmap bitmap = getBitmapFromVectorDrawable(iconId, mContext);
         BitmapDescriptor mapIcon = BitmapDescriptorFactory.fromBitmap(bitmap);
-        Marker marker = mMap.addMarker(new MarkerOptions()
+        Marker marker = map.addMarker(new MarkerOptions()
                 .position(latLng)
                 .title(restaurant.getName())
                 .snippet(restaurant.getAddress())
@@ -266,7 +250,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     @Override
     public void onResume() {
         super.onResume();
-        if (mMap != null) {
+        if (map != null) {
             initMarkers(restaurantsList);
         }
     }
@@ -277,32 +261,26 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     }
 
     private void updateLocationUI() {
-        if (mMap == null) {
+        if (map == null) {
             return;
         }
         try {
             if (mLocationPermissionGranted) {
-                mMap.setMyLocationEnabled(true);
-                mMap.getUiSettings().setMyLocationButtonEnabled(true);
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                        new LatLng(currentLocation.latitude,
-                                currentLocation.longitude), DEFAULT_ZOOM));
-                locationViewModel.setUserLocation(currentLocation.latitude,
-                        currentLocation.longitude);
-                build_retrofit_and_get_response(currentLocation.latitude,
-                        currentLocation.longitude);
+                map.setMyLocationEnabled(true);
+                map.getUiSettings().setMyLocationButtonEnabled(true);
+                movedCameraToCurrentPosition(currentLocation);
+
             } else {
-                mMap.setMyLocationEnabled(false);
-                mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                map.setMyLocationEnabled(false);
+                map.getUiSettings().setMyLocationButtonEnabled(false);
                 mLastKnownLocation = null;
-                getLocationPermission();
             }
         } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage());
         }
     }
 
-    private void getDeviceLocation() {
+    private void getDeviceLocation2() {
         try {
             if (mLocationPermissionGranted) {
                 Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
@@ -329,18 +307,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         }
     }
 
-    private void getLocationPermission() {
-        if (Permissions.checkLocationPermission(requireActivity())) {
-            mLocationPermissionGranted = true;
-            mMap.setMyLocationEnabled(true);
-            mMap.getUiSettings().setMyLocationButtonEnabled(true);
-            mMap.getUiSettings().setZoomControlsEnabled(true);
-            getDeviceLocation();
-        } else {
-            Permissions.requestLocationPermission(this.getActivity());
-        }
-    }
-
     private void build_retrofit_and_get_response(double latitude, double longitude) {
         placesViewModel.setRestaurants(latitude + "," + longitude, radius);
         locationViewModel.setUserLocation(latitude, longitude);
@@ -361,8 +327,71 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         if (s.equals("radius")) {
             Log.e(TAG, "Preference radius value was updated to: " + sharedPreferences.getString(s, ""));
             radius = Integer.parseInt(sharedPreferences.getString(s, ""));
-            mMap.clear();
+            map.clear();
             placesViewModel.setRestaurants(currentLocation.latitude + "," + currentLocation.longitude, Integer.parseInt(sharedPreferences.getString(s, "")));
+        }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        map = googleMap;
+        updateLocationUI();
+        locationViewModel.getUserLocation().observe(requireActivity(), this::initCurrentLocation);
+
+        map.setOnMyLocationClickListener(new GoogleMap.OnMyLocationClickListener() {
+            @Override
+            public void onMyLocationClick(@NonNull Location location) {
+                getDeviceLocation();
+            }
+        });
+        if (currentLocation != null) {
+            movedCameraToCurrentPosition(currentLocation);
+        }
+        map.setOnInfoWindowClickListener(marker -> viewRestaurantDetail((Restaurant) marker.getTag()));
+        initMarkers(restaurantsList);
+    }
+
+    private void movedCameraToCurrentPosition(LatLng currentLocation) {
+        CameraPosition cp = CameraPosition.builder().target(currentLocation).zoom(DEFAULT_ZOOM).build();
+        map.animateCamera(CameraUpdateFactory.newCameraPosition(cp), 100, null);
+    }
+
+    private void getDeviceLocation() {
+        /*
+         * Get the best and most recent location of the device, which may be null in rare
+         * cases when a location is not available.
+         */
+        try {
+            if (mLocationPermissionGranted) {
+                Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
+                locationResult.addOnCompleteListener(requireActivity(), new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Location> task) {
+                        if (task.isSuccessful()) {
+                            // Set the map's camera position to the current location of the device.
+                            mLastKnownLocation = task.getResult();
+                            if (mLastKnownLocation != null && map != null) {
+                                currentLocation = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+                                movedCameraToCurrentPosition(currentLocation);
+                            }
+                        } else {
+                            Log.d(TAG, "Current location is null. Using defaults.");
+                            Log.e(TAG, "Exception: %s", task.getException());
+                            if (map != null) {
+                                movedCameraToCurrentPosition(currentLocation);
+                                map.getUiSettings().setMyLocationButtonEnabled(false);
+                                currentLocation = new LatLng(LATITUDE, LONGITUDE);
+                            }
+                            locationViewModel.setUserLocation(currentLocation.latitude,
+                                    currentLocation.longitude);
+                            build_retrofit_and_get_response(currentLocation.latitude,
+                                    currentLocation.longitude);
+                        }
+                    }
+                });
+            }
+        } catch (SecurityException e) {
+            Log.e("Exception: %s", e.getMessage(), e);
         }
     }
 }

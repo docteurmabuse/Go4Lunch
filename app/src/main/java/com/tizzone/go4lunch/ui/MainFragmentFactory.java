@@ -30,7 +30,7 @@ public class MainFragmentFactory extends FragmentFactory {
             return new MapFragment(restaurantsList);
         }
         if (fragmentClass == ListViewFragment.class) {
-            return new ListViewFragment();
+            return new ListViewFragment(restaurantsList);
         }
         if (fragmentClass == WorkmatesFragment.class) {
             return new WorkmatesFragment();

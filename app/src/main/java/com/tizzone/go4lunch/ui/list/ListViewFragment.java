@@ -30,6 +30,8 @@ import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
 import static android.content.ContentValues.TAG;
@@ -47,6 +49,12 @@ public class ListViewFragment extends Fragment implements PlacesListAdapter.Rest
     public PlacesViewModel placesViewModel;
     private List<Restaurant> restaurants;
     private LatLng currentLocation;
+    @Inject
+    public List<Restaurant> restaurantsList;
+
+    public ListViewFragment(List<Restaurant> restaurantsList) {
+        this.restaurantsList = restaurantsList;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
