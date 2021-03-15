@@ -157,7 +157,7 @@ public class UserViewModel extends ViewModel {
         return userLiveData;
     }
 
-    public void getUserLunchInThatSpotList(String lunchSpotId) {
+    public MutableLiveData<List<User>> getUserLunchInThatSpotList(String lunchSpotId) {
         userRepository.getQueryUsersByLunchSpotId(lunchSpotId).addSnapshotListener((value, error) -> {
             if (error != null) {
                 Log.w(TAG, "Listen failed.", error);
@@ -174,6 +174,7 @@ public class UserViewModel extends ViewModel {
                 }
             }
         });
+        return firebaseUserLunchInThatSpotList;
     }
 
     public LiveData<List<User>> getUserListLunchInThatSpot() {

@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -27,7 +26,6 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -41,6 +39,7 @@ import com.karumi.dexter.listener.single.PermissionListener;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityMainBinding;
 import com.tizzone.go4lunch.databinding.NavHeaderMainBinding;
+import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.ui.MainFragmentFactory;
 import com.tizzone.go4lunch.ui.MainNavHostFragment;
 import com.tizzone.go4lunch.ui.auth.AuthActivity;
@@ -48,7 +47,10 @@ import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.ui.settings.SettingsActivity;
 import com.tizzone.go4lunch.utils.Utils;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
+import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -68,6 +70,8 @@ public class MainActivity extends BaseActivity {
     private ActivityMainBinding mBinding;
     @Inject
     public MainFragmentFactory fragmentFactory;
+    @Inject
+    public List<Restaurant> restaurantsList;
     private UserViewModel userViewModel;
 
     private boolean mLocationPermissionGranted;
@@ -75,12 +79,18 @@ public class MainActivity extends BaseActivity {
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private LatLng currentLocation;
     private LocationViewModel locationViewModel;
+    private PlacesViewModel placesViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         mBinding.setNavigationItemSelectedListener(this);
+        placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
+        placesViewModel.getRestaurantsList().observe(this, restaurants -> {
+            this.restaurantsList = restaurants;
+        });
+
         View view = mBinding.getRoot();
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -231,18 +241,17 @@ public class MainActivity extends BaseActivity {
         try {
             if (mLocationPermissionGranted) {
                 Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
-                locationResult.addOnCompleteListener(this, new OnCompleteListener<Location>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Location> task) {
-                        if (task.isSuccessful()) {
-                            // Set the map's camera position to the current location of the device.
-                            mLastKnownLocation = task.getResult();
-                            if (mLastKnownLocation != null) {
-                                setCurrentLocation(mLastKnownLocation);
-                            }
-                        } else {
-                            Log.e(TAG, "Exception: %s", task.getException());
+                locationResult.addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        // Set the map's camera position to the current location of the device.
+                        mLastKnownLocation = task.getResult();
+                        if (mLastKnownLocation != null) {
+                            setCurrentLocation(mLastKnownLocation);
+                            placesViewModel.setRestaurants(currentLocation.latitude + "," + currentLocation.longitude, 1000);
+                            Toast.makeText(this, String.valueOf(currentLocation), Toast.LENGTH_LONG).show();
                         }
+                    } else {
+                        Log.e(TAG, "Exception: %s", task.getException());
                     }
                 });
             }

@@ -71,20 +71,6 @@ public class PlacesViewModel extends ViewModel {
                         Restaurant restaurant = new Restaurant(result.getPlaceId(), result.getName(), result.getVicinity(), result.getPhotoUrl(), result.getRating(), userCount,
                                 isOpen, result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng(), null, null);
                         restaurants.add(restaurant);
-                        userRepository.getQueryUsersByLunchSpotId(result.getPlaceId()).addSnapshotListener((value, error) -> {
-                            if (error != null) {
-                                Log.w(TAG, "Listen failed.", error);
-                            } else {
-                                if (value != null) {
-                                    userCount = value.size();
-                                    restaurant.setRestaurant_counter(userCount);
-                                    Log.e(TAG, "apply: " + restaurant.getRestaurant_counter());
-                                } else {
-                                    Log.d(TAG, "Current data: null");
-                                    restaurant.setRestaurant_counter(0);
-                                }
-                            }
-                        });
                     }
                     if (placesResultsList.size() > 0)
                         Log.e(TAG, "apply: " + placesResultsList.get(0).getName());
@@ -117,7 +103,7 @@ public class PlacesViewModel extends ViewModel {
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(restaurantMutableLiveData::setValue,
-                        error -> Log.e(TAG, "setRestaurants:" + error.getMessage())
+                        error -> Log.e(TAG, "setRestaurants Filtered:" + error.getMessage())
                 );
     }
 
