@@ -19,9 +19,12 @@ public class Constants {
     public static final String CHANNEL_ID = "go4LunchNotification";
     public static final String lunchSpotId = "lunchSpotId";
     public static final String latitude = "latitude";
+    public static final String isGranted = "latitude";
+
     public static final String longitude = "longitude";
     public static final String radius = "radius";
-    public static final String notifications = "notifications";
+    public static final String M_LOCATION_PERMISSION_GRANTED = "mLocationPermissionGranted";
+    public static final String MY_NOTIFICATIONS = "notifications";
     public static final String RESTAURANT = "RESTAURANT";
     public static final String RESTAURANT_ID = "RESTAURANT_ID";
     public static final String myPreference = "mypref";

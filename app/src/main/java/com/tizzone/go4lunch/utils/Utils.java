@@ -18,6 +18,7 @@ import static com.tizzone.go4lunch.utils.Constants.latitude;
 import static com.tizzone.go4lunch.utils.Constants.longitude;
 import static com.tizzone.go4lunch.utils.Constants.lunchSpotId;
 import static com.tizzone.go4lunch.utils.Constants.myPreference;
+import static com.tizzone.go4lunch.utils.Constants.radius;
 
 
 public class Utils {
@@ -56,13 +57,24 @@ public class Utils {
         double currentLocationLongitude = 0;
 
         if (sharedPreferences.contains(latitude)) {
-            currentLocationLatitude = sharedPreferences.getFloat("latitude", (float) 0.2867811);
+            currentLocationLatitude = sharedPreferences.getFloat(latitude, (float) 0.2867811);
         }
         if (sharedPreferences.contains(longitude)) {
-            currentLocationLongitude = sharedPreferences.getFloat("longitude", (float) 0.204504);
+            currentLocationLongitude = sharedPreferences.getFloat(longitude, (float) 0.204504);
         }
         currentLocation = new LatLng(currentLocationLatitude, currentLocationLongitude);
         return currentLocation;
+    }
+
+    public static int getRadiusFromSharedPreferences(Context context) {
+        SharedPreferences sharedPreferences;
+        sharedPreferences = context.getSharedPreferences(myPreference,
+                Context.MODE_PRIVATE);
+        int mRadius = 1000;
+        if (sharedPreferences.contains(radius)) {
+            mRadius = sharedPreferences.getInt(radius, 1000);
+        }
+        return mRadius;
     }
 
     public static int getDistanceFromRestaurant(LatLng currentLocation, LatLng restaurantLocation) {

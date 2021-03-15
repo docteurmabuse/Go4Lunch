@@ -1,6 +1,5 @@
 package com.tizzone.go4lunch.ui.map;
 
-import android.Manifest;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -39,14 +38,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionDeniedResponse;
-import com.karumi.dexter.listener.PermissionGrantedResponse;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.single.PermissionListener;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.FragmentMapBinding;
+import com.tizzone.go4lunch.models.LocationModel;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
@@ -107,25 +101,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
-        Dexter.withContext(requireActivity())
-                .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-                .withListener(new PermissionListener() {
-                    @Override
-                    public void onPermissionGranted(PermissionGrantedResponse response) {
-                        mLocationPermissionGranted = true;
-                    }
-
-                    @Override
-                    public void onPermissionDenied(PermissionDeniedResponse response) {
-                        Toast.makeText(requireActivity(), "You need to enable location in order to use the app! The app is base on your location!", Toast.LENGTH_LONG).show();
-                        mLocationPermissionGranted = false;
-                    }
-
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
-                    }
-                }).check();
-
         observeData();
     }
 
@@ -195,6 +170,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         mRadius = Integer.parseInt(sharedPreferences.getString("radius", "1000"));
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         currentLocation = Utils.getLocationFromSharedPreferences(requireActivity());
+        mLocationPermissionGranted = sharedPreferences.getBoolean("mLocationPermissionGranted", true);
         initCurrentLocation(currentLocation);
         Toast.makeText(requireActivity(), String.valueOf(currentLocation), Toast.LENGTH_LONG).show();
     }
@@ -207,6 +183,11 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         });
         userViewModel.getUserMutableLiveData();
         userViewModel.getUsersList().observe(requireActivity(), this::usersSpotList);
+        locationViewModel.getUserLocation().observe(requireActivity(), this::initPosition);
+    }
+
+    private void initPosition(LocationModel locationModel) {
+        currentLocation = new LatLng(locationModel.getLocation().latitude, locationModel.getLocation().longitude);
     }
 
     private void initCurrentLocation(LatLng location) {
@@ -298,9 +279,10 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         }
         try {
             if (mLocationPermissionGranted) {
-                //map.setMyLocationEnabled(true);
+                map.setMyLocationEnabled(true);
                 map.getUiSettings().setMyLocationButtonEnabled(true);
-                // movedCameraToCurrentPosition(currentLocation);
+                map.getUiSettings().setZoomControlsEnabled(true);
+                movedCameraToCurrentPosition(currentLocation);
 
             } else {
                 map.setMyLocationEnabled(false);

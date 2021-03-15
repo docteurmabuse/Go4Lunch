@@ -25,7 +25,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -57,6 +56,7 @@ import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 
 import static android.content.ContentValues.TAG;
+import static com.tizzone.go4lunch.utils.Constants.M_LOCATION_PERMISSION_GRANTED;
 import static com.tizzone.go4lunch.utils.Constants.RESTAURANT_ID;
 import static com.tizzone.go4lunch.utils.Constants.latitude;
 import static com.tizzone.go4lunch.utils.Constants.longitude;
@@ -77,19 +77,16 @@ public class MainActivity extends BaseActivity {
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation;
     private FusedLocationProviderClient mFusedLocationProviderClient;
-    private LatLng currentLocation;
     private LocationViewModel locationViewModel;
-    private PlacesViewModel placesViewModel;
+    private NavController navController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         mBinding.setNavigationItemSelectedListener(this);
-        placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
-        placesViewModel.getRestaurantsList().observe(this, restaurants -> {
-            this.restaurantsList = restaurants;
-        });
+        PlacesViewModel placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
+        placesViewModel.getRestaurantsList().observe(this, restaurants -> this.restaurantsList = restaurants);
 
         View view = mBinding.getRoot();
         // Construct a FusedLocationProviderClient.
@@ -99,7 +96,7 @@ public class MainActivity extends BaseActivity {
                 (MainNavHostFragment) getSupportFragmentManager()
                         .findFragmentById(R.id.nav_host_fragment);
         assert navHostFragment != null;
-        NavController navController = navHostFragment.getNavController();
+        navController = navHostFragment.getNavController();
         Toolbar toolbar = mBinding.toolbar;
         setSupportActionBar(toolbar);
         DrawerLayout drawer = mBinding.drawerLayout;
@@ -133,7 +130,7 @@ public class MainActivity extends BaseActivity {
             if (id == R.id.nav_lunch) {
                 String lunchSpotId = Utils.getRestaurantIdFromSharedPreferences(view.getContext());
                 if (lunchSpotId != null) {
-                    Log.d(ContentValues.TAG, "lunchSpotId");
+                    Log.d(ContentValues.TAG, lunchSpotId);
                     viewRestaurantDetail(lunchSpotId);
                 } else {
                     Snackbar.make(mBinding.getRoot(), R.string.no_lunch_spot_notification, Snackbar.LENGTH_LONG)
@@ -167,6 +164,8 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onPermissionGranted(PermissionGrantedResponse response) {
                         mLocationPermissionGranted = true;
+                        addIsGrantedInSharedPreferences(true);
+                        Toast.makeText(getApplicationContext(), "You enabled permission", Toast.LENGTH_LONG).show();
                         getDeviceLocation();
                     }
 
@@ -174,6 +173,7 @@ public class MainActivity extends BaseActivity {
                     public void onPermissionDenied(PermissionDeniedResponse response) {
                         Toast.makeText(getApplicationContext(), "You need to enable location in order to use the app! The app is base on your location!", Toast.LENGTH_LONG).show();
                         mLocationPermissionGranted = false;
+                        addIsGrantedInSharedPreferences(false);
                     }
 
                     @Override
@@ -182,6 +182,7 @@ public class MainActivity extends BaseActivity {
                     }
                 }).check();
     }
+
 
     private void launchSettingsActivity() {
         startActivity(new Intent(MainActivity.this, SettingsActivity.class));
@@ -247,8 +248,9 @@ public class MainActivity extends BaseActivity {
                         mLastKnownLocation = task.getResult();
                         if (mLastKnownLocation != null) {
                             setCurrentLocation(mLastKnownLocation);
-                            placesViewModel.setRestaurants(currentLocation.latitude + "," + currentLocation.longitude, 1000);
-                            Toast.makeText(this, String.valueOf(currentLocation), Toast.LENGTH_LONG).show();
+                            // placesViewModel.setRestaurants(mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLatitude(), 1000);
+                            navController.navigate(R.id.navigation_map);
+                            Toast.makeText(this, String.valueOf(mLastKnownLocation), Toast.LENGTH_LONG).show();
                         }
                     } else {
                         Log.e(TAG, "Exception: %s", task.getException());
@@ -261,19 +263,24 @@ public class MainActivity extends BaseActivity {
     }
 
     private void setCurrentLocation(Location mLastKnownLocation) {
-        currentLocation = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
-        locationViewModel.setUserLocation(currentLocation.latitude,
-                currentLocation.longitude);
-        addSpLocationInSharedPreferences(currentLocation.latitude,
-                currentLocation.longitude);
+        locationViewModel.setUserLocation(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+        addSpotLocationInSharedPreferences(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
     }
 
-    private void addSpLocationInSharedPreferences(double mLatitude, double mLongitude) {
+    private void addSpotLocationInSharedPreferences(double mLatitude, double mLongitude) {
         SharedPreferences sharedPref = getSharedPreferences(myPreference,
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putFloat(latitude, (float) mLatitude);
         editor.putFloat(longitude, (float) mLongitude);
+        editor.apply();
+    }
+
+    private void addIsGrantedInSharedPreferences(boolean isGranted) {
+        SharedPreferences sharedPref = getSharedPreferences(myPreference,
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean(M_LOCATION_PERMISSION_GRANTED, isGranted);
         editor.apply();
     }
 }

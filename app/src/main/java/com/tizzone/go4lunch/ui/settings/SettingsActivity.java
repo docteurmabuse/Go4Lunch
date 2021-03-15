@@ -23,8 +23,8 @@ import org.jetbrains.annotations.NotNull;
 import dagger.hilt.android.AndroidEntryPoint;
 
 import static android.content.ContentValues.TAG;
+import static com.tizzone.go4lunch.utils.Constants.MY_NOTIFICATIONS;
 import static com.tizzone.go4lunch.utils.Constants.TITLE_TAG;
-import static com.tizzone.go4lunch.utils.Constants.notifications;
 import static com.tizzone.go4lunch.utils.Constants.radius;
 
 @AndroidEntryPoint
@@ -116,7 +116,7 @@ public class SettingsActivity extends AppCompatActivity implements
             if (s.equals(radius)) {
                 Log.e(TAG, "Preference value was updated to: " + sharedPreferences.getString(s, ""));
             }
-            if (s.equals(notifications)) {
+            if (s.equals(MY_NOTIFICATIONS)) {
                 Log.e(TAG, "Preference value was updated to: " + sharedPreferences.getBoolean(s, true));
                 boolean isNotificationEnabled = sharedPreferences.getBoolean(s, true);
                 if (isNotificationEnabled) {
