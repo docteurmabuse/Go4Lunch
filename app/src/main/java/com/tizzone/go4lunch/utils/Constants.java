@@ -24,7 +24,7 @@ public class Constants {
     public static final String longitude = "longitude";
     public static final String radius = "radius";
     public static final String M_LOCATION_PERMISSION_GRANTED = "mLocationPermissionGranted";
-    public static final String MY_NOTIFICATIONS = "notifications";
+    public static final String myNotifications = "notifications";
     public static final String RESTAURANT = "RESTAURANT";
     public static final String RESTAURANT_ID = "RESTAURANT_ID";
     public static final String myPreference = "mypref";

@@ -137,4 +137,14 @@ public class PlacesViewModel extends ViewModel {
                         error -> Log.e(TAG, "setPredictions:" + error.getMessage())
                 );
     }
+
+    public void setFakeRestaurantList() {
+        List<Restaurant> fakeList = new ArrayList<Restaurant>();
+        fakeList.add(new Restaurant("ChIJX-06UAMQ70cRozwHabV2sJQ", "Le Clos des Jacobins", "49 Grande Rue, Sens", "ATtYBwKAnA2YnkqkKZg09qD9Czt6J1jbUvPkoskwUyD68ywl0Bjpo2ZME_WwEKqUy9GJL8E6XPVbkdQ8WC7ZweWmxsSK_uNIHtZA1KrMnMgb2sYy_UX8T1QSIYWXeMzi73WNlACl5x6PMUGamr7qKwLxt9N4QiVX8pJfHHgwJKfXAKg1O0bc", (float) 4.2, 0,
+                null, 48.19714099999999, 3.2792574, "https://monsite.com", "0142546545"));
+        fakeList.add(new Restaurant("ChIJu9WnDAQQ70cRqXiMV_657gQ", "Restaurant de la Cathédrale", "13 Place de la République, Sens", "ATtYBwKAnA2YnkqkKZg09qD9Czt6J1jbUvPkoskwUyD68ywl0Bjpo2ZME_WwEKqUy9GJL8E6XPVbkdQ8WC7ZweWmxsSK_uNIHtZA1KrMnMgb2sYy_UX8T1QSIYWXeMzi73WNlACl5x6PMUGamr7qKwLxt9N4QiVX8pJfHHgwJKfXAKg1O0bc", (float) 3.5, 0,
+                null, 48.1980721, 3.2831136, "https://monsite.com", "0142546545"));
+        restaurantsList.setValue(fakeList);
+    }
+
 }

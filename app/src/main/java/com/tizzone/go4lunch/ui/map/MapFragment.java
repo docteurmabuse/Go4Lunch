@@ -13,7 +13,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -68,7 +67,6 @@ import static com.tizzone.go4lunch.utils.Utils.getBitmapFromVectorDrawable;
 @AndroidEntryPoint
 public class MapFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener, OnMapReadyCallback {
     private int mRadius;
-    private static final int REQUEST_CODE_LOCATION = 1;
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation;
     private FusedLocationProviderClient mFusedLocationProviderClient;
@@ -94,7 +92,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         // Init  ViewModels
-
         locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
         setupSharedPreferences();
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
@@ -172,7 +169,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         currentLocation = Utils.getLocationFromSharedPreferences(requireActivity());
         mLocationPermissionGranted = sharedPreferences.getBoolean("mLocationPermissionGranted", true);
         initCurrentLocation(currentLocation);
-        Toast.makeText(requireActivity(), String.valueOf(currentLocation), Toast.LENGTH_LONG).show();
     }
 
     private void observeData() {
@@ -191,11 +187,8 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     }
 
     private void initCurrentLocation(LatLng location) {
-        Toast.makeText(requireActivity(), String.valueOf(location), Toast.LENGTH_LONG).show();
         if (map != null)
             movedCameraToCurrentPosition(location);
-//        build_retrofit_and_get_response(currentLocation.latitude,
-//                currentLocation.longitude);
     }
 
     private void usersSpotList(List<User> users) {
@@ -215,7 +208,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     private void initMarkers() {
         if (restaurantsList != null) {
             if (map != null) {
-                map.clear();
+               // map.clear();
             }
             for (Restaurant restaurant : restaurantsList) {
                 if (!placeIsMatesSpot(restaurant)) {
@@ -316,8 +309,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         if (s.equals(radius)) {
             Log.e(TAG, "Preference radius value was updated to: " + sharedPreferences.getString(s, ""));
             mRadius = Integer.parseInt(sharedPreferences.getString(s, ""));
-            map.clear();
-            placesViewModel.setRestaurants(currentLocation.latitude + "," + currentLocation.longitude, Integer.parseInt(sharedPreferences.getString(s, "")));
+            // map.clear();
         }
     }
 
@@ -337,7 +329,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
             movedCameraToCurrentPosition(currentLocation);
         }
         map.setOnInfoWindowClickListener(marker -> viewRestaurantDetail((Restaurant) marker.getTag()));
-        // initMarkers(restaurantsList);
+        initMarkers();
     }
 
     private void movedCameraToCurrentPosition(LatLng currentLocation) {

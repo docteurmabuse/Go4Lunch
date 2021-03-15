@@ -25,3 +25,4 @@ out/
 release/
 
 /.idea/
+/app/nearbyplacejson.json

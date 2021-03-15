@@ -45,7 +45,6 @@ import com.tizzone.go4lunch.ui.auth.AuthActivity;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.ui.settings.SettingsActivity;
 import com.tizzone.go4lunch.utils.Utils;
-import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
@@ -77,15 +76,15 @@ public class MainActivity extends BaseActivity {
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation;
     private FusedLocationProviderClient mFusedLocationProviderClient;
-    private LocationViewModel locationViewModel;
     private NavController navController;
+    private PlacesViewModel placesViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         mBinding.setNavigationItemSelectedListener(this);
-        PlacesViewModel placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
+        placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
         placesViewModel.getRestaurantsList().observe(this, restaurants -> this.restaurantsList = restaurants);
 
         View view = mBinding.getRoot();
@@ -147,7 +146,6 @@ public class MainActivity extends BaseActivity {
         View headerView = mBinding.drawerNavView.getHeaderView(0);
         navHeaderMainBinding = NavHeaderMainBinding.bind(headerView);
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
-        locationViewModel = new ViewModelProvider(this).get(LocationViewModel.class);
 
         if (this.getCurrentUser() != null) {
             userViewModel.getUserInfoFromFirestore(this.getCurrentUser().getUid());
@@ -165,7 +163,6 @@ public class MainActivity extends BaseActivity {
                     public void onPermissionGranted(PermissionGrantedResponse response) {
                         mLocationPermissionGranted = true;
                         addIsGrantedInSharedPreferences(true);
-                        Toast.makeText(getApplicationContext(), "You enabled permission", Toast.LENGTH_LONG).show();
                         getDeviceLocation();
                     }
 
@@ -248,9 +245,9 @@ public class MainActivity extends BaseActivity {
                         mLastKnownLocation = task.getResult();
                         if (mLastKnownLocation != null) {
                             setCurrentLocation(mLastKnownLocation);
-                            // placesViewModel.setRestaurants(mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLatitude(), 1000);
-                            navController.navigate(R.id.navigation_map);
-                            Toast.makeText(this, String.valueOf(mLastKnownLocation), Toast.LENGTH_LONG).show();
+                            //placesViewModel.setRestaurants(mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLatitude(), 1000);
+                            placesViewModel.setFakeRestaurantList();
+                            //navController.navigate(R.id.navigation_map);
                         }
                     } else {
                         Log.e(TAG, "Exception: %s", task.getException());
@@ -263,7 +260,6 @@ public class MainActivity extends BaseActivity {
     }
 
     private void setCurrentLocation(Location mLastKnownLocation) {
-        locationViewModel.setUserLocation(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
         addSpotLocationInSharedPreferences(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
     }
 
