@@ -2,15 +2,14 @@ package com.tizzone.go4lunch;
 
 import android.Manifest;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -45,6 +44,7 @@ import com.tizzone.go4lunch.ui.auth.AuthActivity;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.ui.settings.SettingsActivity;
 import com.tizzone.go4lunch.utils.Utils;
+import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
@@ -55,11 +55,7 @@ import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 
 import static android.content.ContentValues.TAG;
-import static com.tizzone.go4lunch.utils.Constants.M_LOCATION_PERMISSION_GRANTED;
 import static com.tizzone.go4lunch.utils.Constants.RESTAURANT_ID;
-import static com.tizzone.go4lunch.utils.Constants.latitude;
-import static com.tizzone.go4lunch.utils.Constants.longitude;
-import static com.tizzone.go4lunch.utils.Constants.myPreference;
 
 
 @AndroidEntryPoint
@@ -162,7 +158,7 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onPermissionGranted(PermissionGrantedResponse response) {
                         mLocationPermissionGranted = true;
-                        addIsGrantedInSharedPreferences(true);
+                        Utils.addIsGrantedInSharedPreferences(getApplicationContext(), true);
                         getDeviceLocation();
                     }
 
@@ -170,16 +166,22 @@ public class MainActivity extends BaseActivity {
                     public void onPermissionDenied(PermissionDeniedResponse response) {
                         Toast.makeText(getApplicationContext(), "You need to enable location in order to use the app! The app is base on your location!", Toast.LENGTH_LONG).show();
                         mLocationPermissionGranted = false;
-                        addIsGrantedInSharedPreferences(false);
+                        Utils.addIsGrantedInSharedPreferences(getApplicationContext(), false);
                     }
 
                     @Override
                     public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
 
                     }
-                }).check();
+                })
+                .check();
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        navController.navigate(R.id.navigation_map);
+    }
 
     private void launchSettingsActivity() {
         startActivity(new Intent(MainActivity.this, SettingsActivity.class));
@@ -245,8 +247,6 @@ public class MainActivity extends BaseActivity {
                         mLastKnownLocation = task.getResult();
                         if (mLastKnownLocation != null) {
                             setCurrentLocation(mLastKnownLocation);
-                            //placesViewModel.setRestaurants(mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLatitude(), 1000);
-                            placesViewModel.setFakeRestaurantList();
                             //navController.navigate(R.id.navigation_map);
                         }
                     } else {
@@ -260,23 +260,10 @@ public class MainActivity extends BaseActivity {
     }
 
     private void setCurrentLocation(Location mLastKnownLocation) {
-        addSpotLocationInSharedPreferences(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
-    }
-
-    private void addSpotLocationInSharedPreferences(double mLatitude, double mLongitude) {
-        SharedPreferences sharedPref = getSharedPreferences(myPreference,
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putFloat(latitude, (float) mLatitude);
-        editor.putFloat(longitude, (float) mLongitude);
-        editor.apply();
-    }
-
-    private void addIsGrantedInSharedPreferences(boolean isGranted) {
-        SharedPreferences sharedPref = getSharedPreferences(myPreference,
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(M_LOCATION_PERMISSION_GRANTED, isGranted);
-        editor.apply();
+        Utils.addSpotLocationInSharedPreferences(this, mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+        //   placesViewModel.setRestaurants(mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLatitude(), 1000);
+        placesViewModel.setFakeRestaurantList();
+        LocationViewModel locationViewModel = new ViewModelProvider(this).get(LocationViewModel.class);
+        locationViewModel.setUserLocation(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
     }
 }

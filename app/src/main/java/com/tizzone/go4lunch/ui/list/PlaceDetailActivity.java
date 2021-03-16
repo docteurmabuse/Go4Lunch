@@ -81,7 +81,13 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
             currentPlaceId = intent.getStringExtra(RESTAURANT_ID);
         }
         placesViewModel.setRestaurant(currentPlaceId);
+        initData();
         initViews();
+    }
+
+    private void initData() {
+        //  placesViewModel.setRestaurant(currentPlaceId);
+        placesViewModel.setFakeRestaurant(currentPlaceId);
     }
 
     private void initViews() {
@@ -97,7 +103,6 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     }
 
     private void observeData() {
-        placesViewModel.setRestaurant(currentPlaceId);
         placesViewModel.getRestaurant().observe(this, this::getRestaurantDetailFromApi);
         userViewModel.getUserLunchInThatSpotList(currentPlaceId);
         if (this.getCurrentUser() != null) {

@@ -14,6 +14,7 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.SphericalUtil;
 
+import static com.tizzone.go4lunch.utils.Constants.M_LOCATION_PERMISSION_GRANTED;
 import static com.tizzone.go4lunch.utils.Constants.latitude;
 import static com.tizzone.go4lunch.utils.Constants.longitude;
 import static com.tizzone.go4lunch.utils.Constants.lunchSpotId;
@@ -84,4 +85,22 @@ public class Utils {
     public static float transformFiveStarsIntoThree(float rating) {
         return ((rating * 3) / 5);
     }
+
+    public static void addSpotLocationInSharedPreferences(Context context, double mLatitude, double mLongitude) {
+        SharedPreferences sharedPref = context.getSharedPreferences(myPreference,
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putFloat(latitude, (float) mLatitude);
+        editor.putFloat(longitude, (float) mLongitude);
+        editor.apply();
+    }
+
+    public static void addIsGrantedInSharedPreferences(Context context, boolean isGranted) {
+        SharedPreferences sharedPref = context.getSharedPreferences(myPreference,
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean(M_LOCATION_PERMISSION_GRANTED, isGranted);
+        editor.apply();
+    }
+
 }

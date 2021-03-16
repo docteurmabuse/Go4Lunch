@@ -12,6 +12,7 @@ public class Constants {
     public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 546;
     public static final int SESSION_TOKEN = 54784;
     public static final int PROXIMITY_RADIUS = 1000;
+    public static final String PLACES_VIEW_MODEL_TAG = "PlacesViewModel";
     public static final int notificationId = 1578;
     public static final LatLng mDefaultLocation = new LatLng(65.850559, 2.377078);
     public static final String TAG = "1543";
