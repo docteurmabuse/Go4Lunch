@@ -197,9 +197,6 @@ public class MainActivity extends BaseActivity {
             if (grantResults.length > 0 &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission is granted. Continue the workflow
-                // mLocationPermissionGranted = true;
-                //  Utils.addIsGrantedInSharedPreferences(getApplicationContext(), true);
-                // getDeviceLocation();
                 navController.navigate(R.id.navigation_map);
             } else {
                 mLocationPermissionGranted = false;

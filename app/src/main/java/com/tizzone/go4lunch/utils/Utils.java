@@ -102,5 +102,4 @@ public class Utils {
         editor.putBoolean(M_LOCATION_PERMISSION_GRANTED, isGranted);
         editor.apply();
     }
-
 }
