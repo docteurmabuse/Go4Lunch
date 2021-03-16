@@ -86,8 +86,7 @@ public class PlacesViewModel extends ViewModel {
                             }
                         });
                     }
-                    if (placesResultsList.size() > 0)
-                        Log.e(PLACES_VIEW_MODEL_TAG, "apply: " + placesResultsList.get(0).getName());
+
                     return restaurants;
                 })
                 .observeOn(AndroidSchedulers.mainThread())

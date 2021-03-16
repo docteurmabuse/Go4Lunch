@@ -58,10 +58,10 @@ public class Utils {
         double currentLocationLongitude = 0;
 
         if (sharedPreferences.contains(latitude)) {
-            currentLocationLatitude = sharedPreferences.getFloat(latitude, (float) 3.2867811);
+            currentLocationLatitude = sharedPreferences.getFloat(latitude, (float) 48.2007);
         }
         if (sharedPreferences.contains(longitude)) {
-            currentLocationLongitude = sharedPreferences.getFloat(longitude, (float) 0.204504);
+            currentLocationLongitude = sharedPreferences.getFloat(longitude, (float) 3.2827);
         }
         currentLocation = new LatLng(currentLocationLatitude, currentLocationLongitude);
         return currentLocation;

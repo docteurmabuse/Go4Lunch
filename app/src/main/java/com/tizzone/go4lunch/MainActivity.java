@@ -75,9 +75,6 @@ public class MainActivity extends BaseActivity {
     private NavController navController;
     private PlacesViewModel placesViewModel;
 
-    private final ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), this::onActivityResult);
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -154,6 +151,9 @@ public class MainActivity extends BaseActivity {
         getLocationPermission();
     }
 
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), this::onActivityResult);
+
     private void onActivityResult(Boolean isGranted) {
         if (isGranted) {
             mLocationPermissionGranted = true;
@@ -169,7 +169,7 @@ public class MainActivity extends BaseActivity {
         Permissions.checkLocationPermission(this);
         if (Permissions.checkLocationPermission(this)) {
             mLocationPermissionGranted = true;
-            Utils.addIsGrantedInSharedPreferences(getApplicationContext(), true);
+            //Utils.addIsGrantedInSharedPreferences(getApplicationContext(), true);
             getDeviceLocation();
             navController.navigate(R.id.navigation_map);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -193,21 +193,19 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION:
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 &&
-                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission is granted. Continue the workflow
-                    mLocationPermissionGranted = true;
-                    Utils.addIsGrantedInSharedPreferences(getApplicationContext(), true);
-                    getDeviceLocation();
-                    navController.navigate(R.id.navigation_map);
-                } else {
-                    mLocationPermissionGranted = true;
-                    showInContextUI();
-                }
-                return;
+        if (requestCode == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {// If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0 &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission is granted. Continue the workflow
+                // mLocationPermissionGranted = true;
+                //  Utils.addIsGrantedInSharedPreferences(getApplicationContext(), true);
+                // getDeviceLocation();
+                navController.navigate(R.id.navigation_map);
+            } else {
+                mLocationPermissionGranted = false;
+                Utils.addIsGrantedInSharedPreferences(getApplicationContext(), false);
+                showInContextUI();
+            }
         }
     }
 
@@ -291,9 +289,7 @@ public class MainActivity extends BaseActivity {
         LocationViewModel locationViewModel = new ViewModelProvider(this).get(LocationViewModel.class);
         locationViewModel.setUserLocation(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
         int radius = getRadiusFromSharedPreferences(this);
-        // placesViewModel.setRestaurants(mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLatitude(), 1000);
-        placesViewModel.setFakeRestaurantList();
+        placesViewModel.setRestaurants(mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLongitude(), radius);
+        //placesViewModel.setFakeRestaurantList();
     }
-
-
 }

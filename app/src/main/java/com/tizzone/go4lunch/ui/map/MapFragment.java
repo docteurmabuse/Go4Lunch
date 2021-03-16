@@ -14,7 +14,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -105,7 +104,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     }
 
     private void observeData() {
-        locationViewModel.getUserLocation().observe(requireActivity(), this::initPosition);
         userViewModel.getUserMutableLiveData();
         placesViewModel.getFilteredRestaurantsList().observe(requireActivity(), restaurants -> {
             restaurantsList = restaurants;
@@ -185,13 +183,13 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         mRadius = Integer.parseInt(sharedPreferences.getString("radius", "1000"));
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         currentLocation = Utils.getLocationFromSharedPreferences(requireActivity());
-        locationViewModel.setUserLocation(currentLocation.latitude, currentLocation.longitude);
+        // locationViewModel.setUserLocation(currentLocation.latitude, currentLocation.longitude);
         mLocationPermissionGranted = sharedPreferences.getBoolean("mLocationPermissionGranted", true);
-        initCurrentLocation(currentLocation);
     }
 
     private void initPosition(LocationModel locationModel) {
         currentLocation = new LatLng(locationModel.getLocation().latitude, locationModel.getLocation().longitude);
+        initCurrentLocation(currentLocation);
     }
 
     private void initCurrentLocation(LatLng location) {
@@ -231,7 +229,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     }
 
     private boolean placeIsMatesSpot(Restaurant restaurant) {
-        if (matesSpotList != null)
+        if (restaurant != null)
             return restaurant.getRestaurant_counter() > 0;
         else {
             return false;
@@ -275,6 +273,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         }
         try {
             if (mLocationPermissionGranted) {
+                locationViewModel.getUserLocation().observe(requireActivity(), this::initPosition);
                 map.setMyLocationEnabled(true);
                 map.getUiSettings().setMyLocationButtonEnabled(true);
                 map.getUiSettings().setZoomControlsEnabled(true);
@@ -283,8 +282,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
                     return true;
                 });
                 map.setOnMyLocationClickListener(location -> getDeviceLocation());
-                Toast.makeText(mContext, "OMG! It works" + currentLocation, Toast.LENGTH_SHORT).show();
-                movedCameraToCurrentPosition(currentLocation);
                 userViewModel.getUsersList().observe(requireActivity(), this::usersSpotList);
                 placesViewModel.getRestaurantsList().observe(requireActivity(), this::initRestaurantsList);
             } else {
@@ -319,7 +316,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         if (s.equals(radius)) {
             Log.e(TAG_MAP_VIEW, "Preference radius value was updated to: " + sharedPreferences.getString(s, ""));
             mRadius = Integer.parseInt(sharedPreferences.getString(s, ""));
-            // map.clear();
         }
     }
 
@@ -329,9 +325,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         map = googleMap;
         updateLocationUI();
         map.setOnInfoWindowClickListener(marker -> viewRestaurantDetail((Restaurant) marker.getTag()));
-        if (currentLocation != null) {
-            movedCameraToCurrentPosition(currentLocation);
-        }
     }
 
     private void movedCameraToCurrentPosition(LatLng currentLocation) {
@@ -368,6 +361,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
                             map.getUiSettings().setMyLocationButtonEnabled(false);
                             currentLocation = new LatLng(LATITUDE, LONGITUDE);
                             locationViewModel.setUserLocation(LATITUDE, LONGITUDE);
+                            movedCameraToCurrentPosition(currentLocation);
                             Utils.addSpotLocationInSharedPreferences(requireActivity(), LATITUDE, LONGITUDE);
                         }
                     }
