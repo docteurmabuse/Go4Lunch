@@ -26,6 +26,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.tizzone.go4lunch.utils.Constants.PLACES_VIEW_MODEL_TAG;
+import static com.tizzone.go4lunch.utils.Constants.TAG_MAP_VIEW;
 
 
 @HiltViewModel
@@ -71,6 +72,20 @@ public class PlacesViewModel extends ViewModel {
                         Restaurant restaurant = new Restaurant(result.getPlaceId(), result.getName(), result.getVicinity(), result.getPhotoUrl(), result.getRating(), userCount,
                                 isOpen, result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng(), null, null);
                         restaurants.add(restaurant);
+                        userRepository.getQueryUsersByLunchSpotId(result.getPlaceId()).addSnapshotListener((value, error) -> {
+                            if (error != null) {
+                                Log.w(TAG_MAP_VIEW, "Listen failed.", error);
+                            } else {
+                                if (value != null) {
+                                    userCount = value.size();
+                                    restaurant.setRestaurant_counter(userCount);
+                                    Log.e(TAG_MAP_VIEW, "apply: " + restaurant.getRestaurant_counter());
+                                } else {
+                                    Log.d(TAG_MAP_VIEW, "Current data: null");
+                                    restaurant.setRestaurant_counter(0);
+                                }
+                            }
+                        });
                     }
                     if (placesResultsList.size() > 0)
                         Log.e(PLACES_VIEW_MODEL_TAG, "apply: " + placesResultsList.get(0).getName());
@@ -97,7 +112,6 @@ public class PlacesViewModel extends ViewModel {
                         rating = result.getRating();
                         restaurant = new Restaurant(uid, result.getName(), result.getFormattedAddress(), result.getPhotoUrl(), rating, 0,
                                 null, result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng(), result.getWebsite(), result.getInternationalPhoneNumber());
-
                     }
                     return restaurant;
                 })

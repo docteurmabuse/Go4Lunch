@@ -26,8 +26,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 
 @HiltViewModel
 public class UserViewModel extends ViewModel {
-    private static final String TAG = "FirebaseAuthAppTag";
-    private static final String TAG_CREATE_USER = "FIREBASE_CREATE_USER";
+    private static final String TAG_FIREBASE_USER = "FirebaseAuthAppTag";
+    private static final String TAG_USER = "FIREBASE_CREATE_USER";
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
     private final MutableLiveData<List<User>> userListMutableLiveData = new MutableLiveData<>();
@@ -151,7 +151,7 @@ public class UserViewModel extends ViewModel {
                 User user = documentSnapshot.toObject(User.class);
                 userLiveData.setValue(user);
             } else {
-                Log.d(TAG, "Current user: null");
+                Log.d(TAG_FIREBASE_USER, "Current user: null");
             }
         });
         return userLiveData;
@@ -160,7 +160,7 @@ public class UserViewModel extends ViewModel {
     public MutableLiveData<List<User>> getUserLunchInThatSpotList(String lunchSpotId) {
         userRepository.getQueryUsersByLunchSpotId(lunchSpotId).addSnapshotListener((value, error) -> {
             if (error != null) {
-                Log.w(TAG, "Listen failed.", error);
+                Log.w(TAG_FIREBASE_USER, "Listen failed.", error);
             } else {
                 if (value != null) {
                     List<User> userList = new ArrayList<>();
@@ -168,9 +168,12 @@ public class UserViewModel extends ViewModel {
                         User user = document.toObject(User.class);
                         userList.add(user);
                     }
+                    Log.d(TAG_FIREBASE_USER, "Listen User list." + userList.size());
+
                     firebaseUserLunchInThatSpotList.setValue(userList);
+
                 } else {
-                    Log.d(TAG, "Current data: null");
+                    Log.d(TAG_FIREBASE_USER, "Current data: null");
                 }
             }
         });
@@ -184,7 +187,7 @@ public class UserViewModel extends ViewModel {
     public void getUserMutableLiveData() {
         userRepository.getQueryUsersByName().addSnapshotListener((value, error) -> {
             if (error != null) {
-                Log.w(TAG, "Listen failed.", error);
+                Log.w(TAG_FIREBASE_USER, "Listen failed.", error);
             } else {
                 if (value != null) {
                     List<User> userList = new ArrayList<>();
@@ -194,7 +197,7 @@ public class UserViewModel extends ViewModel {
                     }
                     userListMutableLiveData.setValue(userList);
                 } else {
-                    Log.d(TAG, "Current data: null");
+                    Log.d(TAG_FIREBASE_USER, "Current data: null");
                 }
             }
         });
@@ -210,15 +213,15 @@ public class UserViewModel extends ViewModel {
         String uid = currentUser.getUid();
         String userEmail = currentUser.getEmail();
         if (getUserInfoFromFirestore(uid).getValue() == null) {
-            Log.d(TAG_CREATE_USER, "User don't exist in firebase");
+            Log.d(TAG_USER, "User don't exist in firebase");
             userRepository.createUser(uid, userEmail, username, urlPicture, null, null, null).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Log.w(TAG_CREATE_USER, "Error:" + e);
+                    Log.w(TAG_USER, "Error:" + e);
                 }
             });
         } else {
-            Log.w(TAG_CREATE_USER, "User already exist:" + Objects.requireNonNull(getUserInfoFromFirestore(uid).getValue()).getUid());
+            Log.w(TAG_USER, "User already exist:" + Objects.requireNonNull(getUserInfoFromFirestore(uid).getValue()).getUid());
         }
     }
 }

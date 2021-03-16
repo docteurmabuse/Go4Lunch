@@ -1,5 +1,6 @@
 package com.tizzone.go4lunch.ui.map;
 
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,7 +24,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 
-import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -35,7 +36,6 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.databinding.FragmentMapBinding;
@@ -55,12 +55,12 @@ import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
-import static android.content.ContentValues.TAG;
 import static com.tizzone.go4lunch.utils.Constants.DEFAULT_ZOOM;
 import static com.tizzone.go4lunch.utils.Constants.LATITUDE;
 import static com.tizzone.go4lunch.utils.Constants.LONGITUDE;
 import static com.tizzone.go4lunch.utils.Constants.RESTAURANT_ID;
 import static com.tizzone.go4lunch.utils.Constants.SESSION_TOKEN;
+import static com.tizzone.go4lunch.utils.Constants.TAG_MAP_VIEW;
 import static com.tizzone.go4lunch.utils.Constants.radius;
 import static com.tizzone.go4lunch.utils.Utils.getBitmapFromVectorDrawable;
 
@@ -69,7 +69,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     private int mRadius;
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation;
-    private FusedLocationProviderClient mFusedLocationProviderClient;
     private PlacesViewModel placesViewModel;
     private LocationViewModel locationViewModel;
     private Context mContext;
@@ -81,6 +80,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     @Inject
     public LiveData<List<Restaurant>> restaurantsListLiveData;
     private GoogleMap map;
+    private SharedPreferences sharedPreferences;
 
     public MapFragment(List<Restaurant> restaurantsList) {
         this.restaurantsList = restaurantsList;
@@ -90,12 +90,12 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity());
         // Init  ViewModels
         locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
         setupSharedPreferences();
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
         placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
-        //  placesViewModel.setFakeRestaurantList();
     }
 
     @Override
@@ -182,7 +182,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     }
 
     private void setupSharedPreferences() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity());
         mRadius = Integer.parseInt(sharedPreferences.getString("radius", "1000"));
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         currentLocation = Utils.getLocationFromSharedPreferences(requireActivity());
@@ -190,7 +189,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         mLocationPermissionGranted = sharedPreferences.getBoolean("mLocationPermissionGranted", true);
         initCurrentLocation(currentLocation);
     }
-
 
     private void initPosition(LocationModel locationModel) {
         currentLocation = new LatLng(locationModel.getLocation().latitude, locationModel.getLocation().longitude);
@@ -234,7 +232,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
 
     private boolean placeIsMatesSpot(Restaurant restaurant) {
         if (matesSpotList != null)
-            return ArrayUtils.contains(matesSpotList.toArray(), restaurant.getUid());
+            return restaurant.getRestaurant_counter() > 0;
         else {
             return false;
         }
@@ -280,6 +278,11 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
                 map.setMyLocationEnabled(true);
                 map.getUiSettings().setMyLocationButtonEnabled(true);
                 map.getUiSettings().setZoomControlsEnabled(true);
+                map.setOnMyLocationButtonClickListener(() -> {
+                    getDeviceLocation();
+                    return true;
+                });
+                map.setOnMyLocationClickListener(location -> getDeviceLocation());
                 movedCameraToCurrentPosition(currentLocation);
                 userViewModel.getUsersList().observe(requireActivity(), this::usersSpotList);
                 placesViewModel.getRestaurantsList().observe(requireActivity(), this::initRestaurantsList);
@@ -313,25 +316,18 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
         if (s.equals(radius)) {
-            Log.e(TAG, "Preference radius value was updated to: " + sharedPreferences.getString(s, ""));
+            Log.e(TAG_MAP_VIEW, "Preference radius value was updated to: " + sharedPreferences.getString(s, ""));
             mRadius = Integer.parseInt(sharedPreferences.getString(s, ""));
             // map.clear();
         }
     }
 
+    @SuppressLint({"PotentialBehaviorOverride"})
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         updateLocationUI();
-
         map.setOnInfoWindowClickListener(marker -> viewRestaurantDetail((Restaurant) marker.getTag()));
-
-        map.setOnMyLocationClickListener(new GoogleMap.OnMyLocationClickListener() {
-            @Override
-            public void onMyLocationClick(@NonNull Location location) {
-                getDeviceLocation();
-            }
-        });
         if (currentLocation != null) {
             movedCameraToCurrentPosition(currentLocation);
         }
@@ -349,33 +345,31 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
          */
         try {
             if (mLocationPermissionGranted) {
+
                 // Construct a FusedLocationProviderClient.
-                mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+                FusedLocationProviderClient mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
                 Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
-                locationResult.addOnCompleteListener(requireActivity(), new OnCompleteListener<Location>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Location> task) {
-                        if (task.isSuccessful()) {
-                            // Set the map's camera position to the current location of the device.
-                            mLastKnownLocation = task.getResult();
-                            if (mLastKnownLocation != null && map != null) {
-                                currentLocation = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
-                                movedCameraToCurrentPosition(currentLocation);
-                                Utils.addSpotLocationInSharedPreferences(requireActivity(), mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
-                                locationViewModel.setUserLocation(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
-                            }
-                        } else {
-                            Log.d(TAG, "Current location is null. Using defaults.");
-                            Log.e(TAG, "Exception: %s", task.getException());
-                            if (map != null) {
-                                movedCameraToCurrentPosition(currentLocation);
-                                map.getUiSettings().setMyLocationButtonEnabled(false);
-                                currentLocation = new LatLng(LATITUDE, LONGITUDE);
-                            }
-                            locationViewModel.setUserLocation(currentLocation.latitude,
-                                    currentLocation.longitude);
-                            //  build_retrofit_and_get_response(currentLocation.latitude,
-                            //         currentLocation.longitude);
+                locationResult.addOnCompleteListener(requireActivity(), task -> {
+                    if (task.isSuccessful()) {
+                        // Set the map's camera position to the current location of the device.
+                        mLastKnownLocation = task.getResult();
+                        if (mLastKnownLocation != null && map != null) {
+                            currentLocation = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+                            movedCameraToCurrentPosition(currentLocation);
+                            Utils.addSpotLocationInSharedPreferences(requireActivity(), mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+                            locationViewModel.setUserLocation(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+                            Toast.makeText(mContext, "OMG! It works" + currentLocation, Toast.LENGTH_SHORT).show();
+                            build_retrofit_and_get_response(currentLocation.latitude, currentLocation.longitude);
+                        }
+                    } else {
+                        Log.d(TAG_MAP_VIEW, "Current location is null. Using defaults.");
+                        Log.e(TAG_MAP_VIEW, "Exception: %s", task.getException());
+                        if (map != null) {
+                            movedCameraToCurrentPosition(currentLocation);
+                            map.getUiSettings().setMyLocationButtonEnabled(false);
+                            currentLocation = new LatLng(LATITUDE, LONGITUDE);
+                            locationViewModel.setUserLocation(LATITUDE, LONGITUDE);
+                            Utils.addSpotLocationInSharedPreferences(requireActivity(), LATITUDE, LONGITUDE);
                         }
                     }
                 });

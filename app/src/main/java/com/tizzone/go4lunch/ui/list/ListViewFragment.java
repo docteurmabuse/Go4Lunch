@@ -155,7 +155,6 @@ public class ListViewFragment extends Fragment implements PlacesListAdapter.Rest
         Log.e(TAG, RESTAURANT + ": " + lunchSpotId);
     }
 
-
     @Override
     public void onDestroy() {
         super.onDestroy();
