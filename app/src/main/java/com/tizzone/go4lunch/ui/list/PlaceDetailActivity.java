@@ -86,8 +86,8 @@ public class PlaceDetailActivity extends BaseActivity implements UsersListAdapte
     }
 
     private void initData() {
-        //  placesViewModel.setRestaurant(currentPlaceId);
-        placesViewModel.setFakeRestaurant(currentPlaceId);
+        placesViewModel.setRestaurant(currentPlaceId);
+        //placesViewModel.setFakeRestaurant(currentPlaceId);
     }
 
     private void initViews() {

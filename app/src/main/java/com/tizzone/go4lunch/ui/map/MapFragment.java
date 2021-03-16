@@ -183,8 +183,16 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         mRadius = Integer.parseInt(sharedPreferences.getString("radius", "1000"));
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         currentLocation = Utils.getLocationFromSharedPreferences(requireActivity());
-        // locationViewModel.setUserLocation(currentLocation.latitude, currentLocation.longitude);
         mLocationPermissionGranted = sharedPreferences.getBoolean("mLocationPermissionGranted", true);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        if (s.equals(radius)) {
+            Log.e(TAG_MAP_VIEW, "Preference radius value was updated to: " + sharedPreferences.getString(s, ""));
+            mRadius = Integer.parseInt(sharedPreferences.getString(s, ""));
+            placesViewModel.setRestaurants(currentLocation.latitude + "," + currentLocation.longitude, mRadius);
+        }
     }
 
     private void initPosition(LocationModel locationModel) {
@@ -309,14 +317,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         intent.putExtras(bundle);
         assert context != null;
         context.startActivity(intent);
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        if (s.equals(radius)) {
-            Log.e(TAG_MAP_VIEW, "Preference radius value was updated to: " + sharedPreferences.getString(s, ""));
-            mRadius = Integer.parseInt(sharedPreferences.getString(s, ""));
-        }
     }
 
     @SuppressLint({"PotentialBehaviorOverride"})
