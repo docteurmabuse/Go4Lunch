@@ -28,7 +28,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import static com.tizzone.go4lunch.utils.Constants.PLACES_VIEW_MODEL_TAG;
 import static com.tizzone.go4lunch.utils.Constants.TAG_MAP_VIEW;
 
-
 @HiltViewModel
 public class PlacesViewModel extends ViewModel {
     public static int userCount = 0;

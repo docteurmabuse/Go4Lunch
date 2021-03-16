@@ -73,4 +73,6 @@
     <string name="restaurantCounter">(%d)</string>
     <string name="notification_title">Prêt pour le déjeuner?</string>
 
+    <!-- ¨Permissions -->
+    <string name="permissions_denied_text">Vous devez activer la localisation pour utiliser l\'application. Si vous ne le faites pas, vous aurez un emplacement par défaut qui ne sera pas nécessairement le vôtre.</string>
 </resources>

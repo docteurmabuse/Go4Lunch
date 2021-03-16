@@ -3,12 +3,15 @@ package com.tizzone.go4lunch;
 import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
@@ -28,12 +31,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionDeniedResponse;
-import com.karumi.dexter.listener.PermissionGrantedResponse;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.single.PermissionListener;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityMainBinding;
 import com.tizzone.go4lunch.databinding.NavHeaderMainBinding;
@@ -43,6 +40,7 @@ import com.tizzone.go4lunch.ui.MainNavHostFragment;
 import com.tizzone.go4lunch.ui.auth.AuthActivity;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.ui.settings.SettingsActivity;
+import com.tizzone.go4lunch.utils.Permissions;
 import com.tizzone.go4lunch.utils.Utils;
 import com.tizzone.go4lunch.viewmodels.LocationViewModel;
 import com.tizzone.go4lunch.viewmodels.PlacesViewModel;
@@ -55,7 +53,9 @@ import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 
 import static android.content.ContentValues.TAG;
+import static com.tizzone.go4lunch.utils.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 import static com.tizzone.go4lunch.utils.Constants.RESTAURANT_ID;
+import static com.tizzone.go4lunch.utils.Utils.getRadiusFromSharedPreferences;
 
 
 @AndroidEntryPoint
@@ -74,6 +74,9 @@ public class MainActivity extends BaseActivity {
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private NavController navController;
     private PlacesViewModel placesViewModel;
+
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), this::onActivityResult);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,39 +151,64 @@ public class MainActivity extends BaseActivity {
         }
         updateProfileWhenCreating();
         checkGooglePlayService();
-        getDexterPermission();
+        getLocationPermission();
     }
 
-    private void getDexterPermission() {
-        Dexter.withContext(this)
-                .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-                .withListener(new PermissionListener() {
-                    @Override
-                    public void onPermissionGranted(PermissionGrantedResponse response) {
-                        mLocationPermissionGranted = true;
-                        Utils.addIsGrantedInSharedPreferences(getApplicationContext(), true);
-                        getDeviceLocation();
-                    }
+    private void onActivityResult(Boolean isGranted) {
+        if (isGranted) {
+            mLocationPermissionGranted = true;
+            Utils.addIsGrantedInSharedPreferences(getApplicationContext(), true);
+            getDeviceLocation();
+            navController.navigate(R.id.navigation_map);
+        } else {
+            showInContextUI();
+        }
+    }
 
-                    @Override
-                    public void onPermissionDenied(PermissionDeniedResponse response) {
-                        Toast.makeText(getApplicationContext(), "You need to enable location in order to use the app! The app is base on your location!", Toast.LENGTH_LONG).show();
-                        mLocationPermissionGranted = false;
-                        Utils.addIsGrantedInSharedPreferences(getApplicationContext(), false);
-                    }
+    private void getLocationPermission() {
+        Permissions.checkLocationPermission(this);
+        if (Permissions.checkLocationPermission(this)) {
+            mLocationPermissionGranted = true;
+            Utils.addIsGrantedInSharedPreferences(getApplicationContext(), true);
+            getDeviceLocation();
+            navController.navigate(R.id.navigation_map);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (shouldShowRequestPermissionRationale()) {
+                showInContextUI();
+            } else {
+                requestPermissionLauncher.launch(
+                        Manifest.permission.ACCESS_FINE_LOCATION);
+            }
+        }
+    }
 
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
+    private boolean shouldShowRequestPermissionRationale() {
+        return false;
+    }
 
-                    }
-                })
-                .check();
+    private void showInContextUI() {
+        showSnackBar(mBinding.getRoot(), getString(R.string.permissions_denied_text));
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        navController.navigate(R.id.navigation_map);
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION:
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission is granted. Continue the workflow
+                    mLocationPermissionGranted = true;
+                    Utils.addIsGrantedInSharedPreferences(getApplicationContext(), true);
+                    getDeviceLocation();
+                    navController.navigate(R.id.navigation_map);
+                } else {
+                    mLocationPermissionGranted = true;
+                    showInContextUI();
+                }
+                return;
+        }
     }
 
     private void launchSettingsActivity() {
@@ -247,7 +275,6 @@ public class MainActivity extends BaseActivity {
                         mLastKnownLocation = task.getResult();
                         if (mLastKnownLocation != null) {
                             setCurrentLocation(mLastKnownLocation);
-                            //navController.navigate(R.id.navigation_map);
                         }
                     } else {
                         Log.e(TAG, "Exception: %s", task.getException());
@@ -261,9 +288,12 @@ public class MainActivity extends BaseActivity {
 
     private void setCurrentLocation(Location mLastKnownLocation) {
         Utils.addSpotLocationInSharedPreferences(this, mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
-        //   placesViewModel.setRestaurants(mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLatitude(), 1000);
-        placesViewModel.setFakeRestaurantList();
         LocationViewModel locationViewModel = new ViewModelProvider(this).get(LocationViewModel.class);
         locationViewModel.setUserLocation(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+        int radius = getRadiusFromSharedPreferences(this);
+        // placesViewModel.setRestaurants(mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLatitude(), 1000);
+        placesViewModel.setFakeRestaurantList();
     }
+
+
 }

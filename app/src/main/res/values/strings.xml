@@ -70,4 +70,7 @@
     <string name="no_lunch_spot_notification">You don\'t have any lunch spot yet!</string>
     <string name="restaurantCounter">(%d)</string>
     <string name="notification_title">Ready for lunch?</string>
+
+    <!-- ¨Permissions -->
+    <string name="permissions_denied_text">You need to enable the location in order to use the app. If you don\'t you will have a default location that will not be necessarily yours.</string>
 </resources>

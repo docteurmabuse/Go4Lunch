@@ -283,6 +283,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
                     return true;
                 });
                 map.setOnMyLocationClickListener(location -> getDeviceLocation());
+                Toast.makeText(mContext, "OMG! It works" + currentLocation, Toast.LENGTH_SHORT).show();
                 movedCameraToCurrentPosition(currentLocation);
                 userViewModel.getUsersList().observe(requireActivity(), this::usersSpotList);
                 placesViewModel.getRestaurantsList().observe(requireActivity(), this::initRestaurantsList);
@@ -345,7 +346,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
          */
         try {
             if (mLocationPermissionGranted) {
-
                 // Construct a FusedLocationProviderClient.
                 FusedLocationProviderClient mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
                 Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
@@ -358,7 +358,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
                             movedCameraToCurrentPosition(currentLocation);
                             Utils.addSpotLocationInSharedPreferences(requireActivity(), mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
                             locationViewModel.setUserLocation(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
-                            Toast.makeText(mContext, "OMG! It works" + currentLocation, Toast.LENGTH_SHORT).show();
                             build_retrofit_and_get_response(currentLocation.latitude, currentLocation.longitude);
                         }
                     } else {
