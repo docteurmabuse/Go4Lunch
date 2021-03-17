@@ -8,6 +8,7 @@ import androidx.test.rule.ActivityTestRule;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.tizzone.go4lunch.ui.MainActivity;
 
 import org.junit.Before;
 import org.junit.Rule;

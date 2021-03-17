@@ -14,12 +14,12 @@ import androidx.core.app.NotificationCompat;
 
 import com.google.common.base.Joiner;
 import com.google.firebase.auth.FirebaseAuth;
-import com.tizzone.go4lunch.MainActivity;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.repositories.RestaurantRepository;
 import com.tizzone.go4lunch.repositories.UserRepository;
+import com.tizzone.go4lunch.ui.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;

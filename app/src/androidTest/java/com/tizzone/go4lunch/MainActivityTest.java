@@ -6,6 +6,8 @@ import androidx.test.espresso.contrib.DrawerActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 
+import com.tizzone.go4lunch.ui.MainActivity;
+
 import junit.framework.TestCase;
 
 import org.junit.Before;

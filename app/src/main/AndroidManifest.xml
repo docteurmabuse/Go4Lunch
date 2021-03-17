@@ -77,7 +77,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:label="@string/title_activity_bottom_navigation"
             android:launchMode="singleTop">
             <intent-filter>

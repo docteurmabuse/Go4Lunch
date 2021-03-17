@@ -18,12 +18,12 @@ import com.google.common.base.Joiner;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.tizzone.go4lunch.MainActivity;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.models.Restaurant;
 import com.tizzone.go4lunch.models.User;
 import com.tizzone.go4lunch.repositories.RestaurantRepository;
 import com.tizzone.go4lunch.repositories.UserRepository;
+import com.tizzone.go4lunch.ui.MainActivity;
 import com.tizzone.go4lunch.worker.MyWorker;
 
 import java.util.ArrayList;

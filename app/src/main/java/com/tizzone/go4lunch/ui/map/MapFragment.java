@@ -95,21 +95,16 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
         setupSharedPreferences();
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
+        userViewModel.getUserMutableLiveData();
         placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
-        observeData();
+        placesViewModel.getFilteredRestaurantsList().observe(requireActivity(), restaurants -> {
+            initMarkers(restaurants);
+        });
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-    }
-
-    private void observeData() {
-        userViewModel.getUserMutableLiveData();
-        placesViewModel.getFilteredRestaurantsList().observe(requireActivity(), restaurants -> {
-            restaurantsList = restaurants;
-            initMarkers();
-        });
     }
 
     @Nullable
@@ -121,7 +116,6 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         if (map == null) {
             initMap();
         }
-
         return mapBinding.getRoot();
     }
 
@@ -220,18 +214,21 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     private void initRestaurantsList(List<Restaurant> mRestaurants) {
         this.restaurantsList.addAll(mRestaurants);
         if (map != null) {
-            restaurantsList = mRestaurants;
-            initMarkers();
+            this.restaurantsList = mRestaurants;
+            initMarkers(restaurantsList);
         }
     }
 
-    private void initMarkers() {
-        if (restaurantsList != null) {
-            for (Restaurant restaurant : restaurantsList) {
-                if (!placeIsMatesSpot(restaurant)) {
-                    setMarkers(restaurant, R.drawable.ic_restaurant_pin_red);
-                } else {
-                    setMarkers(restaurant, R.drawable.ic_restaurant_pin_green);
+    private void initMarkers(List<Restaurant> restaurants) {
+        if (map != null) {
+            map.clear();
+            if (restaurants != null) {
+                for (Restaurant restaurant : restaurants) {
+                    if (!placeIsMatesSpot(restaurant)) {
+                        setMarkers(restaurant, R.drawable.ic_restaurant_pin_red);
+                    } else {
+                        setMarkers(restaurant, R.drawable.ic_restaurant_pin_green);
+                    }
                 }
             }
         }
@@ -267,13 +264,19 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         super.onResume();
         if (map != null) {
             map.clear();
-            initMarkers();
+            initMarkers(restaurantsList);
         }
     }
 
     @Override
     public void onStart() {
         super.onStart();
+    }
+
+    private void observeData() {
+        userViewModel.getUsersList().observe(requireActivity(), this::usersSpotList);
+        placesViewModel.getRestaurantsList().observe(requireActivity(), this::initRestaurantsList);
+
     }
 
     private void updateLocationUI() {
@@ -291,8 +294,8 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
                     return true;
                 });
                 map.setOnMyLocationClickListener(location -> getDeviceLocation());
-                userViewModel.getUsersList().observe(requireActivity(), this::usersSpotList);
-                placesViewModel.getRestaurantsList().observe(requireActivity(), this::initRestaurantsList);
+                observeData();
+
             } else {
                 map.setMyLocationEnabled(false);
                 map.getUiSettings().setMyLocationButtonEnabled(false);

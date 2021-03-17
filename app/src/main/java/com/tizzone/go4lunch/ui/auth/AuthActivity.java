@@ -12,10 +12,10 @@ import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.material.snackbar.Snackbar;
-import com.tizzone.go4lunch.MainActivity;
 import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityAuthBinding;
+import com.tizzone.go4lunch.ui.MainActivity;
 import com.tizzone.go4lunch.viewmodels.UserViewModel;
 
 import java.util.Arrays;

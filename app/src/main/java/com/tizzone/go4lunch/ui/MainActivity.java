@@ -1,4 +1,4 @@
-package com.tizzone.go4lunch;
+package com.tizzone.go4lunch.ui;
 
 import android.Manifest;
 import android.content.ContentValues;
@@ -31,12 +31,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.tizzone.go4lunch.R;
 import com.tizzone.go4lunch.base.BaseActivity;
 import com.tizzone.go4lunch.databinding.ActivityMainBinding;
 import com.tizzone.go4lunch.databinding.NavHeaderMainBinding;
 import com.tizzone.go4lunch.models.Restaurant;
-import com.tizzone.go4lunch.ui.MainFragmentFactory;
-import com.tizzone.go4lunch.ui.MainNavHostFragment;
 import com.tizzone.go4lunch.ui.auth.AuthActivity;
 import com.tizzone.go4lunch.ui.list.PlaceDetailActivity;
 import com.tizzone.go4lunch.ui.settings.SettingsActivity;
