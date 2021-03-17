@@ -81,7 +81,6 @@ public class MainActivity extends BaseActivity {
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         mBinding.setNavigationItemSelectedListener(this);
         placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
-        placesViewModel.getRestaurantsList().observe(this, restaurants -> this.restaurantsList = restaurants);
 
         View view = mBinding.getRoot();
         // Construct a FusedLocationProviderClient.

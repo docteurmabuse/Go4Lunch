@@ -23,6 +23,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 
+import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -95,12 +96,12 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         setupSharedPreferences();
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
         placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+        observeData();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        observeData();
     }
 
     private void observeData() {
@@ -237,8 +238,8 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     }
 
     private boolean placeIsMatesSpot(Restaurant restaurant) {
-        if (restaurant != null)
-            return restaurant.getRestaurant_counter() > 0;
+        if (matesSpotList != null)
+            return ArrayUtils.contains(matesSpotList.toArray(), restaurant.getUid());
         else {
             return false;
         }

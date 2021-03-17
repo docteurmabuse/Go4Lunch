@@ -16,7 +16,7 @@ public class FakeRestaurantList {
                 null, 48.1980197, 3.281362799999999, "https://monsite.com", "0142546545"));
         fakeList.add(new Restaurant("ChIJvYz8VAEQ70cRfgPyIWm5wQM", "Maharaja restaurant indien Sens", "162 rue des déportés et de la résistance, Sens", "ATtYBwKAnA2YnkqkKZg09qD9Czt6J1jbUvPkoskwUyD68ywl0Bjpo2ZME_WwEKqUy9GJL8E6XPVbkdQ8WC7ZweWmxsSK_uNIHtZA1KrMnMgb2sYy_UX8T1QSIYWXeMzi73WNlACl5x6PMUGamr7qKwLxt9N4QiVX8pJfHHgwJKfXAKg1O0bc", (float) 3.5, 0,
                 null, 48.1990345, 3.2902456, "https://monsite.com", "0142546545"));
-        fakeList.add(new Restaurant("ChIJL0zszQMQ70cRhTRg-m0VPdc", "RLe Prali", "5 Rue de la République, Sens", "ATtYBwKAnA2YnkqkKZg09qD9Czt6J1jbUvPkoskwUyD68ywl0Bjpo2ZME_WwEKqUy9GJL8E6XPVbkdQ8WC7ZweWmxsSK_uNIHtZA1KrMnMgb2sYy_UX8T1QSIYWXeMzi73WNlACl5x6PMUGamr7qKwLxt9N4QiVX8pJfHHgwJKfXAKg1O0bc", (float) 3.5, 0,
+        fakeList.add(new Restaurant("ChIJL0zszQMQ70cRhTRg-m0VPdc", "Le Prali", "5 Rue de la République, Sens", "ATtYBwKAnA2YnkqkKZg09qD9Czt6J1jbUvPkoskwUyD68ywl0Bjpo2ZME_WwEKqUy9GJL8E6XPVbkdQ8WC7ZweWmxsSK_uNIHtZA1KrMnMgb2sYy_UX8T1QSIYWXeMzi73WNlACl5x6PMUGamr7qKwLxt9N4QiVX8pJfHHgwJKfXAKg1O0bc", (float) 3.5, 0,
                 null, 48.205427, 3.276605, "https://monsite.com", "0142546545"));
         fakeList.add(new Restaurant("ChIJQQImPBcQ70cR0RwQ_pA4fzk", "Pizza Guido", "Avenue Georges Pompidou, Boulevard du Pont Neuf, Sens", "ATtYBwKAnA2YnkqkKZg09qD9Czt6J1jbUvPkoskwUyD68ywl0Bjpo2ZME_WwEKqUy9GJL8E6XPVbkdQ8WC7ZweWmxsSK_uNIHtZA1KrMnMgb2sYy_UX8T1QSIYWXeMzi73WNlACl5x6PMUGamr7qKwLxt9N4QiVX8pJfHHgwJKfXAKg1O0bc", (float) 3.5, 0,
                 null, 48.1980721, 3.2831136, "https://monsite.com", "0142546545"));

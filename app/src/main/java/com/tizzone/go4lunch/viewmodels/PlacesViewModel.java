@@ -30,7 +30,7 @@ import static com.tizzone.go4lunch.utils.Constants.TAG_MAP_VIEW;
 
 @HiltViewModel
 public class PlacesViewModel extends ViewModel {
-    public static int userCount = 0;
+    public static int userCount;
     private final PlaceRepository placeRepository;
     private final UserRepository userRepository;
     public MutableLiveData<List<Restaurant>> restaurantsList = new MutableLiveData<>();
@@ -151,7 +151,8 @@ public class PlacesViewModel extends ViewModel {
     }
 
     public void setFakeRestaurantList() {
-        restaurantsList.setValue(FakeRestaurantList.fakeList());
+        List<Restaurant> fakeRestaurantList = FakeRestaurantList.fakeList();
+        restaurantsList.setValue(fakeRestaurantList);
     }
 
     public void setFakeRestaurant(String uid) {
